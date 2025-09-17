@@ -1,201 +1,219 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState } from "react";
 
-const VOCALS = ['A', 'E', 'I', 'O', 'U']
-const MAX_PER_LABEL = 100
-const API_URL = import.meta.env.VITE_API_URL // tu backend
+const VOCALS = ["A", "E", "I", "O", "U"];
+const MAX_PER_LABEL = 100;
+
+// URL del backend desde .env
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function App() {
-  const videoRef = useRef(null)
-  const canvasRef = useRef(null)
-  const [counts, setCounts] = useState({})
-  const collectRef = useRef(null)
-  const [status, setStatus] = useState('Cargando...')
-  const [progress, setProgress] = useState(0)
-  const [prediction, setPrediction] = useState(null)
-  const lastPredictTime = useRef(0)
-  const warnedNotTrained = useRef(false) // 👈 evita spam de advertencia
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [counts, setCounts] = useState({});
+  const collectRef = useRef(null);
+  const [status, setStatus] = useState("Cargando...");
+  const [progress, setProgress] = useState(0);
+  const [prediction, setPrediction] = useState(null);
+  const lastPredictTime = useRef(0);
+  const [modelTrained, setModelTrained] = useState(false);
+  const warnedNotTrained = useRef(false);
 
   // Inicializa Mediapipe
   useEffect(() => {
     if (!window.Hands || !window.Camera) {
-      setStatus("Error: scripts de Mediapipe no cargados")
-      return
+      setStatus("Error: scripts de Mediapipe no cargados");
+      return;
     }
 
     const hands = new window.Hands({
       locateFile: (file) =>
         `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
-    })
+    });
 
     hands.setOptions({
       maxNumHands: 1,
       modelComplexity: 1,
       minDetectionConfidence: 0.7,
       minTrackingConfidence: 0.7,
-    })
+    });
 
-    hands.onResults(onResults)
+    hands.onResults(onResults);
 
     if (videoRef.current) {
       const camera = new window.Camera(videoRef.current, {
         onFrame: async () => {
-          await hands.send({ image: videoRef.current })
+          await hands.send({ image: videoRef.current });
         },
         width: 640,
         height: 480,
-      })
-      camera.start()
-      setStatus('Listo - coloca la mano frente a la cámara')
+      });
+      camera.start();
+      setStatus("Listo - coloca la mano frente a la cámara");
     }
 
-    fetchCounts()
-  }, [])
+    fetchCounts();
+  }, []);
 
   // Procesa resultados
-  const onResults = (results) => {
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    const W = (canvas.width = results.image.width)
-    const H = (canvas.height = results.image.height)
+  const onResults = async (results) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    const W = (canvas.width = results.image.width);
+    const H = (canvas.height = results.image.height);
 
-    ctx.clearRect(0, 0, W, H)
+    ctx.clearRect(0, 0, W, H);
     try {
-      ctx.drawImage(results.image, 0, 0, W, H)
+      ctx.drawImage(results.image, 0, 0, W, H);
     } catch (e) {}
 
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-      const landmarks = results.multiHandLandmarks[0]
+      const landmarks = results.multiHandLandmarks[0];
 
       if (window.drawConnectors && window.drawLandmarks) {
         window.drawConnectors(ctx, landmarks, window.HAND_CONNECTIONS, {
-          color: '#06b6d4',
+          color: "#06b6d4",
           lineWidth: 2,
-        })
+        });
         window.drawLandmarks(ctx, landmarks, {
-          color: '#06b6d4',
+          color: "#06b6d4",
           lineWidth: 1,
-        })
+        });
       }
 
-      const scaled = landmarks.map((p) => [p.x * W, p.y * H, p.z || 0])
-      window.currentLandmarks = scaled
+      const scaled = landmarks.map((p) => [p.x * W, p.y * H, p.z || 0]);
 
-      const now = Date.now()
-      if (scaled.length === 21 && now - lastPredictTime.current > 600) {
-        lastPredictTime.current = now
-        autoPredict(scaled)
+      const now = Date.now();
+      if (
+        scaled.length === 21 &&
+        now - lastPredictTime.current > 600 &&
+        modelTrained
+      ) {
+        lastPredictTime.current = now;
+        autoPredict(scaled);
       }
 
-      if (collectRef.current && collectRef.current.active && collectRef.current.label) {
+      if (
+        collectRef.current &&
+        collectRef.current.active &&
+        collectRef.current.label
+      ) {
         if (scaled.length === 21) {
           fetch(`${API_URL}/upload_landmarks`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ label: collectRef.current.label, landmarks: scaled }),
-          })
-          collectRef.current.count = (collectRef.current.count || 0) + 1
-          setProgress(collectRef.current.count)
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              label: collectRef.current.label,
+              landmarks: scaled,
+            }),
+          });
+          collectRef.current.count = (collectRef.current.count || 0) + 1;
+          setProgress(collectRef.current.count);
         }
       }
-    } else {
-      window.currentLandmarks = null
     }
-  }
+  };
 
-  // Predicción automática
+  // Llama al backend para predecir
   async function autoPredict(landmarks) {
     if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21) {
-      return
+      return;
     }
 
     try {
       const res = await fetch(`${API_URL}/predict_landmarks`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ landmarks }),
-      })
-      const j = await res.json()
+      });
 
-      if (res.ok) {
-        setPrediction(j.prediction + ' (' + (j.confidence * 100).toFixed(1) + '%)')
-      } else {
-        if (j.error === "model not trained") {
-          if (!warnedNotTrained.current) {
-            console.warn("⚠️ Modelo no entrenado (mostrado una vez)")
-            setStatus("Modelo no entrenado todavía")
-            warnedNotTrained.current = true
-          }
-        } else {
-          console.error("❌ Error al predecir:", j)
-          setStatus('Error: ' + (j.error || 'Bad Request'))
+      if (!res.ok) {
+        const j = await res.json();
+        if (j.error === "model not trained" && !warnedNotTrained.current) {
+          console.warn("⚠️ Modelo no entrenado (mostrado una vez)");
+          setStatus("Modelo no entrenado todavía");
+          warnedNotTrained.current = true;
         }
+        return; // evitamos error rojo
       }
+
+      const data = await res.json();
+      console.log("✅ Predicción:", data);
+      setPrediction(
+        data.prediction +
+          " (" +
+          (data.confidence * 100).toFixed(1) +
+          "%)"
+      );
     } catch (e) {
-      console.error("❌ Error al predecir:", e)
-      setStatus('Error: ' + e.message)
+      console.warn("⚠️ Error en predicción:", e.message);
     }
   }
 
   // Trae los conteos
   async function fetchCounts() {
     try {
-      const res = await fetch(`${API_URL}/count`)
-      const j = await res.json()
-      setCounts(j || {})
+      const res = await fetch(`${API_URL}/count`);
+      const j = await res.json();
+      setCounts(j || {});
     } catch (e) {
-      console.error("❌ Error al traer conteos:", e)
+      console.error("❌ Error al traer conteos:", e);
     }
   }
 
   const startCollect = (label) => {
-    if (collectRef.current && collectRef.current.active) return
-    collectRef.current = { active: true, label, count: 0 }
-    setStatus('Recolectando ' + label)
-    setProgress(0)
-  }
+    if (collectRef.current && collectRef.current.active) return;
+    collectRef.current = { active: true, label, count: 0 };
+    setStatus("Recolectando " + label);
+    setProgress(0);
+    console.log(`▶️ Iniciando recolección de: ${label}`);
+  };
 
   const stopCollect = () => {
     if (collectRef.current) {
-      collectRef.current.active = false
-      collectRef.current = null
+      console.log(`⏹️ Deteniendo recolección de: ${collectRef.current.label}`);
+      collectRef.current.active = false;
+      collectRef.current = null;
     }
-    setStatus('Detenido')
-    setTimeout(fetchCounts, 300)
-    setProgress(0)
-  }
+    setStatus("Detenido");
+    setTimeout(fetchCounts, 300);
+    setProgress(0);
+  };
 
   const handleTrain = async () => {
-    setStatus('Entrenando...')
+    setStatus("Entrenando...");
     try {
-      const res = await fetch(`${API_URL}/train_landmarks`, { method: 'POST' })
-      const j = await res.json()
+      const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
+      const j = await res.json();
       if (res.ok) {
-        setStatus('Entrenado correctamente')
-        warnedNotTrained.current = false // ✅ resetear la advertencia
+        console.log("✅ Entrenamiento completado:", j);
+        setStatus("Entrenado correctamente");
+        setModelTrained(true);
+        warnedNotTrained.current = false; // reset warning
       } else {
-        setStatus('Error: ' + (j.error || 'Error en entrenamiento'))
+        console.error("❌ Error en entrenamiento:", j);
+        setStatus("Error: " + (j.error || "Error en entrenamiento"));
       }
     } catch (e) {
-      console.error("❌ Error al entrenar:", e)
-      setStatus('Error: ' + e.message)
+      console.error("❌ Error al entrenar:", e);
+      setStatus("Error: " + e.message);
     }
-  }
+  };
 
   const handleReset = async () => {
-    setStatus('Reiniciando datos...')
+    setStatus("Reiniciando datos...");
     try {
-      const res = await fetch(`${API_URL}/reset`, { method: 'POST' })
+      const res = await fetch(`${API_URL}/reset`, { method: "POST" });
       if (res.ok) {
-        setCounts({})
-        setPrediction(null)
-        setStatus('Datos eliminados')
-        warnedNotTrained.current = false
+        setCounts({});
+        setPrediction(null);
+        setStatus("Datos eliminados");
+        setModelTrained(false);
       }
     } catch (e) {
-      console.error("❌ Error al reiniciar:", e)
-      setStatus('Error al reiniciar: ' + e.message)
+      console.error("❌ Error al reiniciar:", e);
+      setStatus("Error al reiniciar: " + e.message);
     }
-  }
+  };
 
   return (
     <div className="container">
@@ -206,41 +224,62 @@ export default function App() {
           <canvas ref={canvasRef} className="overlay-canvas"></canvas>
         </div>
         <div className="controls">
-          <button className="button" onClick={handleTrain}>Entrenar</button>
-          <button className="button red" onClick={stopCollect}>Detener</button>
-          <button className="button gray" onClick={handleReset}>Eliminar Datos</button>
+          <button className="button" onClick={handleTrain}>
+            Entrenar
+          </button>
+          <button className="button red" onClick={stopCollect}>
+            Detener
+          </button>
+          <button className="button gray" onClick={handleReset}>
+            Eliminar Datos
+          </button>
         </div>
         <div className="small">
           Estado: {status} {progress > 0 && `- ${progress}/${MAX_PER_LABEL}`}
         </div>
-        <div className="prediction-box">{prediction || '-'}</div>
+        <div className="prediction-box">{prediction || "-"}</div>
       </div>
 
       <div className="right">
         <div className="card-title">Recolección</div>
-        <div className="small">Recolecta hasta {MAX_PER_LABEL} muestras por clase</div>
+        <div className="small">
+          Recolecta hasta {MAX_PER_LABEL} muestras por clase
+        </div>
         {VOCALS.map((v) => {
-          const current = counts[v] || 0
-          const pct = Math.round((current / MAX_PER_LABEL) * 100)
+          const current = counts[v] || 0;
+          const pct = Math.round((current / MAX_PER_LABEL) * 100);
           return (
             <div key={v} style={{ marginTop: 12 }}>
               <div className="label-row">
-                <div><strong>{v}</strong></div>
-                <div className="small">{current}/{MAX_PER_LABEL}</div>
+                <div>
+                  <strong>{v}</strong>
+                </div>
+                <div className="small">
+                  {current}/{MAX_PER_LABEL}
+                </div>
               </div>
               <div className="progress">
-                <div className="progress-inner" style={{ width: `${pct}%` }}></div>
+                <div
+                  className="progress-inner"
+                  style={{ width: `${pct}%` }}
+                ></div>
               </div>
-              <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                <button className="button" onClick={() => startCollect(v)} disabled={current >= MAX_PER_LABEL}>
+              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                <button
+                  className="button"
+                  onClick={() => startCollect(v)}
+                  disabled={current >= MAX_PER_LABEL}
+                >
                   Recolectar {v}
                 </button>
-                <button className="button red" onClick={stopCollect}>Detener</button>
+                <button className="button red" onClick={stopCollect}>
+                  Detener
+                </button>
               </div>
             </div>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
