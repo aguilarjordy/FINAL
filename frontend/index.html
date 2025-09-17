@@ -4,16 +4,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Reconocimiento de Señas - Moderno</title>
-    <!-- Tailwind CDN (for quick prototyping) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Mediapipe scripts (deben ir antes que main.jsx) -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
   </head>
   <body class="bg-gradient-to-br from-slate-900 via-indigo-900 to-sky-800 min-h-screen text-white">
     <div id="root"></div>
-    <!-- Tu app React -->
+
+    <!-- Mediapipe scripts primero -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+    <!-- Luego React/Vite -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
