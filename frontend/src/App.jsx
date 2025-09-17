@@ -3,6 +3,7 @@ import React, { useRef, useEffect, useState } from 'react'
 const VOCALS = ['A', 'E', 'I', 'O', 'U']
 const MAX_PER_LABEL = 100
 
+// URL del backend desde .env
 const API_URL = import.meta.env.VITE_API_URL
 
 export default function App() {
@@ -13,7 +14,6 @@ export default function App() {
   const [status, setStatus] = useState('Cargando...')
   const [progress, setProgress] = useState(0)
   const [prediction, setPrediction] = useState(null)
-  const [isTrained, setIsTrained] = useState(false) // ✅ flag de entrenamiento
   const lastPredictTime = useRef(0)
 
   // Inicializa Mediapipe
@@ -84,9 +84,8 @@ export default function App() {
       const now = Date.now()
       if (scaled.length === 21 && now - lastPredictTime.current > 600) {
         lastPredictTime.current = now
-        if (isTrained) {          // ✅ Solo predice si está entrenado
-          autoPredict(scaled)
-        }
+        console.log("📡 Enviando landmarks para predecir...", scaled.length)
+        autoPredict(scaled)
       }
 
       if (collectRef.current && collectRef.current.active && collectRef.current.label) {
@@ -107,6 +106,11 @@ export default function App() {
 
   // Llama al backend para predecir
   async function autoPredict(landmarks) {
+    if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21) {
+      console.warn("⚠️ Landmarks inválidos:", landmarks)
+      return
+    }
+
     try {
       const res = await fetch(`${API_URL}/predict_landmarks`, {
         method: 'POST',
@@ -114,10 +118,15 @@ export default function App() {
         body: JSON.stringify({ landmarks }),
       })
       const j = await res.json()
-      if (res.ok && j.prediction) {
+      console.log("🔍 Respuesta predict:", j)
+
+      if (res.ok) {
         setPrediction(j.prediction + ' (' + (j.confidence * 100).toFixed(1) + '%)')
+      } else {
+        setStatus('Error: ' + (j.error || 'Bad Request'))
       }
     } catch (e) {
+      console.error("❌ Error al predecir:", e)
       setStatus('Error: ' + e.message)
     }
   }
@@ -128,7 +137,9 @@ export default function App() {
       const res = await fetch(`${API_URL}/count`)
       const j = await res.json()
       setCounts(j || {})
-    } catch (e) {}
+    } catch (e) {
+      console.warn("⚠️ No se pudo obtener counts:", e.message)
+    }
   }
 
   const startCollect = (label) => {
@@ -153,13 +164,12 @@ export default function App() {
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: 'POST' })
       const j = await res.json()
-      if (res.ok) {
-        setStatus('Entrenado correctamente')
-        setIsTrained(true) // ✅ ahora sí permite predecir
-      } else {
-        setStatus('Error: ' + (j.error || 'Error en entrenamiento'))
-      }
+      console.log("📘 Respuesta entrenamiento:", j)
+
+      if (res.ok) setStatus('Entrenado correctamente')
+      else setStatus('Error: ' + (j.error || 'Error en entrenamiento'))
     } catch (e) {
+      console.error("❌ Error al entrenar:", e)
       setStatus('Error: ' + e.message)
     }
   }
@@ -171,10 +181,11 @@ export default function App() {
       if (res.ok) {
         setCounts({})
         setPrediction(null)
-        setIsTrained(false) // ✅ se desactiva
         setStatus('Datos eliminados')
+        console.log("🗑️ Datos reseteados en backend")
       }
     } catch (e) {
+      console.error("❌ Error al reiniciar:", e)
       setStatus('Error al reiniciar: ' + e.message)
     }
   }
