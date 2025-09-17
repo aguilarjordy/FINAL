@@ -2,8 +2,6 @@ import React, { useRef, useEffect, useState } from "react";
 
 const VOCALS = ["A", "E", "I", "O", "U"];
 const MAX_PER_LABEL = 100;
-
-// URL del backend desde .env
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function App() {
@@ -15,7 +13,6 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const [prediction, setPrediction] = useState(null);
   const lastPredictTime = useRef(0);
-  const [modelTrained, setModelTrained] = useState(false);
   const warnedNotTrained = useRef(false);
 
   // Inicializa Mediapipe
@@ -55,7 +52,7 @@ export default function App() {
   }, []);
 
   // Procesa resultados
-  const onResults = async (results) => {
+  const onResults = (results) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const W = (canvas.width = results.image.width);
@@ -81,15 +78,12 @@ export default function App() {
       }
 
       const scaled = landmarks.map((p) => [p.x * W, p.y * H, p.z || 0]);
+      window.currentLandmarks = scaled;
 
       const now = Date.now();
-      if (
-        scaled.length === 21 &&
-        now - lastPredictTime.current > 600 &&
-        modelTrained
-      ) {
+      if (scaled.length === 21 && now - lastPredictTime.current > 600) {
         lastPredictTime.current = now;
-        autoPredict(scaled);
+        autoPredict(scaled); // intentar siempre
       }
 
       if (
@@ -110,6 +104,8 @@ export default function App() {
           setProgress(collectRef.current.count);
         }
       }
+    } else {
+      window.currentLandmarks = null;
     }
   };
 
@@ -133,17 +129,15 @@ export default function App() {
           setStatus("Modelo no entrenado todavía");
           warnedNotTrained.current = true;
         }
-        return; // evitamos error rojo
+        return;
       }
 
       const data = await res.json();
       console.log("✅ Predicción:", data);
       setPrediction(
-        data.prediction +
-          " (" +
-          (data.confidence * 100).toFixed(1) +
-          "%)"
+        data.prediction + " (" + (data.confidence * 100).toFixed(1) + "%)"
       );
+      setStatus("Prediciendo...");
     } catch (e) {
       console.warn("⚠️ Error en predicción:", e.message);
     }
@@ -154,6 +148,7 @@ export default function App() {
     try {
       const res = await fetch(`${API_URL}/count`);
       const j = await res.json();
+      console.log("📊 Conteos actuales:", j);
       setCounts(j || {});
     } catch (e) {
       console.error("❌ Error al traer conteos:", e);
@@ -181,14 +176,14 @@ export default function App() {
 
   const handleTrain = async () => {
     setStatus("Entrenando...");
+    console.log("⚙️ Enviando datos para entrenamiento...");
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
       const j = await res.json();
       if (res.ok) {
         console.log("✅ Entrenamiento completado:", j);
         setStatus("Entrenado correctamente");
-        setModelTrained(true);
-        warnedNotTrained.current = false; // reset warning
+        warnedNotTrained.current = false; // reset para futuras sesiones
       } else {
         console.error("❌ Error en entrenamiento:", j);
         setStatus("Error: " + (j.error || "Error en entrenamiento"));
@@ -201,13 +196,14 @@ export default function App() {
 
   const handleReset = async () => {
     setStatus("Reiniciando datos...");
+    console.log("♻️ Reiniciando memoria del backend...");
     try {
       const res = await fetch(`${API_URL}/reset`, { method: "POST" });
       if (res.ok) {
         setCounts({});
         setPrediction(null);
         setStatus("Datos eliminados");
-        setModelTrained(false);
+        console.log("✅ Memoria limpiada correctamente");
       }
     } catch (e) {
       console.error("❌ Error al reiniciar:", e);
