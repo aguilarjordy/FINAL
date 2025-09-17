@@ -13,7 +13,6 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const [prediction, setPrediction] = useState(null);
   const lastPredictTime = useRef(0);
-  const warnedNotTrained = useRef(false);
 
   // Inicializa Mediapipe
   useEffect(() => {
@@ -99,9 +98,7 @@ export default function App() {
               label: collectRef.current.label,
               landmarks: scaled,
             }),
-          }).catch((err) =>
-            console.warn("⚠️ Error enviando landmarks:", err.message)
-          );
+          });
           collectRef.current.count = (collectRef.current.count || 0) + 1;
           setProgress(collectRef.current.count);
         }
@@ -124,24 +121,23 @@ export default function App() {
         body: JSON.stringify({ landmarks }),
       });
 
-      const j = await res.json();
+      const data = await res.json();
 
-      if (!res.ok) {
-        if (j.error === "model not trained" && !warnedNotTrained.current) {
-          console.warn("⚠️ Modelo no entrenado (mostrado una vez)");
-          setStatus("Modelo no entrenado todavía");
-          warnedNotTrained.current = true;
-        } else {
-          console.warn("⚠️ Error en predicción:", j.error);
-        }
+      if (data.status === "not_trained") {
+        setStatus("Modelo no entrenado todavía ⚠️");
         return;
       }
 
-      console.log("✅ Predicción:", j);
-      setPrediction(
-        j.prediction + " (" + (j.confidence * 100).toFixed(1) + "%)"
-      );
-      setStatus("Prediciendo...");
+      if (data.status === "ok") {
+        console.log("✅ Predicción:", data);
+        setPrediction(
+          data.prediction +
+            " (" +
+            (data.confidence * 100).toFixed(1) +
+            "%)"
+        );
+        setStatus("Prediciendo...");
+      }
     } catch (e) {
       console.warn("⚠️ Error en predicción:", e.message);
     }
@@ -187,7 +183,6 @@ export default function App() {
       if (res.ok) {
         console.log("✅ Entrenamiento completado:", j);
         setStatus("Entrenado correctamente");
-        warnedNotTrained.current = false; // reset para futuras predicciones
       } else {
         console.error("❌ Error en entrenamiento:", j);
         setStatus("Error: " + (j.error || "Error en entrenamiento"));
