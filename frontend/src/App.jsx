@@ -99,7 +99,9 @@ export default function App() {
               label: collectRef.current.label,
               landmarks: scaled,
             }),
-          });
+          }).catch((err) =>
+            console.warn("⚠️ Error enviando landmarks:", err.message)
+          );
           collectRef.current.count = (collectRef.current.count || 0) + 1;
           setProgress(collectRef.current.count);
         }
@@ -122,20 +124,22 @@ export default function App() {
         body: JSON.stringify({ landmarks }),
       });
 
+      const j = await res.json();
+
       if (!res.ok) {
-        const j = await res.json();
         if (j.error === "model not trained" && !warnedNotTrained.current) {
           console.warn("⚠️ Modelo no entrenado (mostrado una vez)");
           setStatus("Modelo no entrenado todavía");
           warnedNotTrained.current = true;
+        } else {
+          console.warn("⚠️ Error en predicción:", j.error);
         }
         return;
       }
 
-      const data = await res.json();
-      console.log("✅ Predicción:", data);
+      console.log("✅ Predicción:", j);
       setPrediction(
-        data.prediction + " (" + (data.confidence * 100).toFixed(1) + "%)"
+        j.prediction + " (" + (j.confidence * 100).toFixed(1) + "%)"
       );
       setStatus("Prediciendo...");
     } catch (e) {
@@ -183,7 +187,7 @@ export default function App() {
       if (res.ok) {
         console.log("✅ Entrenamiento completado:", j);
         setStatus("Entrenado correctamente");
-        warnedNotTrained.current = false; // reset para futuras sesiones
+        warnedNotTrained.current = false; // reset para futuras predicciones
       } else {
         console.error("❌ Error en entrenamiento:", j);
         setStatus("Error: " + (j.error || "Error en entrenamiento"));
