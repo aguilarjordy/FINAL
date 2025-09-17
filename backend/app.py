@@ -64,15 +64,24 @@ def train_landmarks():
 def predict_landmarks():
     global model, label_map
     data = request.get_json()
+
     if not data or 'landmarks' not in data:
         return jsonify({'error': 'landmarks required'}), 400
+
     if model is None:
-        return jsonify({'error': 'model not trained'}), 400
+        return jsonify({
+            'prediction': None,
+            'confidence': 0.0,
+            'error': 'model not trained'
+        }), 200  # ✅ ya no rompe con 400
 
     lm = np.array(data['landmarks'], dtype=np.float32).flatten().reshape(1, -1)
     preds = model.predict(lm)[0]
     idx = int(preds.argmax())
-    return jsonify({'prediction': label_map.get(idx, str(idx)), 'confidence': float(preds[idx])}), 200
+    return jsonify({
+        'prediction': label_map.get(idx, str(idx)),
+        'confidence': float(preds[idx])
+    }), 200
 
 @app.route('/reset', methods=['POST'])
 def reset():
