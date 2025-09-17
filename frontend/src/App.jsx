@@ -84,7 +84,6 @@ export default function App() {
       const now = Date.now()
       if (scaled.length === 21 && now - lastPredictTime.current > 600) {
         lastPredictTime.current = now
-        console.log("📡 Enviando landmarks para predecir...", scaled.length)
         autoPredict(scaled)
       }
 
@@ -118,12 +117,21 @@ export default function App() {
         body: JSON.stringify({ landmarks }),
       })
       const j = await res.json()
-      console.log("🔍 Respuesta predict:", j)
 
       if (res.ok) {
+        console.log("🔍 Respuesta predict:", j)
         setPrediction(j.prediction + ' (' + (j.confidence * 100).toFixed(1) + '%)')
       } else {
-        setStatus('Error: ' + (j.error || 'Bad Request'))
+        // Evitar spam si el modelo no está entrenado
+        if (j.error === "model not trained") {
+          if (status !== "Modelo no entrenado todavía") {
+            console.warn("⚠️ Modelo no entrenado (mostrado una vez)")
+            setStatus("Modelo no entrenado todavía")
+          }
+        } else {
+          console.error("❌ Error al predecir:", j)
+          setStatus('Error: ' + (j.error || 'Bad Request'))
+        }
       }
     } catch (e) {
       console.error("❌ Error al predecir:", e)
@@ -136,9 +144,10 @@ export default function App() {
     try {
       const res = await fetch(`${API_URL}/count`)
       const j = await res.json()
+      console.log("📊 Conteos actuales:", j)
       setCounts(j || {})
     } catch (e) {
-      console.warn("⚠️ No se pudo obtener counts:", e.message)
+      console.error("❌ Error al traer conteos:", e)
     }
   }
 
@@ -147,10 +156,12 @@ export default function App() {
     collectRef.current = { active: true, label, count: 0 }
     setStatus('Recolectando ' + label)
     setProgress(0)
+    console.log(`▶️ Iniciando recolección de: ${label}`)
   }
 
   const stopCollect = () => {
     if (collectRef.current) {
+      console.log(`⏹️ Deteniendo recolección de: ${collectRef.current.label}`)
       collectRef.current.active = false
       collectRef.current = null
     }
@@ -161,13 +172,17 @@ export default function App() {
 
   const handleTrain = async () => {
     setStatus('Entrenando...')
+    console.log("⚙️ Enviando datos para entrenamiento...")
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: 'POST' })
       const j = await res.json()
-      console.log("📘 Respuesta entrenamiento:", j)
-
-      if (res.ok) setStatus('Entrenado correctamente')
-      else setStatus('Error: ' + (j.error || 'Error en entrenamiento'))
+      if (res.ok) {
+        console.log("✅ Entrenamiento completado:", j)
+        setStatus('Entrenado correctamente')
+      } else {
+        console.error("❌ Error en entrenamiento:", j)
+        setStatus('Error: ' + (j.error || 'Error en entrenamiento'))
+      }
     } catch (e) {
       console.error("❌ Error al entrenar:", e)
       setStatus('Error: ' + e.message)
@@ -176,13 +191,14 @@ export default function App() {
 
   const handleReset = async () => {
     setStatus('Reiniciando datos...')
+    console.log("♻️ Reiniciando memoria del backend...")
     try {
       const res = await fetch(`${API_URL}/reset`, { method: 'POST' })
       if (res.ok) {
         setCounts({})
         setPrediction(null)
         setStatus('Datos eliminados')
-        console.log("🗑️ Datos reseteados en backend")
+        console.log("✅ Memoria limpiada correctamente")
       }
     } catch (e) {
       console.error("❌ Error al reiniciar:", e)
