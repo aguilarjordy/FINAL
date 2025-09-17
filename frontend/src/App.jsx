@@ -82,19 +82,21 @@ export default function App() {
       window.currentLandmarks = scaled
 
       const now = Date.now()
-      if (now - lastPredictTime.current > 600) {
+      if (scaled.length === 21 && now - lastPredictTime.current > 600) {
         lastPredictTime.current = now
         autoPredict(scaled)
       }
 
       if (collectRef.current && collectRef.current.active && collectRef.current.label) {
-        fetch(`${API_URL}/upload_landmarks`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ label: collectRef.current.label, landmarks: scaled }),
-        })
-        collectRef.current.count = (collectRef.current.count || 0) + 1
-        setProgress(collectRef.current.count)
+        if (scaled.length === 21) {
+          fetch(`${API_URL}/upload_landmarks`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ label: collectRef.current.label, landmarks: scaled }),
+          })
+          collectRef.current.count = (collectRef.current.count || 0) + 1
+          setProgress(collectRef.current.count)
+        }
       }
     } else {
       window.currentLandmarks = null
@@ -103,6 +105,10 @@ export default function App() {
 
   // Llama al backend para predecir
   async function autoPredict(landmarks) {
+    if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21) {
+      return // No mandes nada inválido
+    }
+
     try {
       const res = await fetch(`${API_URL}/predict_landmarks`, {
         method: 'POST',
@@ -112,6 +118,8 @@ export default function App() {
       const j = await res.json()
       if (res.ok) {
         setPrediction(j.prediction + ' (' + (j.confidence * 100).toFixed(1) + '%)')
+      } else {
+        setStatus('Error: ' + (j.error || 'Bad Request'))
       }
     } catch (e) {
       setStatus('Error: ' + e.message)
