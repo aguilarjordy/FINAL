@@ -17,8 +17,8 @@ const AppRouter = () => {
         <Route path="entrenador" element={<App />} />
 
         {/* Otras secciones */}
-        <Route path="stats" element={<div>📊 Aquí irán las estadísticas</div>} />
-        <Route path="settings" element={<div>⚙️ Configuración</div>} />
+        <Route path="estadisticas" element={<div>📊 Aquí irán las estadísticas</div>} />
+        <Route path="configuracion" element={<div>⚙️ Configuración</div>} />
 
         {/* catch-all */}
         <Route path="*" element={<div>❌ Página no encontrada</div>} />
