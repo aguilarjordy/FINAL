@@ -1,76 +1,66 @@
-/* ==== RESETEO GENERAL ==== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
+/* === Estilos globales === */
 body {
-  background: linear-gradient(135deg, #1e3a8a, #9333ea);
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #0a2540; /* Fondo azul oscuro */
   color: #fff;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 }
 
-/* ==== LAYOUT PRINCIPAL ==== */
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+/* === Contenedor principal === */
 .app-container {
   display: flex;
-  gap: 24px;
-  padding: 24px;
+  gap: 20px;
+  padding: 20px;
   max-width: 1200px;
   width: 100%;
 }
 
-/* ==== TARJETAS ==== */
+/* === Tarjetas (paneles) === */
 .card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  border-radius: 20px;
+  background: #102a43;
+  border-radius: 12px;
   padding: 20px;
   flex: 1;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .card-title {
-  font-size: 20px;
+  font-size: 1.4rem;
   font-weight: bold;
-  text-align: center;
-  margin-bottom: 16px;
-  color: #e0e7ff;
-  letter-spacing: 1px;
+  margin-bottom: 10px;
+  color: #61dafb;
 }
 
 .subtitle {
-  font-size: 14px;
-  opacity: 0.8;
-  margin-bottom: 12px;
-  text-align: center;
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-bottom: 15px;
 }
 
-/* ==== VIDEO Y CANVAS ==== */
+/* === Video y canvas === */
 .video-container {
   position: relative;
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto 16px auto;
-  border-radius: 12px;
+  aspect-ratio: 4 / 3;
+  background: black;
+  border-radius: 10px;
   overflow: hidden;
-  border: 2px solid #3b82f6;
 }
 
-video {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 12px;
-}
-
-.overlay-canvas {
+.video-container video,
+.video-container canvas {
   position: absolute;
   top: 0;
   left: 0;
@@ -78,98 +68,86 @@ video {
   height: 100%;
 }
 
-/* ==== BOTONES ==== */
+.overlay-canvas {
+  pointer-events: none;
+}
+
+/* === Botones === */
+.controls,
+.btn-group {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .btn {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
   font-weight: bold;
-  transition: all 0.3s ease;
-  font-size: 14px;
-}
-
-.btn:hover {
-  opacity: 0.85;
-  transform: translateY(-2px);
-}
-
-.btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
+  transition: 0.2s ease;
 }
 
 .btn-blue {
   background: #3b82f6;
-  color: white;
+  color: #fff;
+}
+.btn-blue:hover {
+  background: #2563eb;
 }
 
 .btn-orange {
-  background: #f97316;
-  color: white;
+  background: #f59e0b;
+  color: #fff;
+}
+.btn-orange:hover {
+  background: #d97706;
 }
 
 .btn-gray {
   background: #6b7280;
-  color: white;
+  color: #fff;
+}
+.btn-gray:hover {
+  background: #4b5563;
 }
 
-/* ==== CONTROLES ==== */
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-/* ==== STATUS ==== */
-.status {
-  font-size: 14px;
-  margin-bottom: 10px;
-  text-align: center;
-  color: #cbd5e1;
-}
-
-/* ==== PREDICCIÓN ==== */
-.prediction {
-  font-size: 22px;
-  font-weight: bold;
-  color: #38bdf8;
-  text-align: center;
-  margin-top: 8px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 8px 12px;
-  border-radius: 8px;
-}
-
-/* ==== RECOLECCIÓN ==== */
+/* === Barra de progreso === */
 .collect-box {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .label-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
+  font-size: 0.95rem;
 }
 
 .progress {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
+  background: #1e293b;
+  border-radius: 6px;
   height: 10px;
   overflow: hidden;
 }
 
 .progress-bar {
+  background: #3b82f6;
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #9333ea);
-  border-radius: 8px;
   transition: width 0.3s ease;
 }
 
-.btn-group {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
+/* === Estado y predicción === */
+.status {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  color: #ddd;
+}
+
+.prediction {
+  margin-top: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #22c55e;
 }
