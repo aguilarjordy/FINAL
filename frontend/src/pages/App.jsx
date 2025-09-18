@@ -1,6 +1,6 @@
 // src/pages/App.jsx
 import React, { useRef, useEffect, useState } from "react";
-import "../styles/app.css"; // 🎯 Importa SOLO los estilos de App
+import "../styles/app.css"; // 🎯 Estilos exclusivos de App
 
 const VOCALS = ["A", "E", "I", "O", "U"];
 const MAX_PER_LABEL = 100;
@@ -199,39 +199,39 @@ export default function App() {
   };
 
   return (
-    <div className="app-container">
+    <div className="container">
       {/* Columna izquierda */}
-      <div className="card">
+      <div className="left">
         <div className="card-title">Reconocimiento de Señas</div>
 
-        <div className="video-container">
+        <div className="video-wrap">
           <video ref={videoRef} autoPlay playsInline muted></video>
           <canvas ref={canvasRef} className="overlay-canvas"></canvas>
         </div>
 
         <div className="controls">
-          <button className="btn btn-blue" onClick={handleTrain}>
+          <button className="button" onClick={handleTrain}>
             Entrenar
           </button>
-          <button className="btn btn-orange" onClick={stopCollect}>
+          <button className="button red" onClick={stopCollect}>
             Detener
           </button>
-          <button className="btn btn-gray" onClick={handleReset}>
+          <button className="button gray" onClick={handleReset}>
             Eliminar Datos
           </button>
         </div>
 
-        <div className="status">
+        <div className="small">
           Estado: {status} {progress > 0 && `- ${progress}/${MAX_PER_LABEL}`}
         </div>
 
-        <div className="prediction">{prediction || "-"}</div>
+        <div className="prediction-box">{prediction || "-"}</div>
       </div>
 
       {/* Columna derecha */}
-      <div className="card">
+      <div className="right">
         <div className="card-title">Recolección</div>
-        <div className="subtitle">
+        <div className="small">
           Recolecta hasta {MAX_PER_LABEL} muestras por clase
         </div>
 
@@ -239,30 +239,30 @@ export default function App() {
           const current = counts[v] || 0;
           const pct = Math.round((current / MAX_PER_LABEL) * 100);
           return (
-            <div key={v} className="collect-box">
+            <div key={v} style={{ marginTop: 12 }}>
               <div className="label-row">
-                <strong>{v}</strong>
-                <span>
+                <div>
+                  <strong>{v}</strong>
+                </div>
+                <div className="small">
                   {current}/{MAX_PER_LABEL}
-                </span>
+                </div>
               </div>
-
               <div className="progress">
                 <div
-                  className="progress-bar"
+                  className="progress-inner"
                   style={{ width: `${pct}%` }}
                 ></div>
               </div>
-
-              <div className="btn-group">
+              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                 <button
-                  className="btn btn-blue"
+                  className="button"
                   onClick={() => startCollect(v)}
                   disabled={current >= MAX_PER_LABEL}
                 >
                   Recolectar {v}
                 </button>
-                <button className="btn btn-orange" onClick={stopCollect}>
+                <button className="button red" onClick={stopCollect}>
                   Detener
                 </button>
               </div>
