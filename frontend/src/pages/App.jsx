@@ -1,5 +1,6 @@
 // src/pages/App.jsx
 import React, { useRef, useEffect, useState } from "react";
+import "../styles/app.css"; // 🎯 Importa SOLO los estilos de App
 
 const VOCALS = ["A", "E", "I", "O", "U"];
 const MAX_PER_LABEL = 100;

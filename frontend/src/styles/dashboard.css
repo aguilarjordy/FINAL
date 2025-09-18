@@ -1,0 +1,53 @@
+/* 🎯 Estilos exclusivos para Dashboard y MainLayout */
+
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f9fafb;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.layout-content {
+  display: flex;
+  flex: 1;
+}
+
+.layout-main {
+  flex: 1;
+  padding: 20px;
+  background: white;
+}
+
+.navbar {
+  background: #1e3a8a;
+  color: white;
+  padding: 12px 20px;
+  font-weight: bold;
+}
+
+.sidebar {
+  width: 220px;
+  background: #1e293b;
+  color: white;
+  padding: 20px;
+}
+
+.sidebar a {
+  display: block;
+  margin-bottom: 12px;
+  color: #e5e7eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.sidebar a:hover {
+  color: #06b6d4;
+}
+
+.footer {
+  background: #1e3a8a;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}

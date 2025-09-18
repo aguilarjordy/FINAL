@@ -1,153 +1,35 @@
-/* === Estilos globales === */
-body {
+/* ===================== */
+/* 🌐 ESTILOS GLOBALES */
+/* ===================== */
+
+* {
   margin: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: #0a2540; /* Fondo azul oscuro */
-  color: #fff;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #f4f6f9;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Botones básicos */
 button {
+  font-family: inherit;
   cursor: pointer;
-  border: none;
-  outline: none;
 }
 
-/* === Contenedor principal === */
-.app-container {
-  display: flex;
-  gap: 20px;
-  padding: 20px;
-  max-width: 1200px;
-  width: 100%;
-}
-
-/* === Tarjetas (paneles) === */
-.card {
-  background: #102a43;
-  border-radius: 12px;
-  padding: 20px;
-  flex: 1;
+/* Contenedor raíz para toda la app */
+#root {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.card-title {
-  font-size: 1.4rem;
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: #61dafb;
-}
-
-.subtitle {
-  font-size: 0.9rem;
-  color: #ccc;
-  margin-bottom: 15px;
-}
-
-/* === Video y canvas === */
-.video-container {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  background: black;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.video-container video,
-.video-container canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.overlay-canvas {
-  pointer-events: none;
-}
-
-/* === Botones === */
-.controls,
-.btn-group {
-  margin-top: 15px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.btn {
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  transition: 0.2s ease;
-}
-
-.btn-blue {
-  background: #3b82f6;
-  color: #fff;
-}
-.btn-blue:hover {
-  background: #2563eb;
-}
-
-.btn-orange {
-  background: #f59e0b;
-  color: #fff;
-}
-.btn-orange:hover {
-  background: #d97706;
-}
-
-.btn-gray {
-  background: #6b7280;
-  color: #fff;
-}
-.btn-gray:hover {
-  background: #4b5563;
-}
-
-/* === Barra de progreso === */
-.collect-box {
-  margin-bottom: 15px;
-}
-
-.label-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
-  font-size: 0.95rem;
-}
-
-.progress {
-  background: #1e293b;
-  border-radius: 6px;
-  height: 10px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  background: #3b82f6;
-  height: 100%;
-  transition: width 0.3s ease;
-}
-
-/* === Estado y predicción === */
-.status {
-  margin-top: 10px;
-  font-size: 0.95rem;
-  color: #ddd;
-}
-
-.prediction {
-  margin-top: 10px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #22c55e;
 }
