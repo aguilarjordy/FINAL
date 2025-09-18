@@ -1,14 +1,24 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import "../styles/sidebar.css";
 
 const Sidebar = () => {
   return (
     <aside className="sidebar">
-      <ul>
-        <li><Link to="/">🏠 Dashboard</Link></li>
-        <li><Link to="/app">✋ Entrenador</Link></li>
-        <li><Link to="/stats">📊 Estadísticas</Link></li>
-        <li><Link to="/settings">⚙️ Configuración</Link></li>
+      <h2 className="sidebar-title">📚 SignsApp</h2>
+      <ul className="sidebar-menu">
+        <li>
+          <Link to="/">🏠 Dashboard</Link>
+        </li>
+        <li>
+          <Link to="/entrenador">🎓 Entrenador</Link>
+        </li>
+        <li>
+          <Link to="/estadisticas">📊 Estadísticas</Link>
+        </li>
+        <li>
+          <Link to="/configuracion">⚙️ Configuración</Link>
+        </li>
       </ul>
     </aside>
   );

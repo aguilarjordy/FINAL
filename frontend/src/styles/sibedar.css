@@ -1,0 +1,40 @@
+.sidebar {
+  width: 220px;
+  min-height: 100vh;
+  background: #1e293b; /* Azul oscuro elegante */
+  color: #fff;
+  padding: 20px;
+}
+
+.sidebar-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 30px;
+  text-align: center;
+  color: #38bdf8; /* Azul celeste */
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-menu li {
+  margin: 18px 0;
+}
+
+.sidebar-menu li a {
+  text-decoration: none;
+  color: #e2e8f0;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: 0.3s;
+}
+
+.sidebar-menu li a:hover {
+  color: #38bdf8;
+  transform: translateX(5px);
+}
