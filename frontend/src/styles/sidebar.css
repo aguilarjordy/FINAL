@@ -1,17 +1,23 @@
+/* Fondo oscuro para sidebar */
 .sidebar {
-  width: 220px;
-  min-height: 100vh;
+  width: 240px;
   background: #1e293b; /* Azul oscuro elegante */
   color: #fff;
-  padding: 20px;
+  padding: 20px 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+  position: sticky;
+  top: 0;
 }
 
 .sidebar-title {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: bold;
-  margin-bottom: 30px;
   text-align: center;
-  color: #38bdf8; /* Azul celeste */
+  margin-bottom: 30px;
+  color: #38bdf8; /* Celeste */
 }
 
 .sidebar-menu {
@@ -21,20 +27,27 @@
 }
 
 .sidebar-menu li {
-  margin: 18px 0;
+  margin: 10px 0;
 }
 
-.sidebar-menu li a {
-  text-decoration: none;
-  color: #e2e8f0;
-  font-size: 1.1rem;
+.sidebar-menu a {
   display: flex;
   align-items: center;
-  gap: 10px;
-  transition: 0.3s;
+  padding: 12px 20px;
+  color: #cbd5e1; /* Gris claro */
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-size: 1rem;
 }
 
-.sidebar-menu li a:hover {
-  color: #38bdf8;
+.sidebar-menu a:hover {
+  background: #334155; /* Azul más claro */
+  color: #fff;
   transform: translateX(5px);
+}
+
+.sidebar-menu a .icon {
+  margin-right: 12px;
+  font-size: 1.2rem;
 }
