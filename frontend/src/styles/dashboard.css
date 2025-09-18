@@ -2,15 +2,15 @@
 
 .dashboard-container {
   padding: 2rem;
-  min-height: calc(100vh - 100px); /* ocupa la pantalla sin tapar footer */
-  background-color: #f7f9fc; /* fondo gris muy claro */
+  min-height: calc(100vh - 100px);
+  background-color: #f7f9fc;
 }
 
 .dashboard-title {
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
-  color: #1a2b6d; /* azul que combina con tu sidebar */
+  color: #1a2b6d;
 }
 
 .dashboard-subtitle {
@@ -31,10 +31,10 @@
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   text-align: center;
-  text-decoration: none; /* elimina subrayado de los <Link> */
-  color: inherit; /* conserva el color del texto */
+  text-decoration: none;
+  color: inherit;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -44,13 +44,14 @@
 .card:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  background-color: #f0f4ff; /* azul clarito al hover */
   cursor: pointer;
 }
 
 .card-icon {
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   margin-bottom: 0.8rem;
-  display: block;
+  color: #1a2b6d;
 }
 
 .card h2 {
@@ -60,8 +61,8 @@
 }
 
 .card p {
-  font-size: 0.95rem;
-  color: #666;
+  font-size: 1rem;
+  color: #444;
 }
 
 /* ===== Responsivo ===== */
@@ -75,6 +76,6 @@
   }
 
   .card-icon {
-    font-size: 1.8rem;
+    font-size: 2rem;
   }
 }

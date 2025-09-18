@@ -1,6 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "../styles/dashboard.css"; // CSS ya creado en tu proyecto
+import "../styles/dashboard.css"; 
+
+// Íconos modernos de react-icons
+import { FaRocket, FaChartLine, FaCog } from "react-icons/fa";
 
 function Dashboard() {
   return (
@@ -12,19 +15,19 @@ function Dashboard() {
 
       <div className="dashboard-cards">
         <Link to="/entrenador" className="card">
-          <span className="card-icon">🚀</span>
+          <FaRocket className="card-icon" />
           <h2>Aplicación</h2>
           <p>Ir al entrenador de la aplicación.</p>
         </Link>
 
         <Link to="/estadisticas" className="card">
-          <span className="card-icon">📈</span>
+          <FaChartLine className="card-icon" />
           <h2>Estadísticas</h2>
           <p>Consulta reportes y métricas.</p>
         </Link>
 
         <Link to="/configuracion" className="card">
-          <span className="card-icon">⚙️</span>
+          <FaCog className="card-icon" />
           <h2>Configuración</h2>
           <p>Ajusta las preferencias del sistema.</p>
         </Link>
