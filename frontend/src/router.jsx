@@ -1,16 +1,21 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+
+import MainLayout from "./layouts/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import App from "./pages/App";
-import MainLayout from "./layouts/MainLayout";
 
-export default function AppRouter() {
+const AppRouter = () => {
   return (
     <Routes>
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/trainer" element={<App />} />
+      <Route path="/" element={<MainLayout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="app" element={<App />} />
+        <Route path="stats" element={<div>📊 Aquí irán las estadísticas</div>} />
+        <Route path="settings" element={<div>⚙️ Configuración</div>} />
       </Route>
     </Routes>
   );
-}
+};
+
+export default AppRouter;

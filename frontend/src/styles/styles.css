@@ -1,194 +1,126 @@
 /* ===================== */
-/* 🎥 ESTILOS PARA APP.JSX */
+/* 🌐 ESTILOS GLOBALES */
 /* ===================== */
-
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
-  color: #f5f5f5;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  padding: 20px;
+  background: #f4f6f9;
+  color: #333;
 }
 
-.container {
-  display: flex;
-  gap: 20px;
-  max-width: 1200px;
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ===================== */
+/* 🔝 NAVBAR */
+/* ===================== */
+.navbar {
   width: 100%;
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-  backdrop-filter: blur(10px);
-  animation: fadeIn 0.8s ease-in-out;
+  background: #1e3c72;
+  color: white;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+.navbar .logo {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 20px;
+  gap: 10px;
 }
 
-.left, .right {
-  flex: 1;
+.navbar .profile {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ===================== */
+/* 📂 SIDEBAR */
+/* ===================== */
+.sidebar {
+  width: 220px;
+  background: #243b55;
+  color: #fff;
+  min-height: 100vh;
+  padding: 20px 10px;
+  position: fixed;
+  top: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
-.card-title {
-  font-size: 22px;
-  font-weight: 700;
-  text-align: center;
-  color: #ffcc70;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.video-wrap {
-  position: relative;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-}
-
-video, .overlay-canvas {
-  width: 100%;
-  height: auto;
-  border-radius: 16px;
-  display: block;
-}
-
-.overlay-canvas {
-  position: absolute;
-  top: 0; left: 0;
-  pointer-events: none;
-}
-
-.controls {
+.sidebar a {
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: #ddd;
+  font-weight: 500;
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
-  justify-content: center;
+  transition: background 0.3s;
 }
 
-.button {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
-  background: linear-gradient(135deg, #00c6ff, #0072ff);
+.sidebar a:hover {
+  background: #1e3c72;
   color: #fff;
 }
 
-.button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-}
-
-.button:disabled {
-  background: #555;
-  cursor: not-allowed;
-}
-
-.red {
-  background: linear-gradient(135deg, #ff4e50, #f9d423);
-  color: #000;
-}
-
-.gray {
-  background: linear-gradient(135deg, #bdc3c7, #2c3e50);
-}
-
-.small {
-  font-size: 14px;
-  opacity: 0.9;
-  text-align: center;
-}
-
-.prediction-box {
-  background: rgba(255,255,255,0.1);
-  padding: 12px;
-  border-radius: 12px;
-  text-align: center;
-  font-size: 18px;
-  font-weight: 600;
-  color: #00ffcc;
-  box-shadow: inset 0 0 10px rgba(0,255,204,0.4);
-}
-
-.progress {
-  width: 100%;
-  height: 10px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 6px;
-  overflow: hidden;
-  margin-top: 4px;
-}
-
-.progress-inner {
-  height: 100%;
-  background: linear-gradient(90deg, #ff6a00, #ee0979);
-  border-radius: 6px;
-  transition: width 0.4s ease;
-}
-
-.label-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-
 /* ===================== */
-/* 📊 ESTILOS PARA DASHBOARD */
+/* 🖼 MAIN CONTENT */
 /* ===================== */
-
-.dashboard-container {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 20px;
-  text-align: left;
+.main-content {
+  margin-left: 240px;
+  padding: 30px;
 }
 
-.dashboard-title {
-  font-size: 28px;
+.main-header {
+  margin-bottom: 25px;
+}
+
+.main-header h1 {
+  font-size: 26px;
   font-weight: 700;
   color: #1e3c72;
-  margin-bottom: 30px;
-  border-left: 6px solid #2a5298;
-  padding-left: 12px;
+  margin-bottom: 6px;
 }
 
+.main-header p {
+  color: #666;
+}
+
+/* ===================== */
+/* 📊 DASHBOARD CARDS */
+/* ===================== */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
 }
 
 .dashboard-card {
-  background: #ffffff;
+  background: #fff;
   border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .dashboard-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
 .dashboard-card h3 {
   font-size: 18px;
-  font-weight: 600;
-  color: #2a5298;
+  color: #1e3c72;
   margin-bottom: 10px;
 }
 
@@ -196,4 +128,43 @@ video, .overlay-canvas {
   font-size: 14px;
   color: #555;
   margin-bottom: 16px;
+}
+
+.dashboard-card .btn {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+
+.btn-primary {
+  background: #1e3c72;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #2a5298;
+}
+
+.btn-danger {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #c0392b;
+}
+
+/* ===================== */
+/* ⚓ FOOTER */
+/* ===================== */
+.footer {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 13px;
+  color: #999;
 }

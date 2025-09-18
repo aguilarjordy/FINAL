@@ -1,11 +1,12 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-const Card = ({ title, description, children }) => {
+const Card = ({ title, text, link }) => {
   return (
     <div className="dashboard-card">
       <h3>{title}</h3>
-      <p>{description}</p>
-      {children}
+      <p>{text}</p>
+      <Link to={link} className="card-btn">Ir</Link>
     </div>
   );
 };

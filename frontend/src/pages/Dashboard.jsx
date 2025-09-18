@@ -4,17 +4,11 @@ import Card from "../components/Card";
 const Dashboard = () => {
   return (
     <div className="dashboard-container">
-      <h2 className="dashboard-title">Panel Principal</h2>
+      <h1 className="dashboard-title">📊 Panel Principal</h1>
       <div className="dashboard-grid">
-        <Card title="Entrenamiento" description="Accede al módulo para entrenar el modelo.">
-          <a href="/app" className="text-blue-600 hover:underline">Ir al App</a>
-        </Card>
-        <Card title="Reportes" description="Consulta estadísticas de uso y rendimiento.">
-          <button className="text-blue-600 hover:underline">Ver más</button>
-        </Card>
-        <Card title="Configuración" description="Administra opciones y ajustes del sistema.">
-          <button className="text-blue-600 hover:underline">Configurar</button>
-        </Card>
+        <Card title="Entrenador" text="Recolecta y entrena tus vocales." link="/app" />
+        <Card title="Estadísticas" text="Consulta métricas de tu entrenamiento." link="/stats" />
+        <Card title="Configuración" text="Ajusta la app a tus necesidades." link="/settings" />
       </div>
     </div>
   );

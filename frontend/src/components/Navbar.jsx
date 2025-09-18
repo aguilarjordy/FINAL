@@ -1,14 +1,17 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
-    <nav className="w-full bg-[#1e3c72] text-white px-6 py-4 flex justify-between items-center shadow-md">
-      <h1 className="text-xl font-bold">Sign Recognition Dashboard</h1>
-      <div className="flex gap-4">
-        <a href="/" className="hover:text-gray-300">Dashboard</a>
-        <a href="/app" className="hover:text-gray-300">App</a>
-      </div>
-    </nav>
+    <header className="navbar">
+      <div className="navbar-logo">🎓 SignsApp</div>
+      <nav className="navbar-links">
+        <Link to="/">Dashboard</Link>
+        <Link to="/app">Entrenador</Link>
+        <Link to="/stats">Estadísticas</Link>
+        <Link to="/settings">Configuración</Link>
+      </nav>
+    </header>
   );
 };
 
