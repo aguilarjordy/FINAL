@@ -14,19 +14,20 @@ function Dashboard() {
       </header>
 
       <div className="dashboard-cards">
-        <Link to="/entrenador" className="card">
-          <div className="card-icon">🚀</div>
-          <h2>Aplicación</h2>
-          <p>Ir al entrenador de la aplicación.</p>
+        {/* Tarjeta que abre App.jsx completo */}
+        <Link to="/entrenador" className="card card-primary">
+          <div className="card-icon">💻</div>
+          <h2>App Principal</h2>
+          <p>Abrir toda la aplicación principal.</p>
         </Link>
 
-        <Link to="/estadisticas" className="card">
+        <Link to="/estadisticas" className="card card-info">
           <div className="card-icon">📈</div>
           <h2>Estadísticas</h2>
           <p>Consulta reportes y métricas.</p>
         </Link>
 
-        <Link to="/configuracion" className="card">
+        <Link to="/configuracion" className="card card-warning">
           <div className="card-icon">⚙️</div>
           <h2>Configuración</h2>
           <p>Ajusta las preferencias del sistema.</p>

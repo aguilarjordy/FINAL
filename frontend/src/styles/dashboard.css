@@ -1,6 +1,6 @@
 .dashboard {
   padding: 2rem;
-  background: #f8fafd;
+  background: #f4f6fb; /* gris azulado suave */
   min-height: 100vh;
 }
 
@@ -11,50 +11,62 @@
 
 .dashboard-header h1 {
   font-size: 2rem;
-  color: #1a2b6d;
+  color: #1a237e; /* azul fuerte */
   margin-bottom: 0.5rem;
 }
 
 .dashboard-header p {
-  color: #555;
+  color: #444;
   font-size: 1rem;
 }
 
+/* Grid para las tarjetas */
 .dashboard-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
 }
 
+/* Estilo base */
 .card {
   background: #fff;
   padding: 2rem 1.5rem;
-  border-radius: 12px;
+  border-radius: 14px;
   text-align: center;
   text-decoration: none;
   color: inherit;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
 }
 
 .card-icon {
-  font-size: 2.2rem;
-  margin-bottom: 0.5rem;
-  color: #1a2b6d;
+  font-size: 2.5rem;
+  margin-bottom: 0.8rem;
+}
+
+/* Colores diferenciados */
+.card-primary {
+  border-top: 6px solid #1a73e8; /* azul */
+}
+.card-info {
+  border-top: 6px solid #34a853; /* verde */
+}
+.card-warning {
+  border-top: 6px solid #fbbc05; /* amarillo */
 }
 
 .card h2 {
   font-size: 1.2rem;
   margin-bottom: 0.3rem;
-  color: #1a2b6d;
+  color: #1a237e;
 }
 
 .card p {
   font-size: 0.95rem;
-  color: #666;
+  color: #555;
 }
