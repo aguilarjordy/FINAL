@@ -1,4 +1,4 @@
-/* 🎯 Estilos exclusivos para App.jsx */
+/* 🎯 Estilos exclusivos de App.jsx */
 
 .container {
   display: flex;
@@ -38,16 +38,19 @@
   background: black;
 }
 
-.video-wrap video {
+video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* ✅ Evita el zoom automático */
+  background: black;
 }
 
 .overlay-canvas {
   position: absolute;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .controls {
