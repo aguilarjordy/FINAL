@@ -47,6 +47,7 @@ export default function App() {
       });
       camera.start();
       setStatus("Listo - coloca la mano frente a la cámara");
+      console.log("📷 Cámara iniciada correctamente.");
     }
 
     fetchCounts();
@@ -103,6 +104,11 @@ export default function App() {
           });
           collectRef.current.count = (collectRef.current.count || 0) + 1;
           setProgress(collectRef.current.count);
+
+          // ✅ Feedback en consola de recolección
+          console.log(
+            `📦 Recolectando [${collectRef.current.label}] - ${collectRef.current.count}/${MAX_PER_LABEL}`
+          );
         }
       }
     } else {
@@ -127,14 +133,24 @@ export default function App() {
 
       if (data.status === "not_trained") {
         setStatus("Modelo no entrenado todavía ⚠️");
+        console.warn("⚠️ Intento de predicción, pero el modelo no está entrenado.");
         return;
       }
 
       if (data.status === "ok") {
-        setPrediction(
-          data.prediction + " (" + (data.confidence * 100).toFixed(1) + "%)"
-        );
+        const result = `${data.prediction} (${(data.confidence * 100).toFixed(
+          1
+        )}%)`;
+        setPrediction(result);
         setStatus("Prediciendo...");
+
+        // ✅ Feedback en consola
+        console.log(
+          "🔮 Predicción:",
+          data.prediction,
+          "- Confianza:",
+          (data.confidence * 100).toFixed(1) + "%"
+        );
       }
     } catch (e) {
       console.warn("⚠️ Error en predicción:", e.message);
@@ -147,6 +163,7 @@ export default function App() {
       const res = await fetch(`${API_URL}/count`);
       const j = await res.json();
       setCounts(j || {});
+      console.log("📊 Conteos cargados:", j);
     } catch (e) {
       console.error("❌ Error al traer conteos:", e);
     }
@@ -157,10 +174,14 @@ export default function App() {
     collectRef.current = { active: true, label, count: 0 };
     setStatus("Recolectando " + label);
     setProgress(0);
+
+    // ✅ Feedback en consola
+    console.log(`▶️ Inicio de recolección para la letra: ${label}`);
   };
 
   const stopCollect = () => {
     if (collectRef.current) {
+      console.log(`⏹️ Detenida recolección de: ${collectRef.current.label}`);
       collectRef.current.active = false;
       collectRef.current = null;
     }
@@ -171,30 +192,37 @@ export default function App() {
 
   const handleTrain = async () => {
     setStatus("Entrenando...");
+    console.log("⚙️ Entrenando modelo...");
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
       const j = await res.json();
       if (res.ok) {
         setStatus("Entrenado correctamente");
+        console.log("✅ Modelo entrenado correctamente.");
       } else {
         setStatus("Error: " + (j.error || "Error en entrenamiento"));
+        console.error("❌ Error en entrenamiento:", j.error);
       }
     } catch (e) {
       setStatus("Error: " + e.message);
+      console.error("❌ Error en entrenamiento:", e.message);
     }
   };
 
   const handleReset = async () => {
     setStatus("Reiniciando datos...");
+    console.log("🗑️ Reiniciando datos...");
     try {
       const res = await fetch(`${API_URL}/reset`, { method: "POST" });
       if (res.ok) {
         setCounts({});
         setPrediction(null);
         setStatus("Datos eliminados");
+        console.log("✅ Datos eliminados correctamente.");
       }
     } catch (e) {
       setStatus("Error al reiniciar: " + e.message);
+      console.error("❌ Error al reiniciar:", e.message);
     }
   };
 
