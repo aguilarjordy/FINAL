@@ -1,3 +1,7 @@
+/* ===================== */
+/* 🎥 ESTILOS PARA APP.JSX */
+/* ===================== */
+
 /* Fondo general */
 body {
   margin: 0;
@@ -152,4 +156,55 @@ video, .overlay-canvas {
   justify-content: space-between;
   font-size: 16px;
   font-weight: 500;
+}
+
+
+/* ===================== */
+/* 📊 ESTILOS PARA DASHBOARD */
+/* ===================== */
+
+.dashboard-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.dashboard-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffcc70;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.5);
+}
+
+.dashboard-card h3 {
+  font-size: 20px;
+  color: #00ffcc;
+  margin-bottom: 12px;
+}
+
+.dashboard-card p {
+  font-size: 14px;
+  color: #ddd;
+  margin-bottom: 16px;
 }
