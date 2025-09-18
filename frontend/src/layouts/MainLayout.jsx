@@ -6,22 +6,20 @@ import Footer from "../components/Footer";
 
 const MainLayout = () => {
   return (
-    <div className="layout-container">
-      {/* Barra superior */}
+    <div className="app-container">
+      {/* 🔹 Barra superior */}
       <Navbar />
 
-      <div className="layout-content">
-        {/* Barra lateral */}
+      <div className="app-body">
+        {/* 🔹 Barra lateral */}
         <Sidebar />
 
-        {/* Contenido dinámico */}
-        <main className="layout-main">
+        {/* 🔹 Contenido principal */}
+        <main className="main-content">
           <Outlet />
+          <Footer />
         </main>
       </div>
-
-      {/* Pie de página */}
-      <Footer />
     </div>
   );
 };

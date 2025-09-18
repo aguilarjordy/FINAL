@@ -1,22 +1,13 @@
-// src/router.jsx
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import AppRouter from "./router";
+import "./style.css"; // asegúrate de que apunte a tu CSS global
 
-import MainLayout from "./layouts/MainLayout";
-import Dashboard from "./pages/Dashboard";
-import App from "./pages/App";
-
-const AppRouter = () => {
-  return (
-    <Routes>
-      <Route path="/" element={<MainLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="app" element={<App />} />
-        <Route path="stats" element={<div>📊 Aquí irán las estadísticas</div>} />
-        <Route path="settings" element={<div>⚙️ Configuración</div>} />
-      </Route>
-    </Routes>
-  );
-};
-
-export default AppRouter;
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <AppRouter />
+    </BrowserRouter>
+  </React.StrictMode>
+);

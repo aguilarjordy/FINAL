@@ -8,11 +8,14 @@ import App from "./pages/App";
 const AppRouter = () => {
   return (
     <Routes>
+      {/* Rutas con layout principal */}
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="app" element={<App />} />
         <Route path="stats" element={<div>📊 Aquí irán las estadísticas</div>} />
         <Route path="settings" element={<div>⚙️ Configuración</div>} />
+        {/* catch-all */}
+        <Route path="*" element={<div>❌ Página no encontrada</div>} />
       </Route>
     </Routes>
   );
