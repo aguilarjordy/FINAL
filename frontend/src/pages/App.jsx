@@ -1,3 +1,4 @@
+// src/pages/App.jsx
 import React, { useRef, useEffect, useState } from "react";
 
 const VOCALS = ["A", "E", "I", "O", "U"];
@@ -129,12 +130,8 @@ export default function App() {
       }
 
       if (data.status === "ok") {
-        console.log("✅ Predicción:", data);
         setPrediction(
-          data.prediction +
-            " (" +
-            (data.confidence * 100).toFixed(1) +
-            "%)"
+          data.prediction + " (" + (data.confidence * 100).toFixed(1) + "%)"
         );
         setStatus("Prediciendo...");
       }
@@ -148,7 +145,6 @@ export default function App() {
     try {
       const res = await fetch(`${API_URL}/count`);
       const j = await res.json();
-      console.log("📊 Conteos actuales:", j);
       setCounts(j || {});
     } catch (e) {
       console.error("❌ Error al traer conteos:", e);
@@ -160,12 +156,10 @@ export default function App() {
     collectRef.current = { active: true, label, count: 0 };
     setStatus("Recolectando " + label);
     setProgress(0);
-    console.log(`▶️ Iniciando recolección de: ${label}`);
   };
 
   const stopCollect = () => {
     if (collectRef.current) {
-      console.log(`⏹️ Deteniendo recolección de: ${collectRef.current.label}`);
       collectRef.current.active = false;
       collectRef.current = null;
     }
@@ -176,98 +170,98 @@ export default function App() {
 
   const handleTrain = async () => {
     setStatus("Entrenando...");
-    console.log("⚙️ Enviando datos para entrenamiento...");
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
       const j = await res.json();
       if (res.ok) {
-        console.log("✅ Entrenamiento completado:", j);
         setStatus("Entrenado correctamente");
       } else {
-        console.error("❌ Error en entrenamiento:", j);
         setStatus("Error: " + (j.error || "Error en entrenamiento"));
       }
     } catch (e) {
-      console.error("❌ Error al entrenar:", e);
       setStatus("Error: " + e.message);
     }
   };
 
   const handleReset = async () => {
     setStatus("Reiniciando datos...");
-    console.log("♻️ Reiniciando memoria del backend...");
     try {
       const res = await fetch(`${API_URL}/reset`, { method: "POST" });
       if (res.ok) {
         setCounts({});
         setPrediction(null);
         setStatus("Datos eliminados");
-        console.log("✅ Memoria limpiada correctamente");
       }
     } catch (e) {
-      console.error("❌ Error al reiniciar:", e);
       setStatus("Error al reiniciar: " + e.message);
     }
   };
 
   return (
-    <div className="container">
-      <div className="left">
+    <div className="app-container">
+      {/* Columna izquierda */}
+      <div className="card">
         <div className="card-title">Reconocimiento de Señas</div>
-        <div className="video-wrap">
+
+        <div className="video-container">
           <video ref={videoRef} autoPlay playsInline muted></video>
           <canvas ref={canvasRef} className="overlay-canvas"></canvas>
         </div>
+
         <div className="controls">
-          <button className="button" onClick={handleTrain}>
+          <button className="btn btn-blue" onClick={handleTrain}>
             Entrenar
           </button>
-          <button className="button red" onClick={stopCollect}>
+          <button className="btn btn-orange" onClick={stopCollect}>
             Detener
           </button>
-          <button className="button gray" onClick={handleReset}>
+          <button className="btn btn-gray" onClick={handleReset}>
             Eliminar Datos
           </button>
         </div>
-        <div className="small">
+
+        <div className="status">
           Estado: {status} {progress > 0 && `- ${progress}/${MAX_PER_LABEL}`}
         </div>
-        <div className="prediction-box">{prediction || "-"}</div>
+
+        <div className="prediction">{prediction || "-"}</div>
       </div>
 
-      <div className="right">
+      {/* Columna derecha */}
+      <div className="card">
         <div className="card-title">Recolección</div>
-        <div className="small">
+        <div className="subtitle">
           Recolecta hasta {MAX_PER_LABEL} muestras por clase
         </div>
+
         {VOCALS.map((v) => {
           const current = counts[v] || 0;
           const pct = Math.round((current / MAX_PER_LABEL) * 100);
           return (
-            <div key={v} style={{ marginTop: 12 }}>
+            <div key={v} className="collect-box">
               <div className="label-row">
-                <div>
-                  <strong>{v}</strong>
-                </div>
-                <div className="small">
+                <strong>{v}</strong>
+                <span>
                   {current}/{MAX_PER_LABEL}
-                </div>
+                </span>
               </div>
+
               <div className="progress">
                 <div
-                  className="progress-inner"
+                  className="progress-bar"
                   style={{ width: `${pct}%` }}
                 ></div>
               </div>
-              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+
+              <div className="btn-group">
                 <button
-                  className="button"
+                  className="btn btn-blue"
                   onClick={() => startCollect(v)}
                   disabled={current >= MAX_PER_LABEL}
                 >
                   Recolectar {v}
                 </button>
-                <button className="button red" onClick={stopCollect}>
+                <button className="btn btn-orange" onClick={stopCollect}>
                   Detener
                 </button>
               </div>
