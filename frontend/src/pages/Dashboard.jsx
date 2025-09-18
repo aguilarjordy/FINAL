@@ -14,11 +14,11 @@ function Dashboard() {
       </header>
 
       <div className="dashboard-cards">
-        {/* Tarjeta que abre App.jsx completo */}
+        {/* Tarjeta destacada: App Principal */}
         <Link to="/entrenador" className="card card-primary">
-          <div className="card-icon">💻</div>
-          <h2>App Principal</h2>
-          <p>Abrir toda la aplicación principal.</p>
+          <div className="card-icon">🎓</div>
+          <h2>Entrena y aprende las vocales</h2>
+          <p>Accede al entrenador interactivo de la aplicación.</p>
         </Link>
 
         <Link to="/estadisticas" className="card card-info">
