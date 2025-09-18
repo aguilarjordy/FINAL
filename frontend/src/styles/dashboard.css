@@ -1,81 +1,60 @@
-/* ===== Dashboard Styles ===== */
-
-.dashboard-container {
+.dashboard {
   padding: 2rem;
-  min-height: calc(100vh - 100px);
-  background-color: #f7f9fc;
+  background: #f8fafd;
+  min-height: 100vh;
 }
 
-.dashboard-title {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  color: #1a2b6d;
-}
-
-.dashboard-subtitle {
+.dashboard-header {
+  text-align: center;
   margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  color: #1a2b6d;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
   color: #555;
   font-size: 1rem;
 }
 
-/* ===== Tarjetas principales ===== */
 .dashboard-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
 }
 
 .card {
-  background: #ffffff;
-  padding: 1.5rem;
+  background: #fff;
+  padding: 2rem 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   text-align: center;
   text-decoration: none;
   color: inherit;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  background-color: #f0f4ff; /* azul clarito al hover */
-  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
 }
 
 .card-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.8rem;
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
   color: #1a2b6d;
 }
 
 .card h2 {
   font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
   color: #1a2b6d;
 }
 
 .card p {
-  font-size: 1rem;
-  color: #444;
-}
-
-/* ===== Responsivo ===== */
-@media (max-width: 768px) {
-  .dashboard-title {
-    font-size: 1.6rem;
-  }
-
-  .card {
-    padding: 1rem;
-  }
-
-  .card-icon {
-    font-size: 2rem;
-  }
+  font-size: 0.95rem;
+  color: #666;
 }
