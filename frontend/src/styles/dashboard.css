@@ -1,3 +1,18 @@
+/* ===== Layout principal con Sidebar a la izquierda ===== */
+.layout-body {
+  display: flex;                /* Sidebar y contenido en fila */
+  flex-direction: row;
+  min-height: calc(100vh - 60px); /* deja espacio para el navbar */
+}
+
+.layout-main {
+  flex: 1;                      /* el contenido ocupa todo lo restante */
+  padding: 20px;
+  background: #f8fafc;          /* gris muy claro */
+  overflow-y: auto;             /* scroll si hay mucho contenido */
+  border-radius: 12px;
+}
+
 /* ===== Estilo general del Dashboard ===== */
 .dashboard {
   padding: 2rem;
