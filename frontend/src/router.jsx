@@ -10,10 +10,16 @@ const AppRouter = () => {
     <Routes>
       {/* Rutas con layout principal */}
       <Route path="/" element={<MainLayout />}>
+        {/* Página inicial -> Dashboard */}
         <Route index element={<Dashboard />} />
-        <Route path="app" element={<App />} />
+
+        {/* Ruta al App principal (Entrena y aprende las vocales) */}
+        <Route path="entrenador" element={<App />} />
+
+        {/* Otras secciones */}
         <Route path="stats" element={<div>📊 Aquí irán las estadísticas</div>} />
         <Route path="settings" element={<div>⚙️ Configuración</div>} />
+
         {/* catch-all */}
         <Route path="*" element={<div>❌ Página no encontrada</div>} />
       </Route>
