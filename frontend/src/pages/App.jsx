@@ -87,7 +87,7 @@ export default function App() {
       if (
         isTrained &&
         scaled.length === 21 &&
-        now - lastPredictTime.current > 600
+        now - lastPredictTime.current > 800
       ) {
         lastPredictTime.current = now;
         autoPredict(scaled);
@@ -126,21 +126,24 @@ export default function App() {
     }
 
     try {
-      console.log("📡 Enviando landmarks a backend...");
+      console.log("📡 Enviando landmarks a backend...", landmarks);
       const res = await fetch(`${API_URL}/predict_landmarks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ landmarks }),
       });
 
+      if (!res.ok) {
+        console.error("❌ Error HTTP en predicción:", res.status);
+        return;
+      }
+
       const data = await res.json();
       console.log("📩 Respuesta backend:", data);
 
       if (data.status === "not_trained") {
         setStatus("Modelo no entrenado todavía ⚠️");
-        console.warn(
-          "⚠️ Intento de predicción, pero el modelo no está entrenado."
-        );
+        console.warn("⚠️ Intento de predicción, pero el modelo no está entrenado.");
         return;
       }
 
