@@ -126,24 +126,21 @@ export default function App() {
     }
 
     try {
-      console.log("📡 Enviando landmarks a backend...", landmarks);
+      console.log("📡 Enviando landmarks a backend...");
       const res = await fetch(`${API_URL}/predict_landmarks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ landmarks }),
       });
 
-      if (!res.ok) {
-        console.error("❌ Error HTTP en predicción:", res.status);
-        return;
-      }
-
       const data = await res.json();
       console.log("📩 Respuesta backend:", data);
 
       if (data.status === "not_trained") {
         setStatus("Modelo no entrenado todavía ⚠️");
-        console.warn("⚠️ Intento de predicción, pero el modelo no está entrenado.");
+        console.warn(
+          "⚠️ Intento de predicción, pero el modelo no está entrenado."
+        );
         return;
       }
 
@@ -208,7 +205,9 @@ export default function App() {
         setIsTrained(true);
         console.log("✅ Modelo entrenado correctamente.", j);
 
+        // 🔮 Fuerza una primera predicción justo después de entrenar
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {
+          console.log("⚡ Primera predicción tras entrenar...");
           autoPredict(window.currentLandmarks);
         }
       } else {
