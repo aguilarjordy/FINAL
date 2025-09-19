@@ -5,8 +5,8 @@ import tensorflow as tf
 
 app = Flask(__name__)
 
-# 🔹 CORS configurado para tu frontend en Render
-CORS(app, origins=["https://final-1-h9n9.onrender.com"], supports_credentials=True)
+# ✅ Solo permitimos el frontend de Render
+CORS(app, resources={r"/*": {"origins": "https://final-1-h9n9.onrender.com"}})
 
 @app.after_request
 def add_cors_headers(response):
@@ -24,14 +24,8 @@ label_map = {}
 def home():
     return jsonify({"status": "backend running 🚀"})
 
-# --------------------------
-#   UPLOAD LANDMARKS
-# --------------------------
-@app.route('/upload_landmarks', methods=['POST', 'OPTIONS'])
+@app.route('/upload_landmarks', methods=['POST'])
 def upload_landmarks():
-    if request.method == 'OPTIONS':
-        return jsonify({'status': 'ok'}), 200
-
     data = request.get_json()
     if not data or 'label' not in data or 'landmarks' not in data:
         return jsonify({'error': 'label and landmarks required'}), 400
@@ -49,23 +43,14 @@ def upload_landmarks():
         'count': len(landmarks_data[label])
     }), 200
 
-# --------------------------
-#   COUNT LANDMARKS
-# --------------------------
 @app.route('/count', methods=['GET'])
 def count():
     counts = {label: len(samples) for label, samples in landmarks_data.items()}
     return jsonify(counts), 200
 
-# --------------------------
-#   TRAIN LANDMARKS
-# --------------------------
-@app.route('/train_landmarks', methods=['POST', 'OPTIONS'])
+@app.route('/train_landmarks', methods=['POST'])
 def train_landmarks():
     global model, label_map
-    if request.method == 'OPTIONS':
-        return jsonify({'status': 'ok'}), 200
-
     if len(landmarks_data) < 2:
         return jsonify({'error': 'Need at least 2 labels with samples'}), 400
 
@@ -81,7 +66,7 @@ def train_landmarks():
     X = np.array(X, dtype=np.float32)
     y = np.array(y, dtype=np.int32)
 
-    # 🔹 Reemplazar modelo anterior
+    # 🔹 Reemplazamos modelo cada vez para evitar capas acumuladas
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(X.shape[1],)),
         tf.keras.layers.Dense(128, activation='relu'),
@@ -95,15 +80,9 @@ def train_landmarks():
 
     return jsonify({'message': 'trained in memory', 'classes': label_map}), 200
 
-# --------------------------
-#   PREDICT LANDMARKS
-# --------------------------
-@app.route('/predict_landmarks', methods=['POST', 'OPTIONS'])
+@app.route('/predict_landmarks', methods=['POST'])
 def predict_landmarks():
     global model, label_map
-    if request.method == 'OPTIONS':
-        return jsonify({'status': 'ok'}), 200
-
     data = request.get_json()
 
     if not data or 'landmarks' not in data:
@@ -122,9 +101,6 @@ def predict_landmarks():
         'confidence': float(preds[idx])
     }), 200
 
-# --------------------------
-#   RESET MEMORY
-# --------------------------
 @app.route('/reset', methods=['POST'])
 def reset():
     global landmarks_data, model, label_map
@@ -133,6 +109,6 @@ def reset():
     label_map = {}
     return jsonify({'message': 'memory cleared'}), 200
 
-
 if __name__ == '__main__':
+    # ✅ Para Render usamos host 0.0.0.0
     app.run(host='0.0.0.0', port=5000)
