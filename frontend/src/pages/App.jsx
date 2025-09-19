@@ -15,10 +15,7 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const [prediction, setPrediction] = useState(null);
   const lastPredictTime = useRef(0);
-
-  // Flag de entrenamiento
   const [isTrained, setIsTrained] = useState(false);
-  const isTrainedRef = useRef(false); // ✅ ref sincronizado
 
   // Inicializa Mediapipe
   useEffect(() => {
@@ -88,22 +85,14 @@ export default function App() {
 
       const now = Date.now();
       if (
-        isTrainedRef.current && // ✅ usamos ref
+        isTrained &&
         scaled.length === 21 &&
         now - lastPredictTime.current > 600
       ) {
-        console.log("👉 Condiciones para predicción cumplidas, llamando a autoPredict...");
         lastPredictTime.current = now;
         autoPredict(scaled);
-      } else {
-        console.log("⏸️ No se cumplen condiciones de predicción:", {
-          isTrained: isTrainedRef.current,
-          scaledLength: scaled.length,
-          diffTime: now - lastPredictTime.current,
-        });
       }
 
-      // Recolección
       if (
         collectRef.current &&
         collectRef.current.active &&
@@ -120,10 +109,6 @@ export default function App() {
           });
           collectRef.current.count = (collectRef.current.count || 0) + 1;
           setProgress(collectRef.current.count);
-
-          console.log(
-            `📦 Recolectando [${collectRef.current.label}] - ${collectRef.current.count}/${MAX_PER_LABEL}`
-          );
         }
       }
     } else {
@@ -167,7 +152,7 @@ export default function App() {
         );
       }
     } catch (e) {
-      console.warn("⚠️ Error en predicción:", e.message);
+      console.error("❌ Error en predicción:", e.message);
     }
   }
 
@@ -177,7 +162,6 @@ export default function App() {
       const res = await fetch(`${API_URL}/count`);
       const j = await res.json();
       setCounts(j || {});
-      console.log("📊 Conteos cargados:", j);
     } catch (e) {
       console.error("❌ Error al traer conteos:", e);
     }
@@ -188,13 +172,10 @@ export default function App() {
     collectRef.current = { active: true, label, count: 0 };
     setStatus("Recolectando " + label);
     setProgress(0);
-
-    console.log(`▶️ Inicio de recolección para la letra: ${label}`);
   };
 
   const stopCollect = () => {
     if (collectRef.current) {
-      console.log(`⏹️ Detenida recolección de: ${collectRef.current.label}`);
       collectRef.current.active = false;
       collectRef.current = null;
     }
@@ -212,7 +193,6 @@ export default function App() {
       if (res.ok) {
         setStatus("Entrenado correctamente");
         setIsTrained(true);
-        isTrainedRef.current = true; // ✅ sincronizamos ref
         console.log("✅ Modelo entrenado correctamente.");
 
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {
@@ -221,13 +201,11 @@ export default function App() {
       } else {
         setStatus("Error: " + (j.error || "Error en entrenamiento"));
         setIsTrained(false);
-        isTrainedRef.current = false;
         console.error("❌ Error en entrenamiento:", j.error);
       }
     } catch (e) {
       setStatus("Error: " + e.message);
       setIsTrained(false);
-      isTrainedRef.current = false;
       console.error("❌ Error en entrenamiento:", e.message);
     }
   };
@@ -242,7 +220,6 @@ export default function App() {
         setPrediction(null);
         setStatus("Datos eliminados");
         setIsTrained(false);
-        isTrainedRef.current = false; // ✅ reseteamos ref
         console.log("✅ Datos eliminados correctamente.");
       }
     } catch (e) {
