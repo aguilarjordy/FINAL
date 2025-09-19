@@ -4,6 +4,8 @@ import { Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import App from "./pages/App";
+import Stats from "./pages/Stats";           // 📊 Página de estadísticas
+import Settings from "./pages/Settings";     // ⚙️ Página de configuración
 
 const AppRouter = () => {
   return (
@@ -17,8 +19,8 @@ const AppRouter = () => {
         <Route path="entrenador" element={<App />} />
 
         {/* Otras secciones */}
-        <Route path="estadisticas" element={<div>📊 Aquí irán las estadísticas</div>} />
-        <Route path="configuracion" element={<div>⚙️ Configuración</div>} />
+        <Route path="estadisticas" element={<Stats />} />
+        <Route path="configuracion" element={<Settings />} />
 
         {/* catch-all */}
         <Route path="*" element={<div>❌ Página no encontrada</div>} />

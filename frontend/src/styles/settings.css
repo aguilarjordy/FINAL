@@ -1,0 +1,39 @@
+/* ========================= */
+/* 🎨 Estilos Configuración  */
+/* ========================= */
+.settings {
+  padding: 2rem;
+  background: var(--bg, #f8fafc);
+  color: var(--text, #1e293b);
+  min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.settings h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--heading, #1e293b);
+}
+
+.settings p {
+  margin-bottom: 2rem;
+  color: var(--text-secondary, #475569);
+}
+
+/* Botón de toggle */
+.toggle-btn {
+  padding: 0.6rem 1.2rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.toggle-btn:hover {
+  background: #1e40af;
+  transform: scale(1.05);
+}

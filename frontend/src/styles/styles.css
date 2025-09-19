@@ -8,23 +8,56 @@
   box-sizing: border-box;
 }
 
+/* Variables globales */
+:root {
+  --bg: #f4f6f9;
+  --text: #333;
+  --card-bg: #ffffff;
+  --link: #2563eb;
+}
+
+/* Tema oscuro */
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --text: #f8fafc;
+  --card-bg: #1e293b;
+  --link: #38bdf8;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
-  background: #f4f6f9;
-  color: #333;
+  background: var(--bg);
+  color: var(--text);
   line-height: 1.6;
+  transition: background 0.3s, color 0.3s;
 }
 
 /* Links */
 a {
   text-decoration: none;
-  color: inherit;
+  color: var(--link);
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  opacity: 0.8;
 }
 
 /* Botones básicos */
 button {
   font-family: inherit;
   cursor: pointer;
+  background: var(--link);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background: #1e40af;
+  transform: scale(1.03);
 }
 
 /* Contenedor raíz para toda la app */
@@ -32,4 +65,13 @@ button {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* Tarjetas y contenedores adaptados al tema */
+.card, .stats-page, .settings-page {
+  background: var(--card-bg);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: background 0.3s, color 0.3s;
 }
