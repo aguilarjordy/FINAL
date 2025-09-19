@@ -1,15 +1,25 @@
+// src/components/Navbar.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import "../styles/navbar.css"; // importa estilos del navbar
 
 const Navbar = () => {
   return (
     <header className="navbar">
       <div className="navbar-logo">🎓 SignsApp</div>
       <nav className="navbar-links">
-        <Link to="/">Dashboard</Link>
-        <Link to="/app">Entrenador</Link>
-        <Link to="/stats">Estadísticas</Link>
-        <Link to="/settings">Configuración</Link>
+        <NavLink to="/dashboard" className="nav-item">
+          Dashboard
+        </NavLink>
+        <NavLink to="/entrenador" className="nav-item">
+          Entrenador
+        </NavLink>
+        <NavLink to="/estadisticas" className="nav-item">
+          Estadísticas
+        </NavLink>
+        <NavLink to="/configuracion" className="nav-item">
+          Configuración
+        </NavLink>
       </nav>
     </header>
   );
