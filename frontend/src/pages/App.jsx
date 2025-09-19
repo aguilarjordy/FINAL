@@ -85,10 +85,11 @@ export default function App() {
 
       const now = Date.now();
       if (
-        isTrained && // ✅ solo si ya entrenaste
+        isTrained &&
         scaled.length === 21 &&
         now - lastPredictTime.current > 600
       ) {
+        console.log("👉 Intentando predecir con landmarks:", scaled);
         lastPredictTime.current = now;
         autoPredict(scaled);
       }
@@ -123,10 +124,12 @@ export default function App() {
   // Llama al backend para predecir
   async function autoPredict(landmarks) {
     if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21) {
+      console.log("⚠️ Landmarks inválidos, no se envía nada.");
       return;
     }
 
     try {
+      console.log("🔄 Enviando landmarks al backend...");
       const res = await fetch(`${API_URL}/predict_landmarks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -134,6 +137,7 @@ export default function App() {
       });
 
       const data = await res.json();
+      console.log("📥 Respuesta completa del backend:", data);
 
       if (data.status === "not_trained") {
         setStatus("Modelo no entrenado todavía ⚠️");
@@ -156,7 +160,7 @@ export default function App() {
         );
       }
     } catch (e) {
-      console.warn("⚠️ Error en predicción:", e.message);
+      console.warn("❌ Error en predicción:", e.message);
     }
   }
 
@@ -200,11 +204,11 @@ export default function App() {
       const j = await res.json();
       if (res.ok) {
         setStatus("Entrenado correctamente");
-        setIsTrained(true); // ✅ habilitamos predicciones
+        setIsTrained(true);
         console.log("✅ Modelo entrenado correctamente.");
 
-        // 👇 Fuerza predicción inmediata si ya hay landmarks en memoria
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {
+          console.log("🚀 Forzando predicción inmediata tras entrenamiento...");
           autoPredict(window.currentLandmarks);
         }
       } else {
@@ -228,7 +232,7 @@ export default function App() {
         setCounts({});
         setPrediction(null);
         setStatus("Datos eliminados");
-        setIsTrained(false); // ✅ resetear entrenamiento
+        setIsTrained(false);
         console.log("✅ Datos eliminados correctamente.");
       }
     } catch (e) {
