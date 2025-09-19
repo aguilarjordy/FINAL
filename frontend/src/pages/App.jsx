@@ -89,9 +89,15 @@ export default function App() {
         scaled.length === 21 &&
         now - lastPredictTime.current > 600
       ) {
-        console.log("👉 Intentando predecir con landmarks:", scaled);
+        console.log("👉 Condiciones para predicción cumplidas, llamando a autoPredict...");
         lastPredictTime.current = now;
         autoPredict(scaled);
+      } else {
+        console.log("⏸️ No se cumplen condiciones de predicción:", {
+          isTrained,
+          scaledLength: scaled.length,
+          diffTime: now - lastPredictTime.current
+        });
       }
 
       if (
@@ -123,8 +129,10 @@ export default function App() {
 
   // Llama al backend para predecir
   async function autoPredict(landmarks) {
+    console.log("👉 Intentando predecir con landmarks:", landmarks);
+
     if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21) {
-      console.log("⚠️ Landmarks inválidos, no se envía nada.");
+      console.warn("⚠️ Landmarks inválidos, no predigo:", landmarks);
       return;
     }
 
@@ -160,7 +168,7 @@ export default function App() {
         );
       }
     } catch (e) {
-      console.warn("❌ Error en predicción:", e.message);
+      console.warn("⚠️ Error en predicción:", e.message);
     }
   }
 
@@ -204,11 +212,11 @@ export default function App() {
       const j = await res.json();
       if (res.ok) {
         setStatus("Entrenado correctamente");
-        setIsTrained(true);
+        setIsTrained(true); // ✅ habilitamos predicciones
         console.log("✅ Modelo entrenado correctamente.");
 
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {
-          console.log("🚀 Forzando predicción inmediata tras entrenamiento...");
+          console.log("🚀 Forzando predicción inicial...");
           autoPredict(window.currentLandmarks);
         }
       } else {
