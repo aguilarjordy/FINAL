@@ -4,11 +4,13 @@ import numpy as np
 import tensorflow as tf
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+
+# 🔹 CORS configurado para tu frontend en Render
+CORS(app, origins=["https://final-1-h9n9.onrender.com"], supports_credentials=True)
 
 @app.after_request
 def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Origin"] = "https://final-1-h9n9.onrender.com"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
     response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS,PUT,DELETE"
     return response
@@ -22,8 +24,14 @@ label_map = {}
 def home():
     return jsonify({"status": "backend running 🚀"})
 
-@app.route('/upload_landmarks', methods=['POST'])
+# --------------------------
+#   UPLOAD LANDMARKS
+# --------------------------
+@app.route('/upload_landmarks', methods=['POST', 'OPTIONS'])
 def upload_landmarks():
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     data = request.get_json()
     if not data or 'label' not in data or 'landmarks' not in data:
         return jsonify({'error': 'label and landmarks required'}), 400
@@ -41,14 +49,23 @@ def upload_landmarks():
         'count': len(landmarks_data[label])
     }), 200
 
+# --------------------------
+#   COUNT LANDMARKS
+# --------------------------
 @app.route('/count', methods=['GET'])
 def count():
     counts = {label: len(samples) for label, samples in landmarks_data.items()}
     return jsonify(counts), 200
 
-@app.route('/train_landmarks', methods=['POST'])
+# --------------------------
+#   TRAIN LANDMARKS
+# --------------------------
+@app.route('/train_landmarks', methods=['POST', 'OPTIONS'])
 def train_landmarks():
     global model, label_map
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     if len(landmarks_data) < 2:
         return jsonify({'error': 'Need at least 2 labels with samples'}), 400
 
@@ -64,7 +81,7 @@ def train_landmarks():
     X = np.array(X, dtype=np.float32)
     y = np.array(y, dtype=np.int32)
 
-    # 🔹 Reemplazar modelo anterior para evitar acumulación de capas
+    # 🔹 Reemplazar modelo anterior
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(X.shape[1],)),
         tf.keras.layers.Dense(128, activation='relu'),
@@ -74,14 +91,19 @@ def train_landmarks():
     ])
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-    # 🔹 Menos épocas = entrenamiento más rápido
     model.fit(X, y, epochs=10, batch_size=16, verbose=0)
 
     return jsonify({'message': 'trained in memory', 'classes': label_map}), 200
 
-@app.route('/predict_landmarks', methods=['POST'])
+# --------------------------
+#   PREDICT LANDMARKS
+# --------------------------
+@app.route('/predict_landmarks', methods=['POST', 'OPTIONS'])
 def predict_landmarks():
     global model, label_map
+    if request.method == 'OPTIONS':
+        return jsonify({'status': 'ok'}), 200
+
     data = request.get_json()
 
     if not data or 'landmarks' not in data:
@@ -91,7 +113,6 @@ def predict_landmarks():
 
     lm = np.array(data['landmarks'], dtype=np.float32).flatten().reshape(1, -1)
 
-    # 🔹 predict_on_batch es más rápido
     preds = model.predict_on_batch(lm)[0]
     idx = int(np.argmax(preds))
 
@@ -101,6 +122,9 @@ def predict_landmarks():
         'confidence': float(preds[idx])
     }), 200
 
+# --------------------------
+#   RESET MEMORY
+# --------------------------
 @app.route('/reset', methods=['POST'])
 def reset():
     global landmarks_data, model, label_map
@@ -108,6 +132,7 @@ def reset():
     model = None
     label_map = {}
     return jsonify({'message': 'memory cleared'}), 200
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
