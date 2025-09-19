@@ -14,6 +14,9 @@ const Sidebar = () => {
           <Link to="/entrenador">🎓 Entrenador</Link>
         </li>
         <li>
+          <Link to="/aritmetica">🧮 Operaciones Aritméticas</Link>
+        </li>
+        <li>
           <Link to="/estadisticas">📊 Estadísticas</Link>
         </li>
         <li>

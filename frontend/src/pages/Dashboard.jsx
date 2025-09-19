@@ -32,6 +32,13 @@ function Dashboard() {
           <h2>Configuración</h2>
           <p>Ajusta las preferencias del sistema.</p>
         </Link>
+
+        {/* Nueva tarjeta: Operaciones Aritméticas */}
+        <Link to="/aritmetica" className="card card-success">
+          <div className="card-icon">🧮</div>
+          <h2>Operaciones Aritméticas</h2>
+          <p>Practica sumas, restas y más con lenguaje de señas.</p>
+        </Link>
       </div>
     </div>
   );

@@ -87,6 +87,12 @@
   background: #fffbeb;           /* amarillo muy claro */
 }
 
+/* 🔥 Nueva tarjeta para Operaciones Aritméticas */
+.card-success {
+  border-top: 6px solid #22c55e; /* verde brillante */
+  background: #f0fdf4;           /* verde muy claro */
+}
+
 .card h2 {
   font-size: 1.35rem;
   margin-bottom: 0.5rem;

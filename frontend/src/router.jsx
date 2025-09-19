@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import App from "./pages/App";
 import Stats from "./pages/Stats";           // 📊 Página de estadísticas
 import Settings from "./pages/Settings";     // ⚙️ Página de configuración
+import Arithmetic from "./pages/Arithmetic"; // 🧮 Nueva página de aritmética
 
 const AppRouter = () => {
   return (
@@ -17,6 +18,9 @@ const AppRouter = () => {
 
         {/* Ruta al App principal (Entrena y aprende las vocales) */}
         <Route path="entrenador" element={<App />} />
+
+        {/* Nueva sección de Operaciones Aritméticas */}
+        <Route path="aritmetica" element={<Arithmetic />} />
 
         {/* Otras secciones */}
         <Route path="estadisticas" element={<Stats />} />

@@ -8,11 +8,14 @@ const Navbar = () => {
     <header className="navbar">
       <div className="navbar-logo">🎓 Lengua VisualWeb</div>
       <nav className="navbar-links">
-        <NavLink to="/dashboard" className="nav-item">
+        <NavLink to="/" end className="nav-item">
           Dashboard
         </NavLink>
         <NavLink to="/entrenador" className="nav-item">
           Entrenador
+        </NavLink>
+        <NavLink to="/aritmetica" className="nav-item">
+          Operaciones Aritméticas
         </NavLink>
         <NavLink to="/estadisticas" className="nav-item">
           Estadísticas
