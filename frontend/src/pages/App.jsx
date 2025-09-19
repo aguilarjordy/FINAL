@@ -109,6 +109,9 @@ export default function App() {
           });
           collectRef.current.count = (collectRef.current.count || 0) + 1;
           setProgress(collectRef.current.count);
+          console.log(
+            `✍️ Recolectando: ${collectRef.current.label} (${collectRef.current.count})`
+          );
         }
       }
     } else {
@@ -123,6 +126,7 @@ export default function App() {
     }
 
     try {
+      console.log("📡 Enviando landmarks a backend...");
       const res = await fetch(`${API_URL}/predict_landmarks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -130,10 +134,13 @@ export default function App() {
       });
 
       const data = await res.json();
+      console.log("📩 Respuesta backend:", data);
 
       if (data.status === "not_trained") {
         setStatus("Modelo no entrenado todavía ⚠️");
-        console.warn("⚠️ Intento de predicción, pero el modelo no está entrenado.");
+        console.warn(
+          "⚠️ Intento de predicción, pero el modelo no está entrenado."
+        );
         return;
       }
 
@@ -162,6 +169,7 @@ export default function App() {
       const res = await fetch(`${API_URL}/count`);
       const j = await res.json();
       setCounts(j || {});
+      console.log("📊 Conteos actuales:", j);
     } catch (e) {
       console.error("❌ Error al traer conteos:", e);
     }
@@ -172,6 +180,7 @@ export default function App() {
     collectRef.current = { active: true, label, count: 0 };
     setStatus("Recolectando " + label);
     setProgress(0);
+    console.log(`▶️ Iniciada recolección para: ${label}`);
   };
 
   const stopCollect = () => {
@@ -182,6 +191,7 @@ export default function App() {
     setStatus("Detenido");
     setTimeout(fetchCounts, 300);
     setProgress(0);
+    console.log("⏹️ Recolección detenida");
   };
 
   const handleTrain = async () => {
@@ -193,7 +203,7 @@ export default function App() {
       if (res.ok) {
         setStatus("Entrenado correctamente");
         setIsTrained(true);
-        console.log("✅ Modelo entrenado correctamente.");
+        console.log("✅ Modelo entrenado correctamente.", j);
 
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {
           autoPredict(window.currentLandmarks);
@@ -224,6 +234,7 @@ export default function App() {
       }
     } catch (e) {
       setStatus("Error al reiniciar: " + e.message);
+      setIsTrained(false);
       console.error("❌ Error al reiniciar:", e.message);
     }
   };
