@@ -17,7 +17,7 @@
 }
 
 /* Tema oscuro */
-[data-theme="dark"] {
+:root[data-theme="dark"] {
   --bg: #0f172a;
   --text: #f8fafc;
   --card-bg: #1e293b;
@@ -50,9 +50,10 @@ button {
   background: var(--link);
   color: #fff;
   border: none;
-  padding: 8px 14px;
+  padding: 6px 12px; /* 🔹 Botones más pequeños */
   border-radius: 6px;
   transition: background 0.2s ease, transform 0.2s ease;
+  font-size: 0.9rem;
 }
 
 button:hover {

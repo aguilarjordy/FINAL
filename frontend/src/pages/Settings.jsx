@@ -9,17 +9,17 @@ const Settings = () => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
       setDarkMode(true);
-      document.body.classList.add("dark");
+      document.documentElement.setAttribute("data-theme", "dark");
     }
   }, []);
 
   // Cambiar entre temas
   const toggleTheme = () => {
     if (darkMode) {
-      document.body.classList.remove("dark");
+      document.documentElement.setAttribute("data-theme", "light");
       localStorage.setItem("theme", "light");
     } else {
-      document.body.classList.add("dark");
+      document.documentElement.setAttribute("data-theme", "dark");
       localStorage.setItem("theme", "dark");
     }
     setDarkMode(!darkMode);
