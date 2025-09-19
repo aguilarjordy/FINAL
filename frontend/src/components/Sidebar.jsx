@@ -5,7 +5,7 @@ import "../styles/sidebar.css";
 const Sidebar = () => {
   return (
     <aside className="sidebar">
-      <h2 className="sidebar-title">📚 SignsApp</h2>
+      <h2 className="sidebar-title">📚 Lengua VisualWeb</h2>
       <ul className="sidebar-menu">
         <li>
           <Link to="/">🏠 Dashboard</Link>

@@ -6,7 +6,7 @@ import "../styles/navbar.css"; // importa estilos del navbar
 const Navbar = () => {
   return (
     <header className="navbar">
-      <div className="navbar-logo">🎓 SignsApp</div>
+      <div className="navbar-logo">🎓 Lengua VisualWeb</div>
       <nav className="navbar-links">
         <NavLink to="/dashboard" className="nav-item">
           Dashboard
