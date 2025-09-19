@@ -15,7 +15,10 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const [prediction, setPrediction] = useState(null);
   const lastPredictTime = useRef(0);
-  const [isTrained, setIsTrained] = useState(false); // ✅ Nuevo flag
+
+  // Flag de entrenamiento
+  const [isTrained, setIsTrained] = useState(false);
+  const isTrainedRef = useRef(false); // ✅ ref sincronizado
 
   // Inicializa Mediapipe
   useEffect(() => {
@@ -85,7 +88,7 @@ export default function App() {
 
       const now = Date.now();
       if (
-        isTrained &&
+        isTrainedRef.current && // ✅ usamos ref
         scaled.length === 21 &&
         now - lastPredictTime.current > 600
       ) {
@@ -94,12 +97,13 @@ export default function App() {
         autoPredict(scaled);
       } else {
         console.log("⏸️ No se cumplen condiciones de predicción:", {
-          isTrained,
+          isTrained: isTrainedRef.current,
           scaledLength: scaled.length,
-          diffTime: now - lastPredictTime.current
+          diffTime: now - lastPredictTime.current,
         });
       }
 
+      // Recolección
       if (
         collectRef.current &&
         collectRef.current.active &&
@@ -129,15 +133,11 @@ export default function App() {
 
   // Llama al backend para predecir
   async function autoPredict(landmarks) {
-    console.log("👉 Intentando predecir con landmarks:", landmarks);
-
     if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21) {
-      console.warn("⚠️ Landmarks inválidos, no predigo:", landmarks);
       return;
     }
 
     try {
-      console.log("🔄 Enviando landmarks al backend...");
       const res = await fetch(`${API_URL}/predict_landmarks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -145,7 +145,6 @@ export default function App() {
       });
 
       const data = await res.json();
-      console.log("📥 Respuesta completa del backend:", data);
 
       if (data.status === "not_trained") {
         setStatus("Modelo no entrenado todavía ⚠️");
@@ -212,21 +211,23 @@ export default function App() {
       const j = await res.json();
       if (res.ok) {
         setStatus("Entrenado correctamente");
-        setIsTrained(true); // ✅ habilitamos predicciones
+        setIsTrained(true);
+        isTrainedRef.current = true; // ✅ sincronizamos ref
         console.log("✅ Modelo entrenado correctamente.");
 
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {
-          console.log("🚀 Forzando predicción inicial...");
           autoPredict(window.currentLandmarks);
         }
       } else {
         setStatus("Error: " + (j.error || "Error en entrenamiento"));
         setIsTrained(false);
+        isTrainedRef.current = false;
         console.error("❌ Error en entrenamiento:", j.error);
       }
     } catch (e) {
       setStatus("Error: " + e.message);
       setIsTrained(false);
+      isTrainedRef.current = false;
       console.error("❌ Error en entrenamiento:", e.message);
     }
   };
@@ -241,6 +242,7 @@ export default function App() {
         setPrediction(null);
         setStatus("Datos eliminados");
         setIsTrained(false);
+        isTrainedRef.current = false; // ✅ reseteamos ref
         console.log("✅ Datos eliminados correctamente.");
       }
     } catch (e) {
