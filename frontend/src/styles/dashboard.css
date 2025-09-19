@@ -78,7 +78,7 @@
 }
 
 .card-info {
-  border-top: 6px solid #16a34a; /* verde */
+  border-top: 6px solid #09a844; /* verde */
   background: #ecfdf5;           /* verde muy claro */
 }
 
@@ -89,7 +89,7 @@
 
 /* 🔥 Nueva tarjeta para Operaciones Aritméticas */
 .card-success {
-  border-top: 6px solid #22c55e; /* verde brillante */
+  border-top: 6px solid #22c5aa; /* verde brillante */
   background: #f0fdf4;           /* verde muy claro */
 }
 

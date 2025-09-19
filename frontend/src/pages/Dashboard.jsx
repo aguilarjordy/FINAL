@@ -21,6 +21,13 @@ function Dashboard() {
           <p>Accede al entrenador interactivo de la aplicación.</p>
         </Link>
 
+        {/* Nueva tarjeta: Operaciones Aritméticas */}
+        <Link to="/aritmetica" className="card card-success">
+          <div className="card-icon">🧮</div>
+          <h2>Operaciones Aritméticas</h2>
+          <p>Practica sumas, restas y más con lenguaje de señas.</p>
+        </Link>
+        
         <Link to="/estadisticas" className="card card-info">
           <div className="card-icon">📈</div>
           <h2>Estadísticas</h2>
@@ -33,12 +40,6 @@ function Dashboard() {
           <p>Ajusta las preferencias del sistema.</p>
         </Link>
 
-        {/* Nueva tarjeta: Operaciones Aritméticas */}
-        <Link to="/aritmetica" className="card card-success">
-          <div className="card-icon">🧮</div>
-          <h2>Operaciones Aritméticas</h2>
-          <p>Practica sumas, restas y más con lenguaje de señas.</p>
-        </Link>
       </div>
     </div>
   );
