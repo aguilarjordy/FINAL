@@ -1,4 +1,3 @@
-// src/pages/App.jsx
 import React, { useRef, useEffect, useState } from "react";
 import "../styles/app.css"; // 🎯 Estilos exclusivos de App
 
@@ -14,6 +13,7 @@ export default function App() {
   const [status, setStatus] = useState("Cargando...");
   const [progress, setProgress] = useState(0);
   const [prediction, setPrediction] = useState(null);
+  const [isTrained, setIsTrained] = useState(false); // 👈 Nuevo estado
   const lastPredictTime = useRef(0);
 
   // Inicializa Mediapipe
@@ -85,7 +85,9 @@ export default function App() {
       const now = Date.now();
       if (scaled.length === 21 && now - lastPredictTime.current > 600) {
         lastPredictTime.current = now;
-        autoPredict(scaled); // intentar siempre
+        if (isTrained) {
+          autoPredict(scaled); // ✅ solo si ya está entrenado
+        }
       }
 
       if (
@@ -131,12 +133,6 @@ export default function App() {
 
       const data = await res.json();
 
-      if (data.status === "not_trained") {
-        setStatus("Modelo no entrenado todavía ⚠️");
-        console.warn("⚠️ Intento de predicción, pero el modelo no está entrenado.");
-        return;
-      }
-
       if (data.status === "ok") {
         const result = `${data.prediction} (${(data.confidence * 100).toFixed(
           1
@@ -144,7 +140,6 @@ export default function App() {
         setPrediction(result);
         setStatus("Prediciendo...");
 
-        // ✅ Feedback en consola
         console.log(
           "🔮 Predicción:",
           data.prediction,
@@ -175,7 +170,6 @@ export default function App() {
     setStatus("Recolectando " + label);
     setProgress(0);
 
-    // ✅ Feedback en consola
     console.log(`▶️ Inicio de recolección para la letra: ${label}`);
   };
 
@@ -198,13 +192,16 @@ export default function App() {
       const j = await res.json();
       if (res.ok) {
         setStatus("Entrenado correctamente");
+        setIsTrained(true); // ✅ habilitamos predicciones
         console.log("✅ Modelo entrenado correctamente.");
       } else {
         setStatus("Error: " + (j.error || "Error en entrenamiento"));
+        setIsTrained(false);
         console.error("❌ Error en entrenamiento:", j.error);
       }
     } catch (e) {
       setStatus("Error: " + e.message);
+      setIsTrained(false);
       console.error("❌ Error en entrenamiento:", e.message);
     }
   };
@@ -217,6 +214,7 @@ export default function App() {
       if (res.ok) {
         setCounts({});
         setPrediction(null);
+        setIsTrained(false); // ✅ deshabilitamos predicciones
         setStatus("Datos eliminados");
         console.log("✅ Datos eliminados correctamente.");
       }
