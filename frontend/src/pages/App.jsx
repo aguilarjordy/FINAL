@@ -15,7 +15,13 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const [prediction, setPrediction] = useState(null);
   const lastPredictTime = useRef(0);
+
   const [isTrained, setIsTrained] = useState(false);
+  const isTrainedRef = useRef(false);
+
+  useEffect(() => {
+    isTrainedRef.current = isTrained;
+  }, [isTrained]);
 
   // Inicializa Mediapipe
   useEffect(() => {
@@ -85,7 +91,7 @@ export default function App() {
 
       const now = Date.now();
       if (
-        isTrained &&
+        isTrainedRef.current &&
         scaled.length === 21 &&
         now - lastPredictTime.current > 800
       ) {
@@ -205,9 +211,7 @@ export default function App() {
         setIsTrained(true);
         console.log("✅ Modelo entrenado correctamente.", j);
 
-        // 🔮 Fuerza una primera predicción justo después de entrenar
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {
-          console.log("⚡ Primera predicción tras entrenar...");
           autoPredict(window.currentLandmarks);
         }
       } else {
