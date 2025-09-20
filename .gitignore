@@ -6,5 +6,9 @@ dist
 __pycache__/
 *.pyc
 venv/
+
+# Entornos y configuraciones locales
 .env.local
-"backend/achievements_store.json"  
+
+# Archivos de estado de la app
+backend/achievements_store.json

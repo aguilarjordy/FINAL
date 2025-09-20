@@ -105,3 +105,30 @@
   color: #475569;
   line-height: 1.4;
 }
+
+/* === Tarjeta de Logros === */
+.card-achievements {
+  border-top: 6px solid #9333ea; /* morado */
+  background: #f5f3ff;          /* lila muy claro */
+}
+
+.achievements-list {
+  margin-top: 1rem;
+  text-align: left;
+  padding-left: 1rem;
+  color: #374151;
+}
+
+.achievements-list li {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.achievements-list li.unlocked {
+  color: #16a34a; /* verde */
+  font-weight: 600;
+}
+
+.achievements-list li.locked {
+  color: #9ca3af; /* gris */
+}

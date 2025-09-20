@@ -2,28 +2,45 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
 import tensorflow as tf
-from achievements import record_vocal, check_new_achievements, get_progress
+from achievements import record_vocal, check_new_achievements, get_progress, reset_achievements
+import os
 
 app = Flask(__name__)
 
-# ✅ Solo permitimos el frontend de Render
-CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173", "https://final-1-h9n9.onrender.com"]}})
+# ✅ Permitimos tanto local como producción
+CORS(app, resources={r"/*": {"origins": [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://final-1-h9n9.onrender.com"
+]}})
 
 @app.after_request
 def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "https://final-1-h9n9.onrender.com"
+    origin = request.headers.get("Origin")
+    allowed_origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://final-1-h9n9.onrender.com"
+    ]
+    if origin in allowed_origins:
+        response.headers["Access-Control-Allow-Origin"] = origin
     response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
     response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS,PUT,DELETE"
     return response
+
 
 # 🔹 Variables globales en memoria
 landmarks_data = {}
 model = None
 label_map = {}
 
+
 @app.route('/')
 def home():
     return jsonify({"status": "backend running 🚀"})
+
+
+# ------------------ 📌 ENTRENAMIENTO Y PREDICCIÓN ------------------
 
 @app.route('/upload_landmarks', methods=['POST'])
 def upload_landmarks():
@@ -44,10 +61,12 @@ def upload_landmarks():
         'count': len(landmarks_data[label])
     }), 200
 
+
 @app.route('/count', methods=['GET'])
 def count():
     counts = {label: len(samples) for label, samples in landmarks_data.items()}
     return jsonify(counts), 200
+
 
 @app.route('/train_landmarks', methods=['POST'])
 def train_landmarks():
@@ -81,6 +100,7 @@ def train_landmarks():
 
     return jsonify({'message': 'trained in memory', 'classes': label_map}), 200
 
+
 @app.route('/predict_landmarks', methods=['POST'])
 def predict_landmarks():
     global model, label_map
@@ -95,12 +115,22 @@ def predict_landmarks():
 
     preds = model.predict_on_batch(lm)[0]
     idx = int(np.argmax(preds))
+    predicted_vocal = label_map.get(idx, str(idx))
+    confidence = float(preds[idx])
+
+    # 🔹 Guardar progreso en logros (persistente)
+    prev_progress = get_progress()
+    new_progress = record_vocal(predicted_vocal, correct=True)
+    new_achievements = check_new_achievements(prev_progress, new_progress)
 
     return jsonify({
         'status': 'ok',
-        'prediction': label_map.get(idx, str(idx)),
-        'confidence': float(preds[idx])
+        'prediction': predicted_vocal,
+        'confidence': confidence,
+        'progress': new_progress,
+        'new_achievements': new_achievements
     }), 200
+
 
 @app.route('/reset', methods=['POST'])
 def reset():
@@ -110,6 +140,9 @@ def reset():
     label_map = {}
     return jsonify({'message': 'memory cleared'}), 200
 
+
+# ------------------ 🎯 ENDPOINTS DE LOGROS ------------------
+
 @app.route("/api/achievements/record", methods=["POST"])
 def api_record_achievement():
     data = request.get_json(force=True) if request.is_json else {}
@@ -118,11 +151,36 @@ def api_record_achievement():
     if not vocal:
         return jsonify({"error": "missing 'vocal' field"}), 400
 
-    # registra y revisa logros
-    progress = record_vocal(vocal, correct)
-    new = check_new_achievements(progress)
-    return jsonify({"progress": progress, "new_achievements": new})
+    prev = get_progress()
+    new = record_vocal(vocal, correct)
+    unlocked = check_new_achievements(prev, new)
+    return jsonify({"progress": new, "new_achievements": unlocked})
 
+
+@app.route("/api/achievements/progress", methods=["GET"])
+def api_progress():
+    """
+    Devuelve el estado actual de los logros (para frontend).
+    El frontend espera un JSON con {"unlocked": [...]}
+    """
+    progress = get_progress()
+
+    unlocked = []
+    for key, value in progress.items():
+        if value:  # si está desbloqueado
+            unlocked.append(key)
+
+    return jsonify({"unlocked": unlocked}), 200
+
+
+@app.route("/api/achievements/reset", methods=["POST"])
+def api_reset_achievements():
+    reset_achievements()
+    return jsonify({"message": "achievements reset"}), 200
+
+
+# ------------------ 🚀 MAIN ------------------
 if __name__ == '__main__':
     # ✅ Para Render usamos host 0.0.0.0
-    app.run(host='0.0.0.0', port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
