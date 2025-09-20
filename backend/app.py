@@ -2,11 +2,12 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
 import tensorflow as tf
+from achievements import record_vocal, check_new_achievements, get_progress
 
 app = Flask(__name__)
 
 # ✅ Solo permitimos el frontend de Render
-CORS(app, resources={r"/*": {"origins": "https://final-1-h9n9.onrender.com"}})
+CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173", "https://final-1-h9n9.onrender.com"]}})
 
 @app.after_request
 def add_cors_headers(response):
@@ -108,6 +109,19 @@ def reset():
     model = None
     label_map = {}
     return jsonify({'message': 'memory cleared'}), 200
+
+@app.route("/api/achievements/record", methods=["POST"])
+def api_record_achievement():
+    data = request.get_json(force=True) if request.is_json else {}
+    vocal = data.get("vocal")
+    correct = data.get("correct", True)
+    if not vocal:
+        return jsonify({"error": "missing 'vocal' field"}), 400
+
+    # registra y revisa logros
+    progress = record_vocal(vocal, correct)
+    new = check_new_achievements(progress)
+    return jsonify({"progress": progress, "new_achievements": new})
 
 if __name__ == '__main__':
     # ✅ Para Render usamos host 0.0.0.0
