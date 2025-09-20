@@ -1,10 +1,11 @@
-// src/pages/App.jsx
 import React, { useRef, useEffect, useState } from "react";
-import "../styles/app.css"; // 🎯 Estilos exclusivos de App
+import { useAchievements } from "../context/AchievementsContext"; // ⬅️ Contexto
+import { toast } from "react-hot-toast"; // ⬅️ Notificaciones
+import "../styles/app.css";
 
 const VOCALS = ["A", "E", "I", "O", "U"];
 const MAX_PER_LABEL = 100;
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function App() {
   const videoRef = useRef(null);
@@ -18,6 +19,9 @@ export default function App() {
 
   const [isTrained, setIsTrained] = useState(false);
   const isTrainedRef = useRef(false);
+
+  // 👇 Contexto de logros
+  const { updateAchievements } = useAchievements();
 
   useEffect(() => {
     isTrainedRef.current = isTrained;
@@ -54,13 +58,12 @@ export default function App() {
       });
       camera.start();
       setStatus("Listo - coloca la mano frente a la cámara");
-      console.log("📷 Cámara iniciada correctamente.");
     }
 
     fetchCounts();
   }, []);
 
-  // Procesa resultados
+  // Procesa resultados Mediapipe
   const onResults = (results) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -115,9 +118,6 @@ export default function App() {
           });
           collectRef.current.count = (collectRef.current.count || 0) + 1;
           setProgress(collectRef.current.count);
-          console.log(
-            `✍️ Recolectando: ${collectRef.current.label} (${collectRef.current.count})`
-          );
         }
       }
     } else {
@@ -125,14 +125,12 @@ export default function App() {
     }
   };
 
-  // Llama al backend para predecir
+  // Predicción
   async function autoPredict(landmarks) {
-    if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21) {
+    if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21)
       return;
-    }
 
     try {
-      console.log("📡 Enviando landmarks a backend...");
       const res = await fetch(`${API_URL}/predict_landmarks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -140,13 +138,9 @@ export default function App() {
       });
 
       const data = await res.json();
-      console.log("📩 Respuesta backend:", data);
 
       if (data.status === "not_trained") {
         setStatus("Modelo no entrenado todavía ⚠️");
-        console.warn(
-          "⚠️ Intento de predicción, pero el modelo no está entrenado."
-        );
         return;
       }
 
@@ -157,25 +151,31 @@ export default function App() {
         setPrediction(result);
         setStatus("Prediciendo...");
 
-        console.log(
-          "🔮 Predicción:",
-          data.prediction,
-          "- Confianza:",
-          (data.confidence * 100).toFixed(1) + "%"
-        );
+        // 🔹 Notificar logros nuevos
+        if (data.new_achievements?.length > 0) {
+          data.new_achievements.forEach((ach) => {
+            toast.success(`🎉 Logro desbloqueado: ${ach}`);
+          });
+        }
+
+        // 🔹 Actualizar logros en contexto
+        if (data.progress) {
+          const unlockedKeys = Object.keys(data.progress).filter(
+            (k) => data.progress[k] === true
+          );
+          updateAchievements(unlockedKeys);
+        }
       }
     } catch (e) {
       console.error("❌ Error en predicción:", e.message);
     }
   }
 
-  // Trae los conteos
   async function fetchCounts() {
     try {
       const res = await fetch(`${API_URL}/count`);
       const j = await res.json();
       setCounts(j || {});
-      console.log("📊 Conteos actuales:", j);
     } catch (e) {
       console.error("❌ Error al traer conteos:", e);
     }
@@ -186,7 +186,6 @@ export default function App() {
     collectRef.current = { active: true, label, count: 0 };
     setStatus("Recolectando " + label);
     setProgress(0);
-    console.log(`▶️ Iniciada recolección para: ${label}`);
   };
 
   const stopCollect = () => {
@@ -197,19 +196,16 @@ export default function App() {
     setStatus("Detenido");
     setTimeout(fetchCounts, 300);
     setProgress(0);
-    console.log("⏹️ Recolección detenida");
   };
 
   const handleTrain = async () => {
     setStatus("Entrenando...");
-    console.log("⚙️ Entrenando modelo...");
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
       const j = await res.json();
       if (res.ok) {
         setStatus("Entrenado correctamente");
         setIsTrained(true);
-        console.log("✅ Modelo entrenado correctamente.", j);
 
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {
           autoPredict(window.currentLandmarks);
@@ -217,18 +213,15 @@ export default function App() {
       } else {
         setStatus("Error: " + (j.error || "Error en entrenamiento"));
         setIsTrained(false);
-        console.error("❌ Error en entrenamiento:", j.error);
       }
     } catch (e) {
       setStatus("Error: " + e.message);
       setIsTrained(false);
-      console.error("❌ Error en entrenamiento:", e.message);
     }
   };
 
   const handleReset = async () => {
     setStatus("Reiniciando datos...");
-    console.log("🗑️ Reiniciando datos...");
     try {
       const res = await fetch(`${API_URL}/reset`, { method: "POST" });
       if (res.ok) {
@@ -236,12 +229,10 @@ export default function App() {
         setPrediction(null);
         setStatus("Datos eliminados");
         setIsTrained(false);
-        console.log("✅ Datos eliminados correctamente.");
       }
     } catch (e) {
       setStatus("Error al reiniciar: " + e.message);
       setIsTrained(false);
-      console.error("❌ Error al reiniciar:", e.message);
     }
   };
 

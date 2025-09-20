@@ -1,6 +1,8 @@
+// src/pages/Dashboard.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import "../styles/dashboard.css";
+import AchievementsCard from "../components/AchievementsCard"; // ⬅️ importado
 
 function Dashboard() {
   return (
@@ -27,19 +29,23 @@ function Dashboard() {
           <h2>Operaciones Aritméticas</h2>
           <p>Practica sumas, restas y más con lenguaje de señas.</p>
         </Link>
-        
+
+        {/* Tarjeta: Estadísticas */}
         <Link to="/estadisticas" className="card card-info">
           <div className="card-icon">📈</div>
           <h2>Estadísticas</h2>
           <p>Consulta reportes y métricas.</p>
         </Link>
 
+        {/* Tarjeta: Configuración */}
         <Link to="/configuracion" className="card card-warning">
           <div className="card-icon">⚙️</div>
           <h2>Configuración</h2>
           <p>Ajusta las preferencias del sistema.</p>
         </Link>
 
+        {/* Tarjeta de Logros */}
+        <AchievementsCard />
       </div>
     </div>
   );
