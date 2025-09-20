@@ -26,7 +26,7 @@ function Dashboard() {
         {/* Nueva tarjeta: Operaciones Aritméticas */}
         <Link to="/aritmetica" className="card card-success">
           <div className="card-icon">🧮</div>
-          <h2>Operaciones Aritméticas</h2>
+          <h2>Operaciones Aritméticas con Señas</h2>
           <p>Practica sumas, restas y más con lenguaje de señas.</p>
         </Link>
 
