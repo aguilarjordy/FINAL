@@ -1,9 +1,9 @@
 {
     "first_a": false,
     "first_e": false,
-    "first_i": true,
-    "first_o": true,
+    "first_i": false,
+    "first_o": false,
     "first_u": false,
-    "five_predictions": true,
-    "_count": 6
+    "five_predictions": false,
+    "_count": 0
 }
