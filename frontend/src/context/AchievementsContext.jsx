@@ -5,13 +5,14 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
-import { speak } from "../utils/speech"; // ⬅️ usamos voz aquí
+import { speak } from "../utils/speech"; // 👈 voz
 
 const AchievementsContext = createContext();
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const AchievementsProvider = ({ children }) => {
   const [achievements, setAchievements] = useState([]);
+  const [announced, setAnnounced] = useState([]); // 👈 logros ya anunciados
 
   // 🔹 Cargar progreso inicial desde el backend
   useEffect(() => {
@@ -22,6 +23,7 @@ export const AchievementsProvider = ({ children }) => {
         const data = await res.json();
         if (data.unlocked) {
           setAchievements(data.unlocked);
+          setAnnounced(data.unlocked); // 👈 marcamos como ya anunciados
         }
       } catch (err) {
         console.error("❌ Error al obtener logros iniciales:", err.message);
@@ -34,17 +36,28 @@ export const AchievementsProvider = ({ children }) => {
   // 🔹 Actualiza logros (sobrescribe con lista nueva desde backend)
   const updateAchievements = useCallback((newAchievements) => {
     if (!Array.isArray(newAchievements)) return;
-    setAchievements(newAchievements);
 
-    // 🔊 Avisar cada logro nuevo
-    newAchievements.forEach((ach) => {
-      speak(`Logro conseguido: ${ach}`);
-    });
-  }, []);
+    // Detectar cuáles son realmente nuevos
+    const onlyNew = newAchievements.filter(
+      (ach) => !achievements.includes(ach)
+    );
+
+    if (onlyNew.length > 0) {
+      onlyNew.forEach((ach) => {
+        if (!announced.includes(ach)) {
+          speak(`Logro conseguido: ${ach}`);
+        }
+      });
+      setAnnounced((prev) => [...prev, ...onlyNew]);
+    }
+
+    setAchievements(newAchievements);
+  }, [achievements, announced]);
 
   // 🔹 Reinicia logros
   const resetAchievements = useCallback(() => {
     setAchievements([]);
+    setAnnounced([]);
   }, []);
 
   return (

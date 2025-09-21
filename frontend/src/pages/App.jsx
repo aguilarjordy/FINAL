@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useAchievements } from "../context/AchievementsContext";
-import { toast } from "react-hot-toast";
-import { speak } from "../utils/speech"; // ⬅️ importamos la voz
+import { useAchievements } from "../context/AchievementsContext"; // ⬅️ Contexto
+import { toast } from "react-hot-toast"; // ⬅️ Notificaciones
+import { speak } from "../utils/speech"; // ⬅️ Voz
 import "../styles/app.css";
 
 const VOCALS = ["A", "E", "I", "O", "U"];
@@ -22,7 +22,7 @@ export default function App() {
   const isTrainedRef = useRef(false);
 
   // 👇 Contexto de logros
-  const { updateAchievements } = useAchievements();
+  const { achievements, updateAchievements } = useAchievements();
 
   useEffect(() => {
     isTrainedRef.current = isTrained;
@@ -165,11 +165,13 @@ export default function App() {
         setPrediction(result);
         setStatus("Prediciendo...");
 
-        // 🔹 Notificar logros nuevos
+        // 🔹 Notificar logros nuevos (solo 1 vez)
         if (data.new_achievements?.length > 0) {
           data.new_achievements.forEach((ach) => {
-            toast.success(`🎉 Logro desbloqueado: ${ach}`);
-            speak(`Logro conseguido: ${ach}`);
+            if (!achievements.includes(ach)) {
+              toast.success(`🎉 Logro desbloqueado: ${ach}`);
+              speak(`Logro conseguido: ${ach}`);
+            }
           });
         }
 
@@ -200,10 +202,8 @@ export default function App() {
     if (collectRef.current && collectRef.current.active) return;
     collectRef.current = { active: true, label, count: 0 };
     setStatus("Recolectando " + label);
+    speak(`Detectando la vocal ${label}`); // 👈 voz al recolectar
     setProgress(0);
-
-    // 🔊 Decir la vocal que se está recolectando
-    speak(`Detectando la vocal ${label}`);
   };
 
   const stopCollect = () => {
@@ -218,15 +218,14 @@ export default function App() {
 
   const handleTrain = async () => {
     setStatus("Entrenando...");
-    speak("Entrenando modelo"); // 🔊
-
+    speak("Entrenando modelo"); // 👈 voz al entrenar
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
       const j = await res.json();
       if (res.ok) {
         setStatus("Entrenado correctamente");
         setIsTrained(true);
-        speak("Modelo entrenado correctamente"); // 🔊
+        speak("Modelo entrenado correctamente"); // 👈 voz al terminar
 
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {
           autoPredict(window.currentLandmarks);
