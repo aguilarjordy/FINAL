@@ -7,7 +7,7 @@ import App from "./pages/App";
 import Stats from "./pages/Stats";           
 import Settings from "./pages/Settings";     
 import Arithmetic from "./pages/Arithmetic"; 
-import Recognition from "./pages/Recognition"; // 👈 añadido
+import Recognition from "./components/Recognition"; // 👈 añadido
 
 const AppRouter = () => {
   return (
