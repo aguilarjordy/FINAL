@@ -96,20 +96,30 @@
 .card h2 {
   font-size: 1.35rem;
   margin-bottom: 0.5rem;
-  color: #1e293b;
+  color: var(--text);   /* ✅ dinámico según tema */
   font-weight: 600;
+  transition: color 0.3s ease;
 }
 
+/* ✅ Texto de las tarjetas actualizado */
 .card p {
   font-size: 0.95rem;
-  color: #475569;
+  color: var(--text);   /* ahora usa la variable del tema */
   line-height: 1.4;
+  font-weight: bold;    /* siempre en negrita */
+  transition: color 0.3s ease;
 }
 
 /* === Tarjeta de Logros === */
 .card-achievements {
-  border-top: 6px solid #9333ea; /* morado */
-  background: #f5f3ff;          /* lila muy claro */
+  border-top: 6px solid #9333ea;   /* franja morada arriba */
+  background: #f5f3ff;             /* fondo lila muy claro */
+  transition: background 0.3s, color 0.3s;
+}
+
+:root[data-theme="dark"] .card-achievements {
+  background: #312e81;   /* morado oscuro en modo dark */
+  color: var(--text);
 }
 
 .achievements-list {

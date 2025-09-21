@@ -13,6 +13,7 @@ CORS(app, resources={r"/*": {"origins": [
     "http://127.0.0.1:5173",
     "https://final-1-h9n9.onrender.com",
     "https://final-jesus-front.onrender.com"
+
 ]}})
 
 @app.after_request
