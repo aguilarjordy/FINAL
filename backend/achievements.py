@@ -14,7 +14,6 @@ ALL_ACHIEVEMENTS = {
     "five_predictions": "Cinco predicciones realizadas"
 }
 
-
 def _load_progress():
     """Carga el estado de los logros desde el archivo JSON."""
     if not os.path.exists(ACHIEVEMENTS_FILE):

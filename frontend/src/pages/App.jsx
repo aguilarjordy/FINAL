@@ -48,10 +48,13 @@ export default function App() {
 
     hands.onResults(onResults);
 
+    let camera = null;
     if (videoRef.current) {
-      const camera = new window.Camera(videoRef.current, {
+      camera = new window.Camera(videoRef.current, {
         onFrame: async () => {
-          await hands.send({ image: videoRef.current });
+          if (videoRef.current) {
+            await hands.send({ image: videoRef.current });
+          }
         },
         width: 640,
         height: 480,
@@ -61,19 +64,29 @@ export default function App() {
     }
 
     fetchCounts();
+
+    return () => {
+      if (camera) {
+        camera.stop();
+      }
+    };
   }, []);
 
   // Procesa resultados Mediapipe
   const onResults = (results) => {
     const canvas = canvasRef.current;
+    if (!canvas || !results?.image) return;
+
     const ctx = canvas.getContext("2d");
-    const W = (canvas.width = results.image.width);
-    const H = (canvas.height = results.image.height);
+    const W = (canvas.width = results.image.width || 640);
+    const H = (canvas.height = results.image.height || 480);
 
     ctx.clearRect(0, 0, W, H);
     try {
       ctx.drawImage(results.image, 0, 0, W, H);
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Error al dibujar imagen en canvas:", e);
+    }
 
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
       const landmarks = results.multiHandLandmarks[0];
