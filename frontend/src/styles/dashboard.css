@@ -112,8 +112,14 @@
 
 /* === Tarjeta de Logros === */
 .card-achievements {
-  border-top: 6px solid #9333ea; /* morado */
-  background: #f5f3ff;          /* lila muy claro */
+  border-top: 6px solid #9333ea;   /* franja morada arriba */
+  background: #f5f3ff;             /* fondo lila muy claro */
+  transition: background 0.3s, color 0.3s;
+}
+
+:root[data-theme="dark"] .card-achievements {
+  background: #312e81;   /* morado oscuro en modo dark */
+  color: var(--text);
 }
 
 .achievements-list {
