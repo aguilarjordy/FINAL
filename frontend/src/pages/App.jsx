@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useAchievements } from "../context/AchievementsContext"; // ⬅️ Contexto
-import { toast } from "react-hot-toast"; // ⬅️ Notificaciones
+import { useAchievements } from "../context/AchievementsContext";
+import { toast } from "react-hot-toast";
+import { speak } from "../utils/speech"; // ⬅️ importamos la voz
 import "../styles/app.css";
 
 const VOCALS = ["A", "E", "I", "O", "U"];
@@ -168,6 +169,7 @@ export default function App() {
         if (data.new_achievements?.length > 0) {
           data.new_achievements.forEach((ach) => {
             toast.success(`🎉 Logro desbloqueado: ${ach}`);
+            speak(`Logro conseguido: ${ach}`);
           });
         }
 
@@ -199,6 +201,9 @@ export default function App() {
     collectRef.current = { active: true, label, count: 0 };
     setStatus("Recolectando " + label);
     setProgress(0);
+
+    // 🔊 Decir la vocal que se está recolectando
+    speak(`Detectando la vocal ${label}`);
   };
 
   const stopCollect = () => {
@@ -213,12 +218,15 @@ export default function App() {
 
   const handleTrain = async () => {
     setStatus("Entrenando...");
+    speak("Entrenando modelo"); // 🔊
+
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
       const j = await res.json();
       if (res.ok) {
         setStatus("Entrenado correctamente");
         setIsTrained(true);
+        speak("Modelo entrenado correctamente"); // 🔊
 
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {
           autoPredict(window.currentLandmarks);

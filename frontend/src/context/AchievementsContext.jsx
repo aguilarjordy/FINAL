@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
+import { speak } from "../utils/speech"; // ⬅️ usamos voz aquí
 
 const AchievementsContext = createContext();
 const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -34,6 +35,11 @@ export const AchievementsProvider = ({ children }) => {
   const updateAchievements = useCallback((newAchievements) => {
     if (!Array.isArray(newAchievements)) return;
     setAchievements(newAchievements);
+
+    // 🔊 Avisar cada logro nuevo
+    newAchievements.forEach((ach) => {
+      speak(`Logro conseguido: ${ach}`);
+    });
   }, []);
 
   // 🔹 Reinicia logros
