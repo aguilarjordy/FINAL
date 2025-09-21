@@ -96,8 +96,9 @@
 .card h2 {
   font-size: 1.35rem;
   margin-bottom: 0.5rem;
-  color: #1e293b;
+  color: var(--text);   /* ✅ dinámico según tema */
   font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 /* ✅ Texto de las tarjetas actualizado */
