@@ -1,8 +1,6 @@
-import React, { useRef, useEffect, useState } from "react";
-import { useAchievements } from "../context/AchievementsContext"; // ⬅️ Contexto
-import { toast } from "react-hot-toast"; // ⬅️ Notificaciones
+import React, { useRef, useEffect } from "react";
+import { useTrainer } from "../context/TrainerContext"; // ⬅️ Nuevo contexto
 import { speak } from "../utils/speech"; // ⬅️ Voz
-import LOGROS from "../config/logros";   // ⬅️ Diccionario nombres bonitos
 import "../styles/app.css";
 
 const VOCALS = ["A", "E", "I", "O", "U"];
@@ -12,27 +10,26 @@ const API_URL = import.meta.env.VITE_API_BASE_URL;
 export default function App() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const [counts, setCounts] = useState({});
+
+  const {
+    status,
+    prediction,
+    counts,
+    progress,
+    setProgress,
+    autoPredict,
+    handleTrain,
+    handleReset,
+    fetchCounts,
+    isTrained,
+  } = useTrainer();
+
   const collectRef = useRef(null);
-  const [status, setStatus] = useState("Cargando...");
-  const [progress, setProgress] = useState(0);
-  const [prediction, setPrediction] = useState(null);
   const lastPredictTime = useRef(0);
-
-  const [isTrained, setIsTrained] = useState(false);
-  const isTrainedRef = useRef(false);
-
-  // 👇 Contexto de logros
-  const { updateAchievements } = useAchievements();
-
-  useEffect(() => {
-    isTrainedRef.current = isTrained;
-  }, [isTrained]);
 
   // Inicializa Mediapipe
   useEffect(() => {
     if (!window.Hands || !window.Camera) {
-      setStatus("Error: scripts de Mediapipe no cargados");
       return;
     }
 
@@ -62,7 +59,6 @@ export default function App() {
         height: 480,
       });
       camera.start();
-      setStatus("Listo - coloca la mano frente a la cámara");
     }
 
     fetchCounts();
@@ -109,7 +105,7 @@ export default function App() {
 
       const now = Date.now();
       if (
-        isTrainedRef.current &&
+        isTrained &&
         scaled.length === 21 &&
         now - lastPredictTime.current > 800
       ) {
@@ -140,68 +136,9 @@ export default function App() {
     }
   };
 
-  // Predicción
-  async function autoPredict(landmarks) {
-    if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21)
-      return;
-
-    try {
-      const res = await fetch(`${API_URL}/predict_landmarks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ landmarks }),
-      });
-
-      const data = await res.json();
-
-      if (data.status === "not_trained") {
-        setStatus("Modelo no entrenado todavía ⚠️");
-        return;
-      }
-
-      if (data.status === "ok") {
-        const result = `${data.prediction} (${(data.confidence * 100).toFixed(
-          1
-        )}%)`;
-        setPrediction(result);
-        setStatus("Prediciendo...");
-
-        // 🔹 Notificar logros nuevos (toast + voz usando LOGROS)
-        if (data.new_achievements?.length > 0) {
-          data.new_achievements.forEach((ach) => {
-            const nombreBonito = LOGROS[ach] || ach;
-            toast.success(`🎉 Logro desbloqueado: ${nombreBonito}`);
-            speak(`Logro conseguido: ${nombreBonito}`);
-          });
-        }
-
-        // 🔹 Actualizar logros en contexto
-        if (data.progress) {
-          const unlockedKeys = Object.keys(data.progress).filter(
-            (k) => data.progress[k] === true
-          );
-          updateAchievements(unlockedKeys);
-        }
-      }
-    } catch (e) {
-      console.error("❌ Error en predicción:", e.message);
-    }
-  }
-
-  async function fetchCounts() {
-    try {
-      const res = await fetch(`${API_URL}/count`);
-      const j = await res.json();
-      setCounts(j || {});
-    } catch (e) {
-      console.error("❌ Error al traer conteos:", e);
-    }
-  }
-
   const startCollect = (label) => {
     if (collectRef.current && collectRef.current.active) return;
     collectRef.current = { active: true, label, count: 0 };
-    setStatus("Recolectando " + label);
     speak(`Recolectando la vocal ${label}`); // 👈 Voz al recolectar
     setProgress(0);
   };
@@ -211,49 +148,8 @@ export default function App() {
       collectRef.current.active = false;
       collectRef.current = null;
     }
-    setStatus("Detenido");
     setTimeout(fetchCounts, 300);
     setProgress(0);
-  };
-
-  const handleTrain = async () => {
-    setStatus("Entrenando...");
-    speak("Entrenando modelo, espere porfavor"); // 👈 Voz
-    try {
-      const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
-      const j = await res.json();
-      if (res.ok) {
-        setStatus("Entrenado correctamente");
-        speak("Modelo entrenado correctamente"); // 👈 Voz
-        setIsTrained(true);
-
-        if (window.currentLandmarks && window.currentLandmarks.length === 21) {
-          autoPredict(window.currentLandmarks);
-        }
-      } else {
-        setStatus("Error: " + (j.error || "Error en entrenamiento"));
-        setIsTrained(false);
-      }
-    } catch (e) {
-      setStatus("Error: " + e.message);
-      setIsTrained(false);
-    }
-  };
-
-  const handleReset = async () => {
-    setStatus("Reiniciando datos...");
-    try {
-      const res = await fetch(`${API_URL}/reset`, { method: "POST" });
-      if (res.ok) {
-        setCounts({});
-        setPrediction(null);
-        setStatus("Datos eliminados");
-        setIsTrained(false);
-      }
-    } catch (e) {
-      setStatus("Error al reiniciar: " + e.message);
-      setIsTrained(false);
-    }
   };
 
   return (
