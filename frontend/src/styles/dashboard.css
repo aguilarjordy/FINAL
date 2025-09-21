@@ -100,10 +100,13 @@
   font-weight: 600;
 }
 
+/* ✅ Texto de las tarjetas actualizado */
 .card p {
   font-size: 0.95rem;
-  color: #475569;
+  color: var(--text);   /* ahora usa la variable del tema */
   line-height: 1.4;
+  font-weight: bold;    /* siempre en negrita */
+  transition: color 0.3s ease;
 }
 
 /* === Tarjeta de Logros === */
