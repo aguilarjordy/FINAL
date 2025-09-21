@@ -202,7 +202,7 @@ export default function App() {
     if (collectRef.current && collectRef.current.active) return;
     collectRef.current = { active: true, label, count: 0 };
     setStatus("Recolectando " + label);
-    speak(`Detectando la vocal ${label}`); // 👈 Voz al recolectar
+    speak(`Recolectando la vocal ${label}`); // 👈 Voz al recolectar
     setProgress(0);
   };
 
@@ -218,7 +218,7 @@ export default function App() {
 
   const handleTrain = async () => {
     setStatus("Entrenando...");
-    speak("Entrenando modelo"); // 👈 Voz
+    speak("Entrenando modelo, espere porfavor"); // 👈 Voz
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
       const j = await res.json();
