@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useAchievements } from "../context/AchievementsContext"; // ⬅️ Contexto
 import { toast } from "react-hot-toast"; // ⬅️ Notificaciones
-import LOGROS from "../config/logros";   // ⬅️ Diccionario de nombres bonitos
+import { speak } from "../utils/speech"; // ⬅️ Voz
+import LOGROS from "../config/logros";   // ⬅️ Diccionario nombres bonitos
 import "../styles/app.css";
 
 const VOCALS = ["A", "E", "I", "O", "U"];
@@ -165,15 +166,16 @@ export default function App() {
         setPrediction(result);
         setStatus("Prediciendo...");
 
-        // 🔹 Notificar logros nuevos con nombres bonitos
+        // 🔹 Notificar logros nuevos (toast + voz usando LOGROS)
         if (data.new_achievements?.length > 0) {
           data.new_achievements.forEach((ach) => {
             const nombreBonito = LOGROS[ach] || ach;
             toast.success(`🎉 Logro desbloqueado: ${nombreBonito}`);
+            speak(`Logro conseguido: ${nombreBonito}`);
           });
         }
 
-        // 🔹 Actualizar logros en contexto (gestiona voz y duplicados)
+        // 🔹 Actualizar logros en contexto
         if (data.progress) {
           const unlockedKeys = Object.keys(data.progress).filter(
             (k) => data.progress[k] === true
@@ -200,6 +202,7 @@ export default function App() {
     if (collectRef.current && collectRef.current.active) return;
     collectRef.current = { active: true, label, count: 0 };
     setStatus("Recolectando " + label);
+    speak(`Detectando la vocal ${label}`); // 👈 Voz al recolectar
     setProgress(0);
   };
 
@@ -215,11 +218,13 @@ export default function App() {
 
   const handleTrain = async () => {
     setStatus("Entrenando...");
+    speak("Entrenando modelo"); // 👈 Voz
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
       const j = await res.json();
       if (res.ok) {
         setStatus("Entrenado correctamente");
+        speak("Modelo entrenado correctamente"); // 👈 Voz
         setIsTrained(true);
 
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {

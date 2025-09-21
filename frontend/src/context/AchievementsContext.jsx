@@ -5,8 +5,6 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
-import LOGROS from "../config/logros";   // 👈 Diccionario de nombres bonitos
-import { speak } from "../utils/speech"; // 👈 Voz
 
 const AchievementsContext = createContext();
 const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -32,25 +30,16 @@ export const AchievementsProvider = ({ children }) => {
     fetchProgress();
   }, []);
 
-  // 🔹 Actualiza logros (sobrescribe con lista nueva desde backend)
+  // 🔹 Actualiza logros (solo guarda el nuevo estado)
   const updateAchievements = useCallback(
     (newAchievements) => {
       if (!Array.isArray(newAchievements)) return;
 
-      // Evita repetir logros ya conseguidos
-      const nuevos = newAchievements.filter(
-        (ach) => !achievements.includes(ach)
-      );
-
-      if (nuevos.length > 0) {
-        nuevos.forEach((ach) => {
-          const nombreBonito = LOGROS[ach] || ach;
-          speak(`Logro conseguido: ${nombreBonito}`);
-        });
-        setAchievements(newAchievements);
-      }
+      // Evita duplicados innecesarios
+      const unique = [...new Set(newAchievements)];
+      setAchievements(unique);
     },
-    [achievements]
+    []
   );
 
   // 🔹 Reinicia logros
