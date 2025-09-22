@@ -11,8 +11,8 @@ import {
 import "../styles/operations.css";
 
 const videoConstraints = {
-  width: 320,
-  height: 240,
+  width: 322,
+  height: 242,
   facingMode: "user",
 };
 
@@ -48,11 +48,11 @@ const OperationPanel = () => {
     if (!predictions.length) return;
     predictions.forEach((pred) => {
       const landmarks = pred.landmarks;
-      // Dibujar puntos más grandes y líneas más gruesas
+      // Dibujar puntos más pequeños y líneas delgadas
       landmarks.forEach(([x, y]) => {
         ctx.beginPath();
-        ctx.arc(x, y, 8, 0, 2 * Math.PI); // Puntos de radio 8
-        ctx.fillStyle = "#34d399"; // Color verde neón
+        ctx.arc(x, y, 4, 0, 2 * Math.PI); // Puntos de radio 4
+        ctx.fillStyle = "#4ade80"; // Color verde claro
         ctx.fill();
       });
       const connections = [
@@ -63,7 +63,7 @@ const OperationPanel = () => {
         [0, 17], [17, 18], [18, 19], [19, 20],
       ];
       ctx.strokeStyle = "#4ade80"; // Color verde claro
-      ctx.lineWidth = 4; // Líneas de grosor 4
+      ctx.lineWidth = 2; // Líneas de grosor 2
       connections.forEach(([i, j]) => {
         ctx.beginPath();
         ctx.moveTo(landmarks[i][0], landmarks[i][1]);

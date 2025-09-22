@@ -10,8 +10,8 @@ import {
 import "../styles/operations.css";
 
 const videoConstraints = {
-  width: 320,
-  height: 240,
+  width: 322,
+  height: 242,
   facingMode: "user",
 };
 
@@ -37,11 +37,11 @@ const OperationTrainer = () => {
     if (!predictions.length) return;
     predictions.forEach((pred) => {
       const landmarks = pred.landmarks;
-      // Dibujar puntos más grandes y líneas más gruesas
+      // Dibujar puntos más pequeños y líneas delgadas
       landmarks.forEach(([x, y]) => {
         ctx.beginPath();
-        ctx.arc(x, y, 8, 0, 2 * Math.PI); // Puntos de radio 8
-        ctx.fillStyle = "#34d399"; // Color verde neón
+        ctx.arc(x, y, 4, 0, 2 * Math.PI); // Puntos de radio 4
+        ctx.fillStyle = "#4ade80"; // Color verde claro
         ctx.fill();
       });
       const connections = [
@@ -52,7 +52,7 @@ const OperationTrainer = () => {
         [0, 17], [17, 18], [18, 19], [19, 20],
       ];
       ctx.strokeStyle = "#4ade80"; // Color verde claro
-      ctx.lineWidth = 4; // Líneas de grosor 4
+      ctx.lineWidth = 2; // Líneas de grosor 2
       connections.forEach(([i, j]) => {
         ctx.beginPath();
         ctx.moveTo(landmarks[i][0], landmarks[i][1]);
@@ -91,7 +91,8 @@ const OperationTrainer = () => {
     try {
       setCollecting(label);
       setProgress(0);
-      for (let i = 0; i < 100; i++) {
+      const limit = 100;
+      for (let i = 0; i < limit; i++) {
         const landmarks = await getLandmarks();
         if (!landmarks) {
           alert("No se detectó la mano, deteniendo recolección.");
@@ -100,7 +101,7 @@ const OperationTrainer = () => {
         await uploadOperationSample(label, landmarks);
         setProgress(i + 1);
       }
-      alert(`✅ Se recolectaron 100 muestras para ${label}`);
+      alert(`✅ Se recolectaron ${progress} muestras para ${label}`);
     } catch (err) {
       console.error("Error recolectando:", err);
       alert("Error recolectando muestras");
