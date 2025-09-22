@@ -13,13 +13,61 @@
   "small": "Pequeno",
   "normal": "Normal",
   "large": "Grande",
+
+  "app_name": "Língua VisualWeb",
+  "dashboard": "Painel",
+  "trainer": "Treinador",
+  "math_signs": "Operações Aritméticas com Sinais",
+  "statistics": "Estatísticas",
+  "settings": "Configurações",
+
+
+  "dashboard": "Painel",
+  "trainer": "Treinador",
+  "arithmetic": "Operações Aritméticas",
+  "statistics": "Estatísticas",
+  "settings": "Configurações",
+
+  "achievements": {
+    "title": "Conquistas",
+    "first_a": "Você reconheceu a vogal A",
+    "first_e": "Você reconheceu a vogal E",
+    "first_i": "Você reconheceu a vogal I",
+    "first_o": "Você reconheceu a vogal O",
+    "first_u": "Você reconheceu a vogal U",
+    "five_predictions": "Você fez 5 previsões corretas",
+    "reset_button": "Reiniciar Conquistas",
+    "reset_success": "Conquistas reiniciadas",
+    "reset_error": "Erro ao reiniciar",
+    "connection_error": "Erro de conexão"
+  },
+
+  "common": {
+    "go": "Ir"
+  },
+
   
   "app_name": "Língua VisualWeb",
   "dashboard": "Painel",
   "trainer": "Treinador",
   "math_signs": "Operações Aritméticas com Sinais",
   "statistics": "Estatísticas",
-  "settings": "Configurações"
+
+  "footer": {
+    "text": "Projeto de Reconhecimento de Sinais"
+  },
+
+  "recognition": {
+    "title": "Reconhecimento de Vogais",
+    "current_prediction": "Previsão atual",
+    "none": "nenhuma",
+    "test_button": "Testar",
+    "achievement_unlocked": "🏆 Conquista desbloqueada!"
+  
+}
+
+
+
 
 
 }

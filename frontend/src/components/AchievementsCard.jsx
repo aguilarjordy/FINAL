@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useAchievements } from "../context/AchievementsContext";
+import { useTranslation } from "react-i18next";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
-
-// 🔹 Misma lista que backend (achievements.py)
-const ALL_ACHIEVEMENTS = [
-  { id: "first_a", title: "Reconociste la vocal A" },
-  { id: "first_e", title: "Reconociste la vocal E" },
-  { id: "first_i", title: "Reconociste la vocal I" },
-  { id: "first_o", title: "Reconociste la vocal O" },
-  { id: "first_u", title: "Reconociste la vocal U" },
-  { id: "five_predictions", title: "Realizaste 5 predicciones correctas" },
-];
 
 export default function AchievementsCard() {
   const { achievements, updateAchievements, resetAchievements } = useAchievements();
   const [status, setStatus] = useState("");
+  const { t } = useTranslation();
 
-  // 🔹 Al montar, traer progreso real del backend
+  // 🔹 Lista de logros traducibles
+  const ALL_ACHIEVEMENTS = [
+    { id: "first_a", title: t("achievements.first_a") },
+    { id: "first_e", title: t("achievements.first_e") },
+    { id: "first_i", title: t("achievements.first_i") },
+    { id: "first_o", title: t("achievements.first_o") },
+    { id: "first_u", title: t("achievements.first_u") },
+    { id: "five_predictions", title: t("achievements.five_predictions") },
+  ];
+
   useEffect(() => {
     const fetchProgress = async () => {
       try {
@@ -35,26 +36,25 @@ export default function AchievementsCard() {
     fetchProgress();
   }, [updateAchievements]);
 
-  // 🔹 Reset de logros
   const handleResetAchievements = async () => {
     try {
       const res = await fetch(`${API_URL}/api/achievements/reset`, { method: "POST" });
       if (res.ok) {
         resetAchievements();
-        setStatus("✅ Logros reiniciados");
+        setStatus(`✅ ${t("achievements.reset_success")}`);
       } else {
-        setStatus("❌ Error al reiniciar");
+        setStatus(`❌ ${t("achievements.reset_error")}`);
       }
     } catch (err) {
       console.error("❌ Error al reiniciar logros:", err.message);
-      setStatus("❌ Error de conexión");
+      setStatus(`❌ ${t("achievements.connection_error")}`);
     }
     setTimeout(() => setStatus(""), 3000);
   };
 
   return (
-    <div className="card">
-      <div className="card-title">🎯 Logros</div>
+    <div className="card" style={{ fontSize: "var(--app-font-size)" }}>
+      <div className="card-title">🎯 {t("achievements.title")}</div>
 
       <ul className="achievements-list">
         {ALL_ACHIEVEMENTS.map((ach) => (
@@ -68,7 +68,7 @@ export default function AchievementsCard() {
       </ul>
 
       <button className="button red" onClick={handleResetAchievements}>
-        Reiniciar Logros
+        {t("achievements.reset_button")}
       </button>
 
       {status && <div className="small">{status}</div>}

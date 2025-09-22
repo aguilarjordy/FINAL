@@ -19,7 +19,54 @@
   "trainer": "Trainer",
   "math_signs": "Arithmetic Operations with Signs",
   "statistics": "Statistics",
-  "settings": "Settings"
+  "settings": "Settings",
+
+
+  "dashboard": "Dashboard",
+  "trainer": "Trainer",
+  "arithmetic": "Arithmetic Operations",
+  "statistics": "Statistics",
+  "settings": "Settings",
+
+    "achievements": {
+    "title": "Achievements",
+    "first_a": "You recognized the vowel A",
+    "first_e": "You recognized the vowel E",
+    "first_i": "You recognized the vowel I",
+    "first_o": "You recognized the vowel O",
+    "first_u": "You recognized the vowel U",
+    "five_predictions": "You made 5 correct predictions",
+    "reset_button": "Reset Achievements",
+    "reset_success": "Achievements reset",
+    "reset_error": "Error resetting",
+    "connection_error": "Connection error"
+  },
+
+  "common": {
+    "go": "Go"
+  },
+
+  
+  "app_name": "Visual Language Web",
+  "dashboard": "Dashboard",
+  "trainer": "Trainer",
+  "math_signs": "Arithmetic Operations with Signs",
+  "statistics": "Statistics",
+
+  "footer": {
+    "text": "Sign Recognition Project"
+  },
+
+  "recognition": {
+    "title": "Vowel Recognition",
+    "current_prediction": "Current prediction",
+    "none": "none",
+    "test_button": "Test",
+    "achievement_unlocked": "🏆 Achievement unlocked!"
+  
+}
+
+
 
 
 }
