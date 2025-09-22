@@ -1,8 +1,8 @@
 // src/components/OperationTrainer.jsx
 import React, { useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
-import * as handpose from "@tensorflow-models/handpose";
-import "@tensorflow/tfjs";
+import { Hands } from "@mediapipe/hands";
+import { Camera } from "@mediapipe/camera_utils";
 import {
   uploadOperationSample,
   trainOperationModel,
@@ -10,105 +10,101 @@ import {
 import "../styles/operations.css";
 
 const videoConstraints = {
-  width: 322,
-  height: 242,
+  width: 320,
+  height: 240,
   facingMode: "user",
 };
 
 const OperationTrainer = () => {
   const [loading, setLoading] = useState(false);
-  const [model, setModel] = useState(null);
   const [collecting, setCollecting] = useState(null);
   const [progress, setProgress] = useState(0);
 
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
+  const countsRef = useRef({});
+
+  // 🔹 Inicializar MediaPipe
   useEffect(() => {
-    const loadModel = async () => {
-      const net = await handpose.load();
-      setModel(net);
-      console.log("✅ Modelo Handpose cargado");
-    };
-    loadModel();
+    if (!webcamRef.current) return;
+
+    const hands = new Hands({
+      locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+    });
+
+    hands.setOptions({
+      maxNumHands: 1,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+
+    hands.onResults((results) => {
+      const videoWidth = webcamRef.current.video.videoWidth;
+      const videoHeight = webcamRef.current.video.videoHeight;
+      const canvasElement = canvasRef.current;
+      const canvasCtx = canvasElement.getContext("2d");
+
+      canvasElement.width = videoWidth;
+      canvasElement.height = videoHeight;
+
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, videoWidth, videoHeight);
+      canvasCtx.scale(-1, 1);
+      canvasCtx.translate(-videoWidth, 0);
+      canvasCtx.drawImage(
+        results.image,
+        0,
+        0,
+        videoWidth,
+        videoHeight
+      );
+
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        // ✅ Dibuja la mano en el canvas
+        const landmarks = results.multiHandLandmarks[0];
+        window.drawConnectors(canvasCtx, landmarks, window.HAND_CONNECTIONS, {
+          color: "#4ade80",
+          lineWidth: 2,
+        });
+        window.drawLandmarks(canvasCtx, landmarks, {
+          color: "#4ade80",
+          lineWidth: 2,
+          radius: 4,
+        });
+
+        // 🚀 Recolecta la muestra si el estado de recolección está activo
+        if (collecting) {
+          const count = countsRef.current[collecting] || 0;
+          if (count < 100) {
+            const allLandmarks = landmarks.flatMap((lm) => [lm.x, lm.y, lm.z]);
+            uploadOperationSample(collecting, allLandmarks);
+            countsRef.current[collecting] = count + 1;
+            setProgress(count + 1);
+          } else {
+            setCollecting(null);
+            alert(`✅ Se recolectaron 100 muestras para ${collecting}`);
+          }
+        }
+      }
+      canvasCtx.restore();
+    });
+
+    const camera = new Camera(webcamRef.current.video, {
+      onFrame: async () => {
+        await hands.send({ image: webcamRef.current.video });
+      },
+      width: 320,
+      height: 240,
+    });
+    camera.start();
   }, []);
 
-  const drawHand = (predictions, ctx) => {
-    if (!predictions.length) return;
-    predictions.forEach((pred) => {
-      const landmarks = pred.landmarks;
-      // Dibujar puntos más pequeños y líneas delgadas
-      landmarks.forEach(([x, y]) => {
-        ctx.beginPath();
-        ctx.arc(x, y, 4, 0, 2 * Math.PI); // Puntos de radio 4
-        ctx.fillStyle = "#4ade80"; // Color verde claro
-        ctx.fill();
-      });
-      const connections = [
-        [0, 1], [1, 2], [2, 3], [3, 4],
-        [0, 5], [5, 6], [6, 7], [7, 8],
-        [0, 9], [9, 10], [10, 11], [11, 12],
-        [0, 13], [13, 14], [14, 15], [15, 16],
-        [0, 17], [17, 18], [18, 19], [19, 20],
-      ];
-      ctx.strokeStyle = "#4ade80"; // Color verde claro
-      ctx.lineWidth = 2; // Líneas de grosor 2
-      connections.forEach(([i, j]) => {
-        ctx.beginPath();
-        ctx.moveTo(landmarks[i][0], landmarks[i][1]);
-        ctx.lineTo(landmarks[j][0], landmarks[j][1]);
-        ctx.stroke();
-      });
-    });
-  };
-
-  useEffect(() => {
-    if (!model) return;
-    const interval = setInterval(async () => {
-      const webcam = webcamRef.current;
-      const canvas = canvasRef.current;
-      if (webcam && canvas && webcam.video.readyState === 4) {
-        const predictions = await model.estimateHands(webcam.video);
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawHand(predictions, ctx);
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, [model]);
-
-  const getLandmarks = async () => {
-    if (!model || !webcamRef.current) return null;
-    const predictions = await model.estimateHands(webcamRef.current.video);
-    if (predictions.length > 0) {
-      const allLandmarks = predictions.flatMap(prediction => prediction.landmarks.flat());
-      return allLandmarks;
-    }
-    return null;
-  };
-
-  const handleCollect = async (label) => {
-    try {
-      setCollecting(label);
-      setProgress(0);
-      const limit = 100;
-      for (let i = 0; i < limit; i++) {
-        const landmarks = await getLandmarks();
-        if (!landmarks) {
-          alert("No se detectó la mano, deteniendo recolección.");
-          break;
-        }
-        await uploadOperationSample(label, landmarks);
-        setProgress(i + 1);
-      }
-      alert(`✅ Se recolectaron ${progress} muestras para ${label}`);
-    } catch (err) {
-      console.error("Error recolectando:", err);
-      alert("Error recolectando muestras");
-    } finally {
-      setCollecting(null);
-      setProgress(0);
-    }
+  const handleCollect = (label) => {
+    setProgress(0);
+    setCollecting(label);
   };
 
   const handleTrain = async () => {
@@ -144,8 +140,6 @@ const OperationTrainer = () => {
             />
             <canvas
               ref={canvasRef}
-              width={videoConstraints.width}
-              height={videoConstraints.height}
               className="overlay-canvas"
             />
           </div>
