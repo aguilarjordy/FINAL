@@ -10,7 +10,7 @@ const ALL_ACHIEVEMENTS = [
   { id: "first_i", title: "Reconociste la vocal I" },
   { id: "first_o", title: "Reconociste la vocal O" },
   { id: "first_u", title: "Reconociste la vocal U" },
-  { id: "five_predictions", title: "Realizaste 5 predicciones correctas" },
+  { id: "master_vocals", title: "🏆 Logro Master: reconociste las 5 vocales por primera vez" },
 ];
 
 export default function AchievementsCard() {
