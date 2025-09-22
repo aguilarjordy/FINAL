@@ -1,8 +1,13 @@
-import { useState, useRef, useEffect } from "react";
+// src/components/OperationTrainer.jsx
+import React, { useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
 import * as handpose from "@tensorflow-models/handpose";
 import "@tensorflow/tfjs";
-import { uploadOperationSample, trainOperationModel } from "../services/operations";
+import {
+  uploadOperationSample,
+  trainOperationModel,
+} from "../services/operations";
+import "../styles/operations.css";
 
 const videoConstraints = {
   width: 320,
@@ -10,125 +15,152 @@ const videoConstraints = {
   facingMode: "user",
 };
 
-export default function OperationTrainer() {
-  const [type, setType] = useState("number");
-  const [value, setValue] = useState("");
+const OperationTrainer = () => {
   const [loading, setLoading] = useState(false);
   const [model, setModel] = useState(null);
-  const webcamRef = useRef(null);
+  const [collecting, setCollecting] = useState(null);
 
-  // 📌 Cargar modelo de manos
+  const webcamRef = useRef(null);
+  const canvasRef = useRef(null);
+
   useEffect(() => {
     const loadModel = async () => {
       const net = await handpose.load();
       setModel(net);
-      console.log("✅ Modelo de manos cargado");
+      console.log("✅ Modelo Handpose cargado");
     };
     loadModel();
   }, []);
 
-  // 📌 Detectar landmarks
-  const detectLandmarks = async () => {
+  const drawHand = (predictions, ctx) => {
+    if (!predictions.length) return;
+    predictions.forEach((pred) => {
+      const landmarks = pred.landmarks;
+      landmarks.forEach(([x, y]) => {
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = "lime";
+        ctx.fill();
+      });
+      const connections = [
+        [0, 1], [1, 2], [2, 3], [3, 4],
+        [0, 5], [5, 6], [6, 7], [7, 8],
+        [0, 9], [9, 10], [10, 11], [11, 12],
+        [0, 13], [13, 14], [14, 15], [15, 16],
+        [0, 17], [17, 18], [18, 19], [19, 20],
+      ];
+      ctx.strokeStyle = "lime";
+      ctx.lineWidth = 2;
+      connections.forEach(([i, j]) => {
+        ctx.beginPath();
+        ctx.moveTo(landmarks[i][0], landmarks[i][1]);
+        ctx.lineTo(landmarks[j][0], landmarks[j][1]);
+        ctx.stroke();
+      });
+    });
+  };
+
+  useEffect(() => {
+    if (!model) return;
+    const interval = setInterval(async () => {
+      const webcam = webcamRef.current;
+      const canvas = canvasRef.current;
+      if (webcam && canvas && webcam.video.readyState === 4) {
+        const predictions = await model.estimateHands(webcam.video);
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawHand(predictions, ctx);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [model]);
+
+  const getLandmarks = async () => {
     if (!model || !webcamRef.current) return null;
     const predictions = await model.estimateHands(webcamRef.current.video);
-    if (predictions.length > 0) {
-      return predictions[0].landmarks.flat();
-    }
+    if (predictions.length > 0) return predictions[0].landmarks.flat();
     return null;
   };
 
-  // 📌 Guardar muestra
-  const handleSave = async () => {
-    if (!value.trim()) {
-      alert("Escribe un valor válido (ej: 5, +, -, *, /)");
-      return;
-    }
+  const handleCollect = async (label) => {
     try {
-      setLoading(true);
-      const landmarks = await detectLandmarks();
+      setCollecting(label);
+      const landmarks = await getLandmarks();
       if (!landmarks) {
-        alert("No se detectaron manos en la cámara");
+        alert("No se detectó la mano");
         return;
       }
-      const res = await uploadOperationSample(`${type}:${value}`, landmarks);
-      alert(res.data.message || `✅ Muestra de "${value}" guardada`);
+      await uploadOperationSample(label, landmarks);
+      alert(`✅ Muestra guardada para ${label}`);
     } catch (err) {
-      console.error("Error al guardar muestra:", err);
-      alert("Error al guardar muestra");
+      console.error("Error recolectando:", err);
     } finally {
-      setLoading(false);
+      setCollecting(null);
     }
   };
 
-  // 📌 Entrenar modelo
   const handleTrain = async () => {
     try {
       setLoading(true);
       const res = await trainOperationModel();
-      alert("🎉 Modelo entrenado con clases: " + JSON.stringify(res.data.classes));
+      alert("✅ Modelo entrenado: " + JSON.stringify(res.data.classes));
     } catch (err) {
-      console.error("Error al entrenar:", err);
-      alert("Error al entrenar modelo");
+      console.error("Error entrenando:", err);
+      alert("Error entrenando modelo");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="text-center">
-      <h1 className="text-2xl font-bold mb-4">🎓 Entrenador de Operaciones</h1>
-      <p className="text-gray-600 mb-4">
-        Selecciona el tipo (número u operador), escribe el valor, y captura gestos para entrenar el modelo.
-      </p>
+    <div className="operation-panel">
+      <div className="content-card">
+        <h3 className="section-title">
+          <span role="img" aria-label="training">📚</span> Recolección de Muestras
+        </h3>
+        <p className="section-subtitle">
+          Guarda una muestra para cada número y operador. Apunta la mano a la cámara y presiona el botón.
+        </p>
 
-      {/* 📷 Cámara */}
-      <div className="webcam-container mb-4">
-        <Webcam
-          ref={webcamRef}
-          audio={false}
-          screenshotFormat="image/jpeg"
-          videoConstraints={videoConstraints}
-        />
-      </div>
+        <section className="panel-section">
+          <div className="cameras-container">
+            <div className="webcam-container">
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                videoConstraints={videoConstraints}
+              />
+              <canvas
+                ref={canvasRef}
+                width={videoConstraints.width}
+                height={videoConstraints.height}
+                className="overlay-canvas"
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2 mb-4">
+            {[..."0123456789", "+", "-", "*", "/"].map((lbl) => (
+              <button
+                key={lbl}
+                onClick={() => handleCollect(lbl)}
+                disabled={!!collecting}
+                className="btn-gray"
+              >
+                {collecting === lbl ? "⏳..." : lbl}
+              </button>
+            ))}
+          </div>
+        </section>
 
-      {/* 🔹 Selector de tipo y valor */}
-      <div className="flex justify-center gap-2 mb-4">
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          className="border px-3 py-2 rounded-lg"
-        >
-          <option value="number">Número</option>
-          <option value="operator">Operador</option>
-        </select>
-
-        <input
-          type="text"
-          placeholder="Ejemplo: 5 o +"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          className="border px-3 py-2 rounded-lg w-32"
-        />
-      </div>
-
-      {/* 🔘 Botones */}
-      <div className="flex justify-center gap-4">
-        <button
-          onClick={handleSave}
-          disabled={loading}
-          className="btn-green"
-        >
-          {loading ? "⏳ Guardando..." : "📷 Guardar muestra"}
-        </button>
-
-        <button
-          onClick={handleTrain}
-          disabled={loading}
-          className="btn-blue"
-        >
-          {loading ? "⏳ Entrenando..." : "🤖 Entrenar modelo"}
-        </button>
+        <div className="flex justify-center mt-4">
+          <button onClick={handleTrain} disabled={loading} className="btn-yellow">
+            {loading ? "⏳ Entrenando..." : "📚 Entrenar"}
+          </button>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default OperationTrainer;

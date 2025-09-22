@@ -1,14 +1,15 @@
 /* === Contenedor principal === */
-.operation-panel {
+.arithmetic-page {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   padding: 2rem 1rem;
-  background: #f3f4f6; /* Fondo gris claro para el cuerpo de la página */
-  min-height: calc(100vh - 120px); /* Altura completa de la pantalla */
+  background: #f3f4f6;
+  min-height: 100vh;
   font-family: "Inter", sans-serif;
 }
 
-.content-card {
+.arithmetic-page .content-card {
   width: 100%;
   max-width: 900px;
   background: white;
@@ -18,19 +19,24 @@
   box-sizing: border-box;
 }
 
-/* === Títulos === */
-.operation-title {
-  font-size: 2rem;
+.arithmetic-title {
+  font-size: 2.5rem;
   font-weight: 700;
   text-align: center;
   margin-bottom: 0.5rem;
   color: #1f2937;
 }
 
-.operation-subtitle {
+.arithmetic-subtitle {
   font-size: 1rem;
   text-align: center;
   color: #4b5563;
+  margin-bottom: 2rem;
+}
+
+.arithmetic-section {
+  width: 100%;
+  max-width: 900px;
   margin-bottom: 2rem;
 }
 
@@ -51,7 +57,6 @@
   margin-bottom: 1.5rem;
 }
 
-/* === Contenedor de cámaras === */
 .cameras-container {
   display: flex;
   flex-wrap: wrap;
@@ -60,13 +65,6 @@
   margin-bottom: 2rem;
 }
 
-/* Nuevo estilo para una sola cámara */
-.cameras-container.single-camera {
-  flex-direction: column;
-  align-items: center;
-}
-
-/* === Cámara individual === */
 .webcam-container {
   position: relative;
   width: 100%;
@@ -92,7 +90,6 @@
   pointer-events: none;
 }
 
-/* === Operación en progreso === */
 .operation-display-card {
   background-color: #f9fafb;
   border: 1px solid #e5e7eb;
@@ -103,6 +100,7 @@
   align-items: center;
   gap: 1rem;
   margin-top: 2rem;
+  text-align: center;
 }
 
 .operation-number,
@@ -116,7 +114,6 @@
   color: #059669;
 }
 
-/* === Resultado final === */
 .result-box {
   background: #d1fae5;
   border: 1px solid #34d399;
@@ -132,7 +129,6 @@
   color: #065f46;
 }
 
-/* === Botones === */
 button {
   cursor: pointer;
   font-weight: 500;
@@ -155,7 +151,6 @@ button:disabled {
   box-shadow: none;
 }
 
-/* Colores de botones */
 .btn-green {
   background: #10b981;
   color: white;
@@ -191,15 +186,14 @@ button:disabled {
   background: #d1d5db;
 }
 
-/* Media Query para pantallas pequeñas (móviles) */
 @media (max-width: 768px) {
-  .content-card {
+  .arithmetic-page .content-card {
     padding: 1.5rem;
   }
-  .operation-title {
+  .arithmetic-title {
     font-size: 1.5rem;
   }
-  .operation-subtitle {
+  .arithmetic-subtitle {
     font-size: 0.9rem;
   }
   .cameras-container {

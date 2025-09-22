@@ -28,6 +28,7 @@ const OperationPanel = () => {
     setOperator,
     setSecondNumber,
     setResult,
+    resetOperation,
   } = useOperations();
 
   const [loading, setLoading] = useState(false);
@@ -36,6 +37,8 @@ const OperationPanel = () => {
 
   const webcamRef1 = useRef(null);
   const canvasRef1 = useRef(null);
+  const webcamRef2 = useRef(null);
+  const canvasRef2 = useRef(null);
 
   // 🔹 Cargar modelo Handpose
   useEffect(() => {
@@ -52,16 +55,12 @@ const OperationPanel = () => {
     if (!predictions.length) return;
     predictions.forEach((pred) => {
       const landmarks = pred.landmarks;
-
-      // puntos
       landmarks.forEach(([x, y]) => {
         ctx.beginPath();
         ctx.arc(x, y, 5, 0, 2 * Math.PI);
         ctx.fillStyle = "lime";
         ctx.fill();
       });
-
-      // esqueleto
       const connections = [
         [0, 1], [1, 2], [2, 3], [3, 4],
         [0, 5], [5, 6], [6, 7], [7, 8],
@@ -80,27 +79,40 @@ const OperationPanel = () => {
     });
   };
 
-  // 🔹 Detección en tiempo real para la cámara
+  // 🔹 Detección en tiempo real para ambas cámaras
   useEffect(() => {
     if (!model) return;
     const interval = setInterval(async () => {
-      const webcam = webcamRef1.current;
-      const canvas = canvasRef1.current;
-      if (webcam && canvas) {
-        const predictions = await model.estimateHands(webcam.video);
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawHand(predictions, ctx);
-      }
+      const cameras = [
+        { webcam: webcamRef1.current, canvas: canvasRef1.current },
+        { webcam: webcamRef2.current, canvas: canvasRef2.current },
+      ];
+      cameras.forEach(async ({ webcam, canvas }) => {
+        if (webcam && canvas && webcam.video.readyState === 4) {
+          const predictions = await model.estimateHands(webcam.video);
+          const ctx = canvas.getContext("2d");
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          drawHand(predictions, ctx);
+        }
+      });
     }, 100);
     return () => clearInterval(interval);
   }, [model]);
 
-  // 🔹 Obtener landmarks de la cámara
+  // 🔹 Obtener landmarks (ahora procesa ambas cámaras)
   const getLandmarks = async () => {
-    if (!model || !webcamRef1.current) return null;
-    const predictions = await model.estimateHands(webcamRef1.current.video);
-    if (predictions.length > 0) return predictions[0].landmarks.flat();
+    const allPredictions = [];
+    if (model && webcamRef1.current && webcamRef1.current.video.readyState === 4) {
+      const predictions1 = await model.estimateHands(webcamRef1.current.video);
+      allPredictions.push(...predictions1);
+    }
+    if (model && webcamRef2.current && webcamRef2.current.video.readyState === 4) {
+      const predictions2 = await model.estimateHands(webcamRef2.current.video);
+      allPredictions.push(...predictions2);
+    }
+    if (allPredictions.length > 0) {
+      return allPredictions[0].landmarks.flat();
+    }
     return null;
   };
 
@@ -136,7 +148,7 @@ const OperationPanel = () => {
     }
   };
 
-  // 📌 Predecir seña actual
+  // 📌 Predecir seña actual y gestionar la secuencia
   const handlePredict = async () => {
     try {
       setLoading(true);
@@ -147,12 +159,13 @@ const OperationPanel = () => {
       }
       const res = await predictOperation(landmarks);
       const prediction = res.data.prediction;
-      if (!isNaN(prediction)) {
-        if (firstNumber === null) setFirstNumber(Number(prediction));
-        else if (operator && secondNumber === null)
-          setSecondNumber(Number(prediction));
-      } else {
+
+      if (firstNumber === null) {
+        setFirstNumber(prediction);
+      } else if (operator === null) {
         setOperator(prediction);
+      } else if (secondNumber === null) {
+        setSecondNumber(prediction);
       }
     } catch (err) {
       console.error("Error prediciendo:", err);
@@ -183,45 +196,49 @@ const OperationPanel = () => {
   return (
     <div className="operation-panel">
       <div className="content-card">
-        <h2 className="operation-title">🧮 Operaciones Aritméticas con Señas</h2>
+        <h2 className="operation-title">🧮 Operaciones Matemáticas con Señas</h2>
         <p className="operation-subtitle">
-          Entrena el modelo recolectando muestras de números y operadores, y luego practica sumas, restas, multiplicaciones y divisiones con tus manos.
+          Entrena el modelo recolectando muestras de números y operadores, y luego practica con tus manos.
         </p>
 
-        {/* Sección de Entrenamiento */}
+        {/* Sección de Cámaras */}
         <section className="panel-section">
           <h3 className="section-title">
-            <span role="img" aria-label="training">📚</span> Entrenamiento
+            <span role="img" aria-label="camera">📷</span> Reconocimiento de Gestos
           </h3>
           <p className="section-subtitle">
-            Guarda muestras de tus señas para números y operadores. Cuando tengas suficientes ejemplos, entrena el modelo.
+            Asegúrate de que tus manos estén visibles en ambas cámaras.
           </p>
-          <div className="cameras-container single-camera">
-            <div className="webcam-container">
-              <Webcam
-                audio={false}
-                ref={webcamRef1}
-                screenshotFormat="image/jpeg"
-                videoConstraints={videoConstraints}
-              />
-              <canvas
-                ref={canvasRef1}
-                width={videoConstraints.width}
-                height={videoConstraints.height}
-                className="overlay-canvas"
-              />
-            </div>
+          <div className="cameras-container">
+            {[1, 2].map((idx) => (
+              <div key={idx} className="webcam-container">
+                <Webcam
+                  audio={false}
+                  ref={idx === 1 ? webcamRef1 : webcamRef2}
+                  screenshotFormat="image/jpeg"
+                  videoConstraints={videoConstraints}
+                />
+                <canvas
+                  ref={idx === 1 ? canvasRef1 : canvasRef2}
+                  width={videoConstraints.width}
+                  height={videoConstraints.height}
+                  className="overlay-canvas"
+                />
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* Sección de Paneles de Operaciones */}
+        {/* Sección de Controles */}
         <section className="panel-section">
           <h3 className="section-title">
-            <span role="img" aria-label="operation">🧠</span> Panel de Operaciones
+            <span role="img" aria-label="controls">⚙️</span> Controles de Operación
           </h3>
           <p className="section-subtitle">
-            Selecciona el tipo (número u operador), escribe el valor, y captura gestos para entrenar el modelo.
+            Utiliza los botones para recolectar muestras, entrenar el modelo y realizar tus operaciones.
           </p>
+          
+          {/* Botones de Recolección */}
           <div className="flex flex-wrap justify-center gap-2 mb-4">
             {[..."0123456789", "+", "-", "*", "/"].map((lbl) => (
               <button
@@ -235,6 +252,7 @@ const OperationPanel = () => {
             ))}
           </div>
 
+          {/* Botones Principales */}
           <div className="flex justify-center gap-4 mt-4">
             <button onClick={handleTrain} disabled={loading} className="btn-yellow">
               {loading ? "⏳ Entrenando..." : "📚 Entrenar"}
@@ -244,32 +262,41 @@ const OperationPanel = () => {
               disabled={loading}
               className="btn-green"
             >
-              {loading ? "⏳ Prediciendo..." : "📷 Reconocer seña"}
+              {loading ? "⏳ Prediciendo..." : "📷 Reconocer Seña"}
             </button>
             <button
               onClick={handleCalculate}
-              disabled={loading}
+              disabled={loading || !firstNumber || !operator || !secondNumber}
               className="btn-blue"
             >
               {loading ? "⏳ Calculando..." : "🟰 Calcular"}
             </button>
+            <button
+              onClick={resetOperation}
+              className="btn-gray"
+            >
+              Limpiar
+            </button>
           </div>
+        </section>
 
-          <div className="operation-display-card">
-            <span className="operation-number">{firstNumber ?? "?"}</span>
-            <span className="operation-operator">{operator ?? "?"}</span>
-            <span className="operation-number">{secondNumber ?? "?"}</span>
-            <span className="operation-operator">=</span>
-            <span className="operation-number result-number">
-              {result ?? "?"}
-            </span>
-          </div>
-
-          {result !== null && (
-            <div className="result-box">
-              <h3 className="operation-result">Resultado: {result}</h3>
+        {/* Sección de Visualización */}
+        <section className="panel-section">
+            <h3 className="section-title">
+                <span role="img" aria-label="display">🖥️</span> Visualización
+            </h3>
+            <p className="section-subtitle">
+                La operación actual se mostrará aquí a medida que reconozcas los gestos.
+            </p>
+            <div className="operation-display-card">
+                <span className="operation-number">{firstNumber ?? "?"}</span>
+                <span className="operation-operator">{operator ?? "?"}</span>
+                <span className="operation-number">{secondNumber ?? "?"}</span>
+                <span className="operation-operator">=</span>
+                <span className="operation-number result-number">
+                    {result ?? "?"}
+                </span>
             </div>
-          )}
         </section>
       </div>
     </div>
