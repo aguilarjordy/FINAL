@@ -32,8 +32,11 @@ const OperationPanel = () => {
   const [loading, setLoading] = useState(false);
   const [model, setModel] = useState(null);
   const [collecting, setCollecting] = useState(null);
-  const webcamRef = useRef(null);
-  const canvasRef = useRef(null);
+
+  const webcamRef1 = useRef(null);
+  const canvasRef1 = useRef(null);
+  const webcamRef2 = useRef(null);
+  const canvasRef2 = useRef(null);
 
   // 🔹 Cargar modelo Handpose
   useEffect(() => {
@@ -49,38 +52,40 @@ const OperationPanel = () => {
   const drawHand = (predictions, ctx) => {
     if (!predictions.length) return;
     predictions.forEach((pred) => {
-      const landmarks = pred.landmarks;
-      for (let i = 0; i < landmarks.length; i++) {
-        const [x, y] = landmarks[i];
+      pred.landmarks.forEach(([x, y]) => {
         ctx.beginPath();
         ctx.arc(x, y, 3, 0, 2 * Math.PI);
         ctx.fillStyle = "lime";
         ctx.fill();
-      }
+      });
     });
   };
 
-  // 🔹 Detección en tiempo real
+  // 🔹 Detección en tiempo real para ambas cámaras
   useEffect(() => {
     if (!model) return;
     const interval = setInterval(async () => {
-      if (webcamRef.current && canvasRef.current) {
-        const predictions = await model.estimateHands(webcamRef.current.video);
-        const ctx = canvasRef.current.getContext("2d");
-        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        drawHand(predictions, ctx);
-      }
+      const cameras = [
+        { webcam: webcamRef1.current, canvas: canvasRef1.current },
+        { webcam: webcamRef2.current, canvas: canvasRef2.current },
+      ];
+      cameras.forEach(async ({ webcam, canvas }) => {
+        if (webcam && canvas) {
+          const predictions = await model.estimateHands(webcam.video);
+          const ctx = canvas.getContext("2d");
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          drawHand(predictions, ctx);
+        }
+      });
     }, 100);
     return () => clearInterval(interval);
   }, [model]);
 
-  // 🔹 Obtener landmarks
+  // 🔹 Obtener landmarks (de la cámara 1 por defecto)
   const getLandmarks = async () => {
-    if (!model || !webcamRef.current) return null;
-    const predictions = await model.estimateHands(webcamRef.current.video);
-    if (predictions.length > 0) {
-      return predictions[0].landmarks.flat();
-    }
+    if (!model || !webcamRef1.current) return null;
+    const predictions = await model.estimateHands(webcamRef1.current.video);
+    if (predictions.length > 0) return predictions[0].landmarks.flat();
     return null;
   };
 
@@ -167,20 +172,24 @@ const OperationPanel = () => {
         Entrena, reconoce y calcula operaciones usando gestos de la mano.
       </p>
 
-      {/* Cámara con overlay */}
-      <div className="webcam-container">
-        <Webcam
-          audio={false}
-          ref={webcamRef}
-          screenshotFormat="image/jpeg"
-          videoConstraints={videoConstraints}
-        />
-        <canvas
-          ref={canvasRef}
-          width={videoConstraints.width}
-          height={videoConstraints.height}
-          className="absolute top-0 left-0"
-        />
+      {/* Contenedor de cámaras */}
+      <div className="cameras-container">
+        {[1, 2].map((idx) => (
+          <div key={idx} className="webcam-container">
+            <Webcam
+              audio={false}
+              ref={idx === 1 ? webcamRef1 : webcamRef2}
+              screenshotFormat="image/jpeg"
+              videoConstraints={videoConstraints}
+            />
+            <canvas
+              ref={idx === 1 ? canvasRef1 : canvasRef2}
+              width={videoConstraints.width}
+              height={videoConstraints.height}
+              className="overlay-canvas"
+            />
+          </div>
+        ))}
       </div>
 
       {/* Operación en progreso */}
@@ -206,16 +215,22 @@ const OperationPanel = () => {
       </div>
 
       {/* Botones principales */}
-      <div className="flex justify-center gap-4">
+      <div className="flex justify-center gap-4 mt-4">
         <button onClick={handleTrain} disabled={loading} className="btn-yellow">
           {loading ? "⏳ Entrenando..." : "📚 Entrenar"}
         </button>
-
-        <button onClick={handlePredict} disabled={loading} className="btn-green">
+        <button
+          onClick={handlePredict}
+          disabled={loading}
+          className="btn-green"
+        >
           {loading ? "⏳ Prediciendo..." : "📷 Reconocer seña"}
         </button>
-
-        <button onClick={handleCalculate} disabled={loading} className="btn-blue">
+        <button
+          onClick={handleCalculate}
+          disabled={loading}
+          className="btn-blue"
+        >
           {loading ? "⏳ Calculando..." : "🟰 Calcular"}
         </button>
       </div>
