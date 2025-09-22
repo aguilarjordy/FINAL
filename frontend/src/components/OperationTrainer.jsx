@@ -37,10 +37,11 @@ const OperationTrainer = () => {
     if (!predictions.length) return;
     predictions.forEach((pred) => {
       const landmarks = pred.landmarks;
+      // Dibujar puntos más grandes y líneas más gruesas
       landmarks.forEach(([x, y]) => {
         ctx.beginPath();
-        ctx.arc(x, y, 5, 0, 2 * Math.PI);
-        ctx.fillStyle = "lime";
+        ctx.arc(x, y, 8, 0, 2 * Math.PI); // Puntos de radio 8
+        ctx.fillStyle = "#34d399"; // Color verde neón
         ctx.fill();
       });
       const connections = [
@@ -50,8 +51,8 @@ const OperationTrainer = () => {
         [0, 13], [13, 14], [14, 15], [15, 16],
         [0, 17], [17, 18], [18, 19], [19, 20],
       ];
-      ctx.strokeStyle = "lime";
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#4ade80"; // Color verde claro
+      ctx.lineWidth = 4; // Líneas de grosor 4
       connections.forEach(([i, j]) => {
         ctx.beginPath();
         ctx.moveTo(landmarks[i][0], landmarks[i][1]);
@@ -80,7 +81,6 @@ const OperationTrainer = () => {
     if (!model || !webcamRef.current) return null;
     const predictions = await model.estimateHands(webcamRef.current.video);
     if (predictions.length > 0) {
-      // Unir los landmarks de todas las manos en un solo array
       const allLandmarks = predictions.flatMap(prediction => prediction.landmarks.flat());
       return allLandmarks;
     }
@@ -99,9 +99,8 @@ const OperationTrainer = () => {
         }
         await uploadOperationSample(label, landmarks);
         setProgress(i + 1);
-        await new Promise(resolve => setTimeout(resolve, 100)); // Espera 100ms
       }
-      alert(`✅ Se recolectaron ${progress} muestras para ${label}`);
+      alert(`✅ Se recolectaron 100 muestras para ${label}`);
     } catch (err) {
       console.error("Error recolectando:", err);
       alert("Error recolectando muestras");
