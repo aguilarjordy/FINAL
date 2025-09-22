@@ -21,17 +21,11 @@ export default function App() {
     handleTrain,
     handleReset,
     fetchCounts,
-    isTrained,
+    isTrainedRef, // ✅ usamos la referencia
   } = useTrainer();
 
   const collectRef = useRef(null);
   const lastPredictTime = useRef(0);
-
-  // 🔹 Ref sincronizado con isTrained
-  const isTrainedRef = useRef(isTrained);
-  useEffect(() => {
-    isTrainedRef.current = isTrained;
-  }, [isTrained]);
 
   // Inicializa Mediapipe
   useEffect(() => {
@@ -111,7 +105,7 @@ export default function App() {
 
       const now = Date.now();
       if (
-        isTrainedRef.current && // ✅ Usamos ref sincronizado
+        isTrainedRef.current && // ✅ ahora usamos la referencia
         scaled.length === 21 &&
         now - lastPredictTime.current > 800
       ) {
@@ -145,7 +139,7 @@ export default function App() {
   const startCollect = (label) => {
     if (collectRef.current && collectRef.current.active) return;
     collectRef.current = { active: true, label, count: 0 };
-    speak(`Recolectando la vocal ${label}`); // 👈 Voz al recolectar
+    speak(`Recolectando la vocal ${label}`);
     setProgress(0);
   };
 

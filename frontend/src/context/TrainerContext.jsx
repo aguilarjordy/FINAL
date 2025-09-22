@@ -13,12 +13,8 @@ export const TrainerProvider = ({ children }) => {
   const [progress, setProgress] = useState(0);
   const [isTrained, setIsTrained] = useState(false);
 
-  // 🔹 Ref sincronizado (evita valores obsoletos en callbacks)
-  const isTrainedRef = useRef(isTrained);
-  const setIsTrainedSafe = (val) => {
-    isTrainedRef.current = val;
-    setIsTrained(val);
-  };
+  // ✅ referencia que persiste entre renders
+  const isTrainedRef = useRef(false);
 
   // 🔹 Traer conteos desde el backend
   const fetchCounts = useCallback(async () => {
@@ -47,7 +43,6 @@ export const TrainerProvider = ({ children }) => {
 
       if (data.status === "not_trained") {
         setStatus("Modelo no entrenado todavía ⚠️");
-        setIsTrainedSafe(false);
         return;
       }
 
@@ -82,19 +77,21 @@ export const TrainerProvider = ({ children }) => {
       if (res.ok) {
         setStatus("Entrenado correctamente");
         speak("Modelo entrenado correctamente");
-        setIsTrainedSafe(true);
+        setIsTrained(true);
+        isTrainedRef.current = true; // ✅ aseguramos que la referencia se actualice
 
-        // ✅ Si ya hay landmarks en memoria, empezar a predecir de inmediato
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {
           autoPredict(window.currentLandmarks);
         }
       } else {
         setStatus("Error: " + (j.error || "Error en entrenamiento"));
-        setIsTrainedSafe(false);
+        setIsTrained(false);
+        isTrainedRef.current = false;
       }
     } catch (e) {
       setStatus("Error: " + e.message);
-      setIsTrainedSafe(false);
+      setIsTrained(false);
+      isTrainedRef.current = false;
     }
   }, [autoPredict]);
 
@@ -107,12 +104,14 @@ export const TrainerProvider = ({ children }) => {
         setCounts({});
         setPrediction(null);
         setStatus("Datos eliminados");
-        setIsTrainedSafe(false);
+        setIsTrained(false);
+        isTrainedRef.current = false; // ✅ también reseteamos la referencia
         toast("⚠️ Se reiniciaron los datos de entrenamiento");
       }
     } catch (e) {
       setStatus("Error al reiniciar: " + e.message);
-      setIsTrainedSafe(false);
+      setIsTrained(false);
+      isTrainedRef.current = false;
     }
   }, []);
 
@@ -128,8 +127,8 @@ export const TrainerProvider = ({ children }) => {
         autoPredict,
         handleTrain,
         handleReset,
-        isTrained,
-        isTrainedRef, // 👈 opcional export si lo quieres usar fuera
+        isTrained,     // 👉 estado reactivo (para UI)
+        isTrainedRef,  // 👉 referencia persistente (para onResults en App.jsx)
       }}
     >
       {children}
