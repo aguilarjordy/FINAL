@@ -1,11 +1,29 @@
 {
-  "settings": "⚙️ Configurações",
-  "dark_mode": "🌙 Modo escuro",
-  "enable": "Ativar",
+  "dashboard": "Painel de controle",
+  "trainer": "Treinador",
+  "arithmetic": "Aritmética",
+  "statistics": "Estatísticas",
+  "settings": "Configurações",
+
+  "panel de control": "Painel de controle",
+  "Bienvenido al panel de control": "Bem-vindo ao painel de controle",
+  "Entrena y aprende las vocales": "Treine e aprenda as vogais",
+  "Accede al entrenador interactivo de la aplicación": "Acesse o treinador interativo do aplicativo",
+  "Operaciones Aritmeticas con Señas": "Operações Aritméticas com Sinais",
+  "Practica sumas, restas y más con lenguaje de señas": "Pratique adição, subtração e mais usando linguagem de sinais",
+  "Consulta, reportes y métricas": "Consulte relatórios e métricas",
+  "configuración": "Configurações",
+  "Ajusta las preferencias del sistema": "Ajuste as preferências do sistema",
+
+  "Operaciones Aritméticas con Señas": "Operações Aritméticas com Sinais",
+  "Aquí podrás practicar sumas, restas y otras operaciones usando lenguaje de señas": "Aqui você pode praticar adição, subtração e outras operações usando linguagem de sinais",
+
+  "dark_mode": "Modo escuro",
   "disable": "Desativar",
-  "notifications": "🔔 Notificações",
+  "enable": "Ativar",
+  "notifications": "Notificações",
   "configure": "Configurar",
-  "languages": "🌐 Idiomas",
+  "languages": "Idiomas",
   "spanish": "Espanhol",
   "english": "Inglês",
   "portuguese": "Português",
@@ -14,66 +32,33 @@
   "normal": "Normal",
   "large": "Grande",
 
-  "app_name": "Língua VisualWeb",
+  "Progreso de aciertos": "Progresso de acertos",
+  "Ejercicios vs Aciertos": "Exercícios vs Acertos",
+  "Aciertos": "Acertos",
+  "Ejercicios": "Exercícios",
 
-  "dashboard": "Painel",
-  "trainer": "Treinador",
-  "math_signs": "Operações Aritméticas com Sinais",
-  "statistics": "Estatísticas",
-  "settings_page": "Configurações",
+  "Lenguaje de señas": "Linguagem de sinais",
 
-  "welcome": "Bem-vindo ao sistema. A partir daqui você pode acessar as seções principais:",
-  "train_vowels": "Treine e aprenda as vogais",
-  "train_vowels_desc": "Acesse o treinador interativo do aplicativo.",
-  "math_title": "Operações Aritméticas com Sinais",
-  "math_desc": "Pratique adição, subtração e mais com linguagem de sinais.",
-  "stats_title": "Estatísticas",
-  "stats_desc": "Consulte relatórios e métricas.",
-  "settings_title": "Configurações",
-  "settings_desc": "Ajuste as preferências do sistema.",
+  "Reconocimiento de Vocales": "Reconhecimento de Vogais",
+  "Predicción actual": "Previsão atual",
+  "ninguna": "nenhuma",
+  "Probar": "Testar",
+  "🏆 ¡Logro desbloqueado!": "🏆 Conquista desbloqueada!",
+
+  "Lengua VisualWeb": "Língua VisualWeb",
+  "Proyecto de Reconocimiento de Señales": "Projeto de Reconhecimento de Sinais",
 
   "achievements": {
-    "title": "🎯 Conquistas",
-    "first_a": "Você reconheceu a vogal A",
-    "first_e": "Você reconheceu a vogal E",
-    "first_i": "Você reconheceu a vogal I",
-    "first_o": "Você reconheceu a vogal O",
-    "first_u": "Você reconheceu a vogal U",
-    "five_predictions": "Você fez 5 previsões corretas",
-    "reset_button": "Reiniciar Conquistas",
-    "reset_success": "✅ Conquistas reiniciadas",
-    "reset_error": "❌ Erro ao reiniciar",
-    "connection_error": "Erro de conexão"
-  },
-
-  "common": {
-    "go": "Ir"
-  },
-
-  "footer": {
-    "text": "© {{year}} SignsApp | Projeto de Reconhecimento de Sinais"
-  },
-
-  "recognition": {
-    "title": "Reconhecimento de Vogais",
-    "current_prediction": "Previsão atual",
-    "none": "nenhuma",
-    "test_button": "Testar",
-    "achievement_unlocked": "🏆 Conquista desbloqueada!"
-  },
-
-  "stats": {
-    "progress_title": "Progresso dos acertos",
-    "ex_vs_corr": "Exercícios vs Acertos",
-    "exercises": "Exercícios",
-    "correct": "Acertos"
-  },
-
-  "months": {
-    "january": "Janeiro",
-    "february": "Fevereiro",
-    "march": "Março",
-    "april": "Abril",
-    "may": "Maio"
+    "title": "Conquistas",
+    "first_a": "Primeiro reconhecimento da vogal A",
+    "first_e": "Primeiro reconhecimento da vogal E",
+    "first_i": "Primeiro reconhecimento da vogal I",
+    "first_o": "Primeiro reconhecimento da vogal O",
+    "first_u": "Primeiro reconhecimento da vogal U",
+    "five_predictions": "Você fez 5 previsões",
+    "reset_button": "Redefinir conquistas",
+    "reset_success": "Conquistas redefinidas com sucesso",
+    "reset_error": "Erro ao redefinir conquistas",
+    "connection_error": "Erro de conexão com o servidor"
   }
 }

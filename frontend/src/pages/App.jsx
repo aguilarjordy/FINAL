@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useAchievements } from "../context/AchievementsContext";
 import { toast } from "react-hot-toast";
-import { useTranslation } from "react-i18next"; // 👈 importamos traducción
+import { useTranslation } from "react-i18next";
 import "../styles/app.css";
 import "../locales/i18n";
 
@@ -10,12 +10,12 @@ const MAX_PER_LABEL = 100;
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function App() {
-  const { t } = useTranslation(); // 👈 inicializamos traducción
+  const { t } = useTranslation();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [counts, setCounts] = useState({});
   const collectRef = useRef(null);
-  const [status, setStatus] = useState(t("loading"));
+  const [status, setStatus] = useState(t("Cargando"));
   const [progress, setProgress] = useState(0);
   const [prediction, setPrediction] = useState(null);
   const lastPredictTime = useRef(0);
@@ -31,7 +31,7 @@ export default function App() {
 
   useEffect(() => {
     if (!window.Hands || !window.Camera) {
-      setStatus(t("error_mediapipe"));
+      setStatus(t("Error: scripts de Mediapipe no cargados"));
       return;
     }
 
@@ -61,7 +61,7 @@ export default function App() {
         height: 480,
       });
       camera.start();
-      setStatus(t("ready_hand"));
+      setStatus(t("Listo - coloca la mano frente a la cámara"));
     }
 
     fetchCounts();
@@ -85,7 +85,7 @@ export default function App() {
     try {
       ctx.drawImage(results.image, 0, 0, W, H);
     } catch (e) {
-      console.warn("Error al dibujar imagen en canvas:", e);
+      console.warn("Error al dibujar en canvas:", e);
     }
 
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
@@ -152,7 +152,7 @@ export default function App() {
       const data = await res.json();
 
       if (data.status === "not_trained") {
-        setStatus(t("not_trained"));
+        setStatus(t("Modelo no entrenado todavía"));
         return;
       }
 
@@ -161,11 +161,11 @@ export default function App() {
           1
         )}%)`;
         setPrediction(result);
-        setStatus(t("predicting"));
+        setStatus(t("Prediciendo"));
 
         if (data.new_achievements?.length > 0) {
           data.new_achievements.forEach((ach) => {
-            toast.success(`${t("achievement_unlocked")}: ${ach}`);
+            toast.success(`🎉 ${t("Logro desbloqueado")}: ${ach}`);
           });
         }
 
@@ -194,7 +194,7 @@ export default function App() {
   const startCollect = (label) => {
     if (collectRef.current && collectRef.current.active) return;
     collectRef.current = { active: true, label, count: 0 };
-    setStatus(`${t("collecting")} ${label}`);
+    setStatus(t("Recolectando") + " " + label);
     setProgress(0);
   };
 
@@ -203,45 +203,45 @@ export default function App() {
       collectRef.current.active = false;
       collectRef.current = null;
     }
-    setStatus(t("stopped"));
+    setStatus(t("Detenido"));
     setTimeout(fetchCounts, 300);
     setProgress(0);
   };
 
   const handleTrain = async () => {
-    setStatus(t("training"));
+    setStatus(t("Entrenando"));
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
       const j = await res.json();
       if (res.ok) {
-        setStatus(t("trained_success"));
+        setStatus(t("Entrenado correctamente"));
         setIsTrained(true);
 
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {
           autoPredict(window.currentLandmarks);
         }
       } else {
-        setStatus(t("error_training") + ": " + (j.error || ""));
+        setStatus(t("Error en entrenamiento"));
         setIsTrained(false);
       }
     } catch (e) {
-      setStatus(t("error_training") + ": " + e.message);
+      setStatus(t("Error") + ": " + e.message);
       setIsTrained(false);
     }
   };
 
   const handleReset = async () => {
-    setStatus(t("resetting"));
+    setStatus(t("Reiniciando datos"));
     try {
       const res = await fetch(`${API_URL}/reset`, { method: "POST" });
       if (res.ok) {
         setCounts({});
         setPrediction(null);
-        setStatus(t("data_deleted"));
+        setStatus(t("Datos eliminados"));
         setIsTrained(false);
       }
     } catch (e) {
-      setStatus(t("error_reset") + ": " + e.message);
+      setStatus(t("Error al reiniciar") + ": " + e.message);
       setIsTrained(false);
     }
   };
@@ -249,7 +249,7 @@ export default function App() {
   return (
     <div className="container">
       <div className="left">
-        <div className="card-title">{t("sign_recognition")}</div>
+        <div className="card-title">{t("Reconocimiento de Señas")}</div>
 
         <div className="video-wrap">
           <video ref={videoRef} autoPlay playsInline muted></video>
@@ -258,18 +258,18 @@ export default function App() {
 
         <div className="controls">
           <button className="button" onClick={handleTrain}>
-            {t("train")}
+            {t("Entrenar")}
           </button>
           <button className="button red" onClick={stopCollect}>
-            {t("stop")}
+            {t("Detener")}
           </button>
           <button className="button gray" onClick={handleReset}>
-            {t("delete_data")}
+            {t("Eliminar datos")}
           </button>
         </div>
 
         <div className="small">
-          {t("status")}: {status}{" "}
+          {t("Estado")}: {status}{" "}
           {progress > 0 && `- ${progress}/${MAX_PER_LABEL}`}
         </div>
 
@@ -277,8 +277,10 @@ export default function App() {
       </div>
 
       <div className="right">
-        <div className="card-title">{t("collection")}</div>
-        <div className="small">{t("collect_up_to", { max: MAX_PER_LABEL })}</div>
+        <div className="card-title">{t("Recolección")}</div>
+        <div className="small">
+          {t("Recolecta hasta")} {MAX_PER_LABEL} {t("muestras por clase")}
+        </div>
 
         {VOCALS.map((v) => {
           const current = counts[v] || 0;
@@ -305,10 +307,10 @@ export default function App() {
                   onClick={() => startCollect(v)}
                   disabled={current >= MAX_PER_LABEL}
                 >
-                  {t("collect")} {v}
+                  {t("Recolectar")} {v}
                 </button>
                 <button className="button red" onClick={stopCollect}>
-                  {t("stop")}
+                  {t("Detener")}
                 </button>
               </div>
             </div>

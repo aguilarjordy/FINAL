@@ -11,37 +11,37 @@ function Dashboard() {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <h1>📊 {t("dashboard_title")}</h1>
-        <p>{t("dashboard_welcome")}</p>
+        <h1>📊 {t("panel de control")}</h1>
+        <p>{t("Bienvenido al panel de control")}</p>
       </header>
 
       <div className="dashboard-cards">
         {/* Tarjeta destacada: App Principal */}
         <Link to="/entrenador" className="card card-primary">
           <div className="card-icon">🎓</div>
-          <h2>{t("dashboard_train_title")}</h2>
-          <p>{t("dashboard_train_desc")}</p>
+          <h2>{t("Entrena y aprende las vocales")}</h2>
+          <p>{t("Accede al entrenador interactivo de la aplicación")}</p>
         </Link>
 
         {/* Nueva tarjeta: Operaciones Aritméticas */}
         <Link to="/aritmetica" className="card card-success">
           <div className="card-icon">🧮</div>
-          <h2>{t("dashboard_math_title")}</h2>
-          <p>{t("dashboard_math_desc")}</p>
+          <h2>{t("Operaciones Aritmeticas con Señas")}</h2>
+          <p>{t("Practica sumas, restas y más con lenguaje de señas")}</p>
         </Link>
 
         {/* Tarjeta: Estadísticas */}
         <Link to="/estadisticas" className="card card-info">
           <div className="card-icon">📈</div>
-          <h2>{t("dashboard_stats_title")}</h2>
-          <p>{t("dashboard_stats_desc")}</p>
+          <h2>{t("Estadísticas")}</h2>
+          <p>{t("Consulta, reportes y métricas")}</p>
         </Link>
 
         {/* Tarjeta: Configuración */}
         <Link to="/configuracion" className="card card-warning">
           <div className="card-icon">⚙️</div>
-          <h2>{t("dashboard_settings_title")}</h2>
-          <p>{t("dashboard_settings_desc")}</p>
+          <h2>{t("configuración")}</h2>
+          <p>{t("Ajusta las preferencias del sistema")}</p>
         </Link>
 
         {/* Tarjeta de Logros */}
