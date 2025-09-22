@@ -13,23 +13,27 @@
   "small": "Small",
   "normal": "Normal",
   "large": "Large",
-  
+
   "app_name": "VisualWeb Language",
+
   "dashboard": "Dashboard",
   "trainer": "Trainer",
   "math_signs": "Arithmetic Operations with Signs",
   "statistics": "Statistics",
-  "settings": "Settings",
+  "settings_page": "Settings",
 
+  "welcome": "Welcome to the system. From here you can access the main sections:",
+  "train_vowels": "Train and learn the vowels",
+  "train_vowels_desc": "Access the interactive trainer of the application.",
+  "math_title": "Arithmetic Operations with Signs",
+  "math_desc": "Practice addition, subtraction, and more with sign language.",
+  "stats_title": "Statistics",
+  "stats_desc": "Check reports and metrics.",
+  "settings_title": "Settings",
+  "settings_desc": "Adjust system preferences.",
 
-  "dashboard": "Dashboard",
-  "trainer": "Trainer",
-  "arithmetic": "Arithmetic Operations",
-  "statistics": "Statistics",
-  "settings": "Settings",
-
-    "achievements": {
-    "title": "Achievements",
+  "achievements": {
+    "title": "🎯 Achievements",
     "first_a": "You recognized the vowel A",
     "first_e": "You recognized the vowel E",
     "first_i": "You recognized the vowel I",
@@ -37,8 +41,8 @@
     "first_u": "You recognized the vowel U",
     "five_predictions": "You made 5 correct predictions",
     "reset_button": "Reset Achievements",
-    "reset_success": "Achievements reset",
-    "reset_error": "Error resetting",
+    "reset_success": "✅ Achievements reset",
+    "reset_error": "❌ Error resetting",
     "connection_error": "Connection error"
   },
 
@@ -46,15 +50,8 @@
     "go": "Go"
   },
 
-  
-  "app_name": "Visual Language Web",
-  "dashboard": "Dashboard",
-  "trainer": "Trainer",
-  "math_signs": "Arithmetic Operations with Signs",
-  "statistics": "Statistics",
-
   "footer": {
-    "text": "Sign Recognition Project"
+    "text": "© {{year}} SignsApp | Sign Recognition Project"
   },
 
   "recognition": {
@@ -63,10 +60,20 @@
     "none": "none",
     "test_button": "Test",
     "achievement_unlocked": "🏆 Achievement unlocked!"
-  
-}
+  },
 
+  "stats": {
+    "progress_title": "Progress of correct answers",
+    "ex_vs_corr": "Exercises vs Correct",
+    "exercises": "Exercises",
+    "correct": "Correct"
+  },
 
-
-
+  "months": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May"
+  }
 }

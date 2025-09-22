@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useAchievements } from "../context/AchievementsContext"; // ⬅️ Contexto
-import { toast } from "react-hot-toast"; // ⬅️ Notificaciones
+import { useAchievements } from "../context/AchievementsContext";
+import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next"; // 👈 importamos traducción
 import "../styles/app.css";
 import "../locales/i18n";
 
@@ -9,11 +10,12 @@ const MAX_PER_LABEL = 100;
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function App() {
+  const { t } = useTranslation(); // 👈 inicializamos traducción
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [counts, setCounts] = useState({});
   const collectRef = useRef(null);
-  const [status, setStatus] = useState("Cargando...");
+  const [status, setStatus] = useState(t("loading"));
   const [progress, setProgress] = useState(0);
   const [prediction, setPrediction] = useState(null);
   const lastPredictTime = useRef(0);
@@ -21,17 +23,15 @@ export default function App() {
   const [isTrained, setIsTrained] = useState(false);
   const isTrainedRef = useRef(false);
 
-  // 👇 Contexto de logros
   const { updateAchievements } = useAchievements();
 
   useEffect(() => {
     isTrainedRef.current = isTrained;
   }, [isTrained]);
 
-  // Inicializa Mediapipe
   useEffect(() => {
     if (!window.Hands || !window.Camera) {
-      setStatus("Error: scripts de Mediapipe no cargados");
+      setStatus(t("error_mediapipe"));
       return;
     }
 
@@ -61,7 +61,7 @@ export default function App() {
         height: 480,
       });
       camera.start();
-      setStatus("Listo - coloca la mano frente a la cámara");
+      setStatus(t("ready_hand"));
     }
 
     fetchCounts();
@@ -73,7 +73,6 @@ export default function App() {
     };
   }, []);
 
-  // Procesa resultados Mediapipe
   const onResults = (results) => {
     const canvas = canvasRef.current;
     if (!canvas || !results?.image) return;
@@ -139,7 +138,6 @@ export default function App() {
     }
   };
 
-  // Predicción
   async function autoPredict(landmarks) {
     if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21)
       return;
@@ -154,7 +152,7 @@ export default function App() {
       const data = await res.json();
 
       if (data.status === "not_trained") {
-        setStatus("Modelo no entrenado todavía ⚠️");
+        setStatus(t("not_trained"));
         return;
       }
 
@@ -163,16 +161,14 @@ export default function App() {
           1
         )}%)`;
         setPrediction(result);
-        setStatus("Prediciendo...");
+        setStatus(t("predicting"));
 
-        // 🔹 Notificar logros nuevos
         if (data.new_achievements?.length > 0) {
           data.new_achievements.forEach((ach) => {
-            toast.success(`🎉 Logro desbloqueado: ${ach}`);
+            toast.success(`${t("achievement_unlocked")}: ${ach}`);
           });
         }
 
-        // 🔹 Actualizar logros en contexto
         if (data.progress) {
           const unlockedKeys = Object.keys(data.progress).filter(
             (k) => data.progress[k] === true
@@ -198,7 +194,7 @@ export default function App() {
   const startCollect = (label) => {
     if (collectRef.current && collectRef.current.active) return;
     collectRef.current = { active: true, label, count: 0 };
-    setStatus("Recolectando " + label);
+    setStatus(`${t("collecting")} ${label}`);
     setProgress(0);
   };
 
@@ -207,54 +203,53 @@ export default function App() {
       collectRef.current.active = false;
       collectRef.current = null;
     }
-    setStatus("Detenido");
+    setStatus(t("stopped"));
     setTimeout(fetchCounts, 300);
     setProgress(0);
   };
 
   const handleTrain = async () => {
-    setStatus("Entrenando...");
+    setStatus(t("training"));
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
       const j = await res.json();
       if (res.ok) {
-        setStatus("Entrenado correctamente");
+        setStatus(t("trained_success"));
         setIsTrained(true);
 
         if (window.currentLandmarks && window.currentLandmarks.length === 21) {
           autoPredict(window.currentLandmarks);
         }
       } else {
-        setStatus("Error: " + (j.error || "Error en entrenamiento"));
+        setStatus(t("error_training") + ": " + (j.error || ""));
         setIsTrained(false);
       }
     } catch (e) {
-      setStatus("Error: " + e.message);
+      setStatus(t("error_training") + ": " + e.message);
       setIsTrained(false);
     }
   };
 
   const handleReset = async () => {
-    setStatus("Reiniciando datos...");
+    setStatus(t("resetting"));
     try {
       const res = await fetch(`${API_URL}/reset`, { method: "POST" });
       if (res.ok) {
         setCounts({});
         setPrediction(null);
-        setStatus("Datos eliminados");
+        setStatus(t("data_deleted"));
         setIsTrained(false);
       }
     } catch (e) {
-      setStatus("Error al reiniciar: " + e.message);
+      setStatus(t("error_reset") + ": " + e.message);
       setIsTrained(false);
     }
   };
 
   return (
     <div className="container">
-      {/* Columna izquierda */}
       <div className="left">
-        <div className="card-title">Reconocimiento de Señas</div>
+        <div className="card-title">{t("sign_recognition")}</div>
 
         <div className="video-wrap">
           <video ref={videoRef} autoPlay playsInline muted></video>
@@ -263,29 +258,27 @@ export default function App() {
 
         <div className="controls">
           <button className="button" onClick={handleTrain}>
-            Entrenar
+            {t("train")}
           </button>
           <button className="button red" onClick={stopCollect}>
-            Detener
+            {t("stop")}
           </button>
           <button className="button gray" onClick={handleReset}>
-            Eliminar Datos
+            {t("delete_data")}
           </button>
         </div>
 
         <div className="small">
-          Estado: {status} {progress > 0 && `- ${progress}/${MAX_PER_LABEL}`}
+          {t("status")}: {status}{" "}
+          {progress > 0 && `- ${progress}/${MAX_PER_LABEL}`}
         </div>
 
         <div className="prediction-box">{prediction || "-"}</div>
       </div>
 
-      {/* Columna derecha */}
       <div className="right">
-        <div className="card-title">Recolección</div>
-        <div className="small">
-          Recolecta hasta {MAX_PER_LABEL} muestras por clase
-        </div>
+        <div className="card-title">{t("collection")}</div>
+        <div className="small">{t("collect_up_to", { max: MAX_PER_LABEL })}</div>
 
         {VOCALS.map((v) => {
           const current = counts[v] || 0;
@@ -312,10 +305,10 @@ export default function App() {
                   onClick={() => startCollect(v)}
                   disabled={current >= MAX_PER_LABEL}
                 >
-                  Recolectar {v}
+                  {t("collect")} {v}
                 </button>
                 <button className="button red" onClick={stopCollect}>
-                  Detener
+                  {t("stop")}
                 </button>
               </div>
             </div>

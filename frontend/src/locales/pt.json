@@ -15,21 +15,25 @@
   "large": "Grande",
 
   "app_name": "Língua VisualWeb",
+
   "dashboard": "Painel",
   "trainer": "Treinador",
   "math_signs": "Operações Aritméticas com Sinais",
   "statistics": "Estatísticas",
-  "settings": "Configurações",
+  "settings_page": "Configurações",
 
-
-  "dashboard": "Painel",
-  "trainer": "Treinador",
-  "arithmetic": "Operações Aritméticas",
-  "statistics": "Estatísticas",
-  "settings": "Configurações",
+  "welcome": "Bem-vindo ao sistema. A partir daqui você pode acessar as seções principais:",
+  "train_vowels": "Treine e aprenda as vogais",
+  "train_vowels_desc": "Acesse o treinador interativo do aplicativo.",
+  "math_title": "Operações Aritméticas com Sinais",
+  "math_desc": "Pratique adição, subtração e mais com linguagem de sinais.",
+  "stats_title": "Estatísticas",
+  "stats_desc": "Consulte relatórios e métricas.",
+  "settings_title": "Configurações",
+  "settings_desc": "Ajuste as preferências do sistema.",
 
   "achievements": {
-    "title": "Conquistas",
+    "title": "🎯 Conquistas",
     "first_a": "Você reconheceu a vogal A",
     "first_e": "Você reconheceu a vogal E",
     "first_i": "Você reconheceu a vogal I",
@@ -37,8 +41,8 @@
     "first_u": "Você reconheceu a vogal U",
     "five_predictions": "Você fez 5 previsões corretas",
     "reset_button": "Reiniciar Conquistas",
-    "reset_success": "Conquistas reiniciadas",
-    "reset_error": "Erro ao reiniciar",
+    "reset_success": "✅ Conquistas reiniciadas",
+    "reset_error": "❌ Erro ao reiniciar",
     "connection_error": "Erro de conexão"
   },
 
@@ -46,15 +50,8 @@
     "go": "Ir"
   },
 
-  
-  "app_name": "Língua VisualWeb",
-  "dashboard": "Painel",
-  "trainer": "Treinador",
-  "math_signs": "Operações Aritméticas com Sinais",
-  "statistics": "Estatísticas",
-
   "footer": {
-    "text": "Projeto de Reconhecimento de Sinais"
+    "text": "© {{year}} SignsApp | Projeto de Reconhecimento de Sinais"
   },
 
   "recognition": {
@@ -63,11 +60,20 @@
     "none": "nenhuma",
     "test_button": "Testar",
     "achievement_unlocked": "🏆 Conquista desbloqueada!"
-  
-}
+  },
 
+  "stats": {
+    "progress_title": "Progresso dos acertos",
+    "ex_vs_corr": "Exercícios vs Acertos",
+    "exercises": "Exercícios",
+    "correct": "Acertos"
+  },
 
-
-
-
+  "months": {
+    "january": "Janeiro",
+    "february": "Fevereiro",
+    "march": "Março",
+    "april": "Abril",
+    "may": "Maio"
+  }
 }

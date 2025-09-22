@@ -1,13 +1,13 @@
 import React from "react";
+import { useTranslation } from "react-i18next"; // 👈 importamos traducción
 
 const Arithmetic = () => {
+  const { t } = useTranslation();
+
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>🧮 Operaciones Aritméticas con Señas</h1>
-      <p>
-        Aquí podrás practicar sumas, restas y otras operaciones usando
-        lenguaje de señas.
-      </p>
+      <h1>🧮 {t("math_operations_title")}</h1>
+      <p>{t("math_operations_desc")}</p>
     </div>
   );
 };
