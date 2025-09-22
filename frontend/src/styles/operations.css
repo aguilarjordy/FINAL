@@ -1,0 +1,59 @@
+/* ===== General Page Layout ===== */
+.arithmetic-page {
+  padding: 2rem;
+  text-align: center;
+}
+
+.arithmetic-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #1e3a8a; /* Azul elegante */
+}
+
+.arithmetic-subtitle {
+  color: #4b5563;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* ===== Secciones ===== */
+.arithmetic-section {
+  background: #ffffff;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  margin: 1.5rem auto;
+  max-width: 720px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+
+.section-description {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+/* ===== Botones ===== */
+button {
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border-radius: 0.75rem;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

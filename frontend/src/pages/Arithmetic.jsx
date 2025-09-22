@@ -1,22 +1,38 @@
 import React from "react";
+import OperationTrainer from "../components/OperationTrainer";
 import OperationPanel from "../components/OperationPanel";
+import "../styles/operations.css"; // 🔹 Importar estilos propios
 
 const Arithmetic = () => {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">
+    <div className="arithmetic-page">
+      {/* Encabezado */}
+      <h1 className="arithmetic-title">
         🧮 Operaciones Aritméticas con Señas
       </h1>
-      <p className="text-gray-600 mb-6">
-        Practica sumas, restas, multiplicaciones y divisiones usando
-        lenguaje de señas. El sistema reconocerá los números y operadores
-        desde tu cámara.
+      <p className="arithmetic-subtitle">
+        Entrena el modelo recolectando muestras de números y operadores, 
+        y luego practica sumas, restas, multiplicaciones y divisiones con tus manos.
       </p>
 
-      {/* Panel principal */}
-      <div className="bg-white rounded-2xl shadow-lg p-6 max-w-xl mx-auto">
+      {/* Sección Entrenador */}
+      <section className="arithmetic-section">
+        <h2 className="section-title">📚 Entrenamiento</h2>
+        <p className="section-description">
+          Guarda muestras de tus señas para números y operadores. 
+          Cuando tengas suficientes ejemplos, entrena el modelo.
+        </p>
+        <OperationTrainer />
+      </section>
+
+      {/* Sección Panel */}
+      <section className="arithmetic-section">
+        <h2 className="section-title">🧮 Panel de Operaciones</h2>
+        <p className="section-description">
+          Usa la cámara para reconocer tus señas y resolver operaciones aritméticas.
+        </p>
         <OperationPanel />
-      </div>
+      </section>
     </div>
   );
 };
