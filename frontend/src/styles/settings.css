@@ -2,6 +2,14 @@
 /* 🎨 Estilos Configuración  */
 /* ========================= */
 
+:root {
+  --font-size: 16px; /* por defecto */
+}
+
+body {
+  font-size: var(--font-size);
+}
+
 .settings-page {
   padding: 2rem;
   background: var(--bg);
@@ -50,23 +58,15 @@
   background: #1e40af;
   transform: scale(1.05);
 }
+
+/* Contenedor botones de idioma y tamaño */
 .language-buttons {
   display: flex;
-  gap: 0.5rem; /* espacio entre los botones */
+  gap: 0.5rem;
 }
 
-/* Aplicar tamaño de letra global */
-:root {
-  --app-font-size: 16px; /* por defecto */
-}
-
-body {
-  font-size: var(--app-font-size);
-}
-
-/* Marcar botón activo */
+/* Botón activo */
 .toggle-btn.active {
-  background: #1e40af; /* un azul más oscuro */
+  background: #1e40af;
   transform: scale(1.05);
 }
-
