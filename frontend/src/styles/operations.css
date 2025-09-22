@@ -1,56 +1,71 @@
-/* ===== General Page Layout ===== */
+/* === General Page === */
 .arithmetic-page {
   padding: 2rem;
-  text-align: center;
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: "Inter", sans-serif;
+  color: #333;
 }
 
 .arithmetic-title {
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: bold;
+  text-align: center;
   margin-bottom: 0.5rem;
-  color: #1e3a8a; /* Azul elegante */
 }
 
 .arithmetic-subtitle {
-  color: #4b5563;
-  font-size: 1rem;
+  text-align: center;
+  color: #555;
   margin-bottom: 2rem;
+  font-size: 1rem;
 }
 
-/* ===== Secciones ===== */
+/* === Sections === */
 .arithmetic-section {
-  background: #ffffff;
-  border-radius: 1.5rem;
+  background: #fff;
+  border-radius: 1rem;
   padding: 1.5rem;
-  margin: 1.5rem auto;
-  max-width: 720px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-  text-align: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.arithmetic-section:hover {
+  transform: translateY(-2px);
 }
 
 .section-title {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #111827;
 }
 
 .section-description {
   font-size: 0.95rem;
-  color: #6b7280;
-  margin-bottom: 1.5rem;
+  color: #666;
+  margin-bottom: 1rem;
 }
 
-/* ===== Botones ===== */
+/* === Webcam === */
+.arithmetic-section video {
+  border-radius: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  margin-bottom: 1rem;
+}
+
+/* === Buttons === */
 button {
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  font-weight: 500;
   border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  transition: background 0.3s ease, transform 0.1s ease;
 }
 
 button:hover {
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
 button:disabled {

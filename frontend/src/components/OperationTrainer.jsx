@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
 import * as handpose from "@tensorflow-models/handpose";
 import "@tensorflow/tfjs";
-import { collectSample, trainOperationModel } from "../services/operations";
+import { uploadOperationSample, trainOperationModel } from "../services/operations";
 
 const videoConstraints = {
   width: 320,
@@ -17,7 +17,7 @@ export default function OperationTrainer() {
   const [model, setModel] = useState(null);
   const webcamRef = useRef(null);
 
-  // Cargar modelo de manos
+  // 📌 Cargar modelo de manos
   useEffect(() => {
     const loadModel = async () => {
       const net = await handpose.load();
@@ -27,7 +27,7 @@ export default function OperationTrainer() {
     loadModel();
   }, []);
 
-  // Detectar landmarks
+  // 📌 Detectar landmarks
   const detectLandmarks = async () => {
     if (!model || !webcamRef.current) return null;
     const predictions = await model.estimateHands(webcamRef.current.video);
@@ -37,7 +37,7 @@ export default function OperationTrainer() {
     return null;
   };
 
-  // Guardar muestra
+  // 📌 Guardar muestra
   const handleSave = async () => {
     if (!value.trim()) {
       alert("Escribe un valor válido (ej: 5, +, -, *, /)");
@@ -52,7 +52,7 @@ export default function OperationTrainer() {
         return;
       }
 
-      const res = await collectSample(`${type}:${value}`, landmarks);
+      const res = await uploadOperationSample(`${type}:${value}`, landmarks);
       alert(res.data.message || `✅ Muestra de "${value}" guardada`);
     } catch (err) {
       console.error("Error al guardar muestra:", err);
@@ -62,7 +62,7 @@ export default function OperationTrainer() {
     }
   };
 
-  // Entrenar modelo
+  // 📌 Entrenar modelo
   const handleTrain = async () => {
     try {
       setLoading(true);
@@ -83,7 +83,7 @@ export default function OperationTrainer() {
         Selecciona el tipo (número u operador), escribe el valor, y captura gestos para entrenar el modelo.
       </p>
 
-      {/* Cámara */}
+      {/* 📷 Cámara */}
       <div className="flex justify-center mb-4">
         <Webcam
           ref={webcamRef}
@@ -94,7 +94,7 @@ export default function OperationTrainer() {
         />
       </div>
 
-      {/* Selector de tipo y valor */}
+      {/* 🔹 Selector de tipo y valor */}
       <div className="flex justify-center gap-2 mb-4">
         <select
           value={type}
@@ -114,7 +114,7 @@ export default function OperationTrainer() {
         />
       </div>
 
-      {/* Botones */}
+      {/* 🔘 Botones */}
       <div className="flex justify-center gap-4">
         <button
           onClick={handleSave}
