@@ -1,5 +1,5 @@
 import React from "react";
-import OperationPanel from "./OperationPanel";
+import OperationPanel from "../components/OperationPanel";
 
 const Arithmetic = () => {
   return (
