@@ -1,74 +1,136 @@
-/* === General Page === */
+/* === Estilos globales de Arithmetic === */
 .arithmetic-page {
   padding: 2rem;
-  max-width: 1000px;
-  margin: 0 auto;
+  max-width: 1200px;
+  margin: auto;
   font-family: "Inter", sans-serif;
-  color: #333;
 }
 
+/* === Encabezados principales === */
 .arithmetic-title {
   font-size: 2rem;
-  font-weight: bold;
+  font-weight: 700;
   text-align: center;
   margin-bottom: 0.5rem;
+  color: #1f2937; /* gris oscuro */
 }
 
 .arithmetic-subtitle {
-  text-align: center;
-  color: #555;
-  margin-bottom: 2rem;
   font-size: 1rem;
+  text-align: center;
+  color: #4b5563; /* gris medio */
+  margin-bottom: 2rem;
 }
 
-/* === Sections === */
+/* === Secciones === */
 .arithmetic-section {
-  background: #fff;
+  background: #ffffff;
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .arithmetic-section:hover {
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 .section-title {
   font-size: 1.25rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
+  color: #111827;
 }
 
 .section-description {
   font-size: 0.95rem;
-  color: #666;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+/* === Cámara === */
+.webcam-container {
+  position: relative;
+  display: inline-block;
   margin-bottom: 1rem;
 }
 
-/* === Webcam === */
-.arithmetic-section video {
-  border-radius: 1rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  margin-bottom: 1rem;
+.webcam-container video,
+.webcam-container canvas {
+  border-radius: 0.75rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
 
-/* === Buttons === */
+/* === Botones === */
 button {
   cursor: pointer;
-  font-size: 0.95rem;
   font-weight: 500;
+  border: none;
   border-radius: 0.75rem;
-  padding: 0.5rem 1rem;
-  transition: background 0.3s ease, transform 0.1s ease;
+  padding: 0.6rem 1rem;
+  transition: background 0.2s ease, transform 0.1s ease;
 }
 
-button:hover {
-  transform: scale(1.03);
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
 }
 
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Colores de botones */
+.btn-green {
+  background: #16a34a;
+  color: white;
+}
+
+.btn-green:hover {
+  background: #15803d;
+}
+
+.btn-blue {
+  background: #2563eb;
+  color: white;
+}
+
+.btn-blue:hover {
+  background: #1d4ed8;
+}
+
+.btn-yellow {
+  background: #f59e0b;
+  color: white;
+}
+
+.btn-yellow:hover {
+  background: #d97706;
+}
+
+.btn-gray {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.btn-gray:hover {
+  background: #d1d5db;
+}
+
+/* === Operación en progreso === */
+.operation-display {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1rem 0;
+  color: #111827;
+}
+
+/* === Resultado final === */
+.operation-result {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  color: #059669; /* verde éxito */
 }

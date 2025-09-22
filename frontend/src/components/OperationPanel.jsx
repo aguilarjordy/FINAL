@@ -3,7 +3,7 @@ import Webcam from "react-webcam";
 import * as handpose from "@tensorflow-models/handpose"; 
 import "@tensorflow/tfjs"; 
 import { useOperations } from "../context/OperationsContext";
-import { uploadOperation, trainOperations, predictOperation, calculateOperation } from "../services/operations";
+import { uploadOperationSample, trainOperationModel, predictOperation, calculateOperation } from "../services/operations";
 
 const videoConstraints = {
   width: 320,
@@ -25,8 +25,7 @@ const OperationPanel = () => {
 
   const [loading, setLoading] = useState(false);
   const [model, setModel] = useState(null);
-  const [collecting, setCollecting] = useState(null); // etiqueta activa para recolectar
-
+  const [collecting, setCollecting] = useState(null);
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -40,7 +39,7 @@ const OperationPanel = () => {
     loadModel();
   }, []);
 
-  // 🔹 Dibujar landmarks en canvas
+  // 🔹 Dibujar landmarks
   const drawHand = (predictions, ctx) => {
     if (!predictions.length) return;
     predictions.forEach(pred => {
@@ -69,7 +68,7 @@ const OperationPanel = () => {
     return () => clearInterval(interval);
   }, [model]);
 
-  // 🔹 Obtener landmarks actuales
+  // 🔹 Obtener landmarks
   const getLandmarks = async () => {
     if (!model || !webcamRef.current) return null;
     const predictions = await model.estimateHands(webcamRef.current.video);
@@ -88,7 +87,7 @@ const OperationPanel = () => {
         alert("No se detectó la mano");
         return;
       }
-      await uploadOperation(label, landmarks);
+      await uploadOperationSample(label, landmarks);
       alert(`✅ Muestra guardada para ${label}`);
     } catch (err) {
       console.error("Error recolectando:", err);
@@ -101,7 +100,7 @@ const OperationPanel = () => {
   const handleTrain = async () => {
     try {
       setLoading(true);
-      const res = await trainOperations();
+      const res = await trainOperationModel();
       alert("✅ Modelo entrenado: " + JSON.stringify(res.data.classes));
     } catch (err) {
       console.error("Error entrenando:", err);
@@ -122,7 +121,6 @@ const OperationPanel = () => {
       }
       const res = await predictOperation(landmarks);
       const prediction = res.data.prediction;
-
       if (!isNaN(prediction)) {
         if (firstNumber === null) setFirstNumber(Number(prediction));
         else if (operator && secondNumber === null) setSecondNumber(Number(prediction));
@@ -156,17 +154,16 @@ const OperationPanel = () => {
   };
 
   return (
-    <div className="p-6 text-center">
+    <div className="text-center">
       <h2 className="text-xl font-bold mb-4">🧮 Operaciones con Señas</h2>
 
       {/* Cámara con overlay */}
-      <div className="relative flex justify-center mb-4">
+      <div className="webcam-container mb-4 relative">
         <Webcam
           audio={false}
           ref={webcamRef}
           screenshotFormat="image/jpeg"
           videoConstraints={videoConstraints}
-          className="rounded-xl shadow-md"
         />
         <canvas
           ref={canvasRef}
@@ -177,7 +174,7 @@ const OperationPanel = () => {
       </div>
 
       {/* Operación en progreso */}
-      <div className="text-2xl font-bold mb-4">
+      <div className="operation-display">
         {firstNumber ?? "?"} {operator ?? "?"} {secondNumber ?? "?"}
       </div>
 
@@ -190,7 +187,7 @@ const OperationPanel = () => {
               key={lbl}
               onClick={() => handleCollect(lbl)}
               disabled={!!collecting}
-              className="bg-gray-200 px-3 py-1 rounded-lg hover:bg-gray-300"
+              className="btn-gray"
             >
               {collecting === lbl ? "⏳..." : lbl}
             </button>
@@ -203,7 +200,7 @@ const OperationPanel = () => {
         <button
           onClick={handleTrain}
           disabled={loading}
-          className="bg-yellow-600 text-white px-4 py-2 rounded-xl hover:bg-yellow-700 transition disabled:opacity-50"
+          className="btn-yellow"
         >
           {loading ? "⏳ Entrenando..." : "📚 Entrenar"}
         </button>
@@ -211,7 +208,7 @@ const OperationPanel = () => {
         <button
           onClick={handlePredict}
           disabled={loading}
-          className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition disabled:opacity-50"
+          className="btn-green"
         >
           {loading ? "⏳ Prediciendo..." : "📷 Reconocer seña"}
         </button>
@@ -219,7 +216,7 @@ const OperationPanel = () => {
         <button
           onClick={handleCalculate}
           disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition disabled:opacity-50"
+          className="btn-blue"
         >
           {loading ? "⏳ Calculando..." : "🟰 Calcular"}
         </button>
@@ -227,7 +224,7 @@ const OperationPanel = () => {
 
       {/* Resultado final */}
       {result !== null && (
-        <h3 className="mt-4 text-lg font-semibold">
+        <h3 className="operation-result">
           Resultado: {result}
         </h3>
       )}

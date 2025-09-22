@@ -43,7 +43,6 @@ export default function OperationTrainer() {
       alert("Escribe un valor válido (ej: 5, +, -, *, /)");
       return;
     }
-
     try {
       setLoading(true);
       const landmarks = await detectLandmarks();
@@ -51,7 +50,6 @@ export default function OperationTrainer() {
         alert("No se detectaron manos en la cámara");
         return;
       }
-
       const res = await uploadOperationSample(`${type}:${value}`, landmarks);
       alert(res.data.message || `✅ Muestra de "${value}" guardada`);
     } catch (err) {
@@ -77,20 +75,19 @@ export default function OperationTrainer() {
   };
 
   return (
-    <div className="p-6 text-center">
+    <div className="text-center">
       <h1 className="text-2xl font-bold mb-4">🎓 Entrenador de Operaciones</h1>
       <p className="text-gray-600 mb-4">
         Selecciona el tipo (número u operador), escribe el valor, y captura gestos para entrenar el modelo.
       </p>
 
       {/* 📷 Cámara */}
-      <div className="flex justify-center mb-4">
+      <div className="webcam-container mb-4">
         <Webcam
           ref={webcamRef}
           audio={false}
           screenshotFormat="image/jpeg"
           videoConstraints={videoConstraints}
-          className="rounded-xl shadow-md"
         />
       </div>
 
@@ -119,7 +116,7 @@ export default function OperationTrainer() {
         <button
           onClick={handleSave}
           disabled={loading}
-          className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition disabled:opacity-50"
+          className="btn-green"
         >
           {loading ? "⏳ Guardando..." : "📷 Guardar muestra"}
         </button>
@@ -127,7 +124,7 @@ export default function OperationTrainer() {
         <button
           onClick={handleTrain}
           disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition disabled:opacity-50"
+          className="btn-blue"
         >
           {loading ? "⏳ Entrenando..." : "🤖 Entrenar modelo"}
         </button>
