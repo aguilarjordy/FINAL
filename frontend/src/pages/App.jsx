@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { useTrainer } from "../context/TrainerContext"; // ⬅️ Nuevo contexto
+import { useTrainer } from "../context/TrainerContext"; // ⬅️ Contexto centralizado
 import { speak } from "../utils/speech"; // ⬅️ Voz
 import "../styles/app.css";
 
@@ -27,7 +27,7 @@ export default function App() {
   const collectRef = useRef(null);
   const lastPredictTime = useRef(0);
 
-  // Inicializa Mediapipe
+  // Inicializa Mediapipe al montar
   useEffect(() => {
     if (!window.Hands || !window.Camera) {
       return;
@@ -68,9 +68,9 @@ export default function App() {
         camera.stop();
       }
     };
-  }, []);
+  }, [fetchCounts]);
 
-  // Procesa resultados Mediapipe
+  // Procesa resultados de Mediapipe
   const onResults = (results) => {
     const canvas = canvasRef.current;
     if (!canvas || !results?.image) return;
@@ -103,16 +103,14 @@ export default function App() {
       const scaled = landmarks.map((p) => [p.x * W, p.y * H, p.z || 0]);
       window.currentLandmarks = scaled;
 
+      // 🔹 Predicción automática (si ya está entrenado)
       const now = Date.now();
-      if (
-        isTrained &&
-        scaled.length === 21 &&
-        now - lastPredictTime.current > 800
-      ) {
+      if (isTrained && scaled.length === 21 && now - lastPredictTime.current > 800) {
         lastPredictTime.current = now;
         autoPredict(scaled);
       }
 
+      // 🔹 Recolección de datos
       if (
         collectRef.current &&
         collectRef.current.active &&
@@ -136,10 +134,11 @@ export default function App() {
     }
   };
 
+  // Recolección
   const startCollect = (label) => {
     if (collectRef.current && collectRef.current.active) return;
     collectRef.current = { active: true, label, count: 0 };
-    speak(`Recolectando la vocal ${label}`); // 👈 Voz al recolectar
+    speak(`Recolectando la vocal ${label}`);
     setProgress(0);
   };
 

@@ -24,7 +24,7 @@ export const TrainerProvider = ({ children }) => {
     }
   }, []);
 
-  // 🔹 Predicción automática
+  // 🔹 Predicción automática (la llama App.jsx después de entrenar)
   const autoPredict = useCallback(async (landmarks) => {
     if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21)
       return;
@@ -68,17 +68,17 @@ export const TrainerProvider = ({ children }) => {
   const handleTrain = useCallback(async () => {
     setStatus("Entrenando...");
     speak("Entrenando modelo, espere por favor");
+
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
       const j = await res.json();
+
       if (res.ok) {
         setStatus("Entrenado correctamente");
         speak("Modelo entrenado correctamente");
         setIsTrained(true);
 
-        if (window.currentLandmarks && window.currentLandmarks.length === 21) {
-          autoPredict(window.currentLandmarks);
-        }
+        // 👇 Ya no forzamos predicción aquí
       } else {
         setStatus("Error: " + (j.error || "Error en entrenamiento"));
         setIsTrained(false);
@@ -87,7 +87,7 @@ export const TrainerProvider = ({ children }) => {
       setStatus("Error: " + e.message);
       setIsTrained(false);
     }
-  }, [autoPredict]);
+  }, []);
 
   // 🔹 Resetear modelo/datos
   const handleReset = useCallback(async () => {
