@@ -52,6 +52,10 @@ const OperationTrainer = () => {
 
         canvasCtx.save();
         canvasCtx.clearRect(0, 0, videoWidth, videoHeight);
+        
+        // 🔹 Reflejar la imagen del video para que se vea como un espejo
+        canvasCtx.translate(videoWidth, 0);
+        canvasCtx.scale(-1, 1);
         canvasCtx.drawImage(
           results.image,
           0,
@@ -74,7 +78,7 @@ const OperationTrainer = () => {
             } else {
               setCollecting(null);
               alert(`✅ Se recolectaron 100 muestras para ${collecting}`);
-              countsRef.current[collecting] = 0; // Reinicia el contador para futuros usos
+              countsRef.current[collecting] = 0;
             }
           }
 

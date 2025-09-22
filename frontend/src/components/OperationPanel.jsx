@@ -62,6 +62,10 @@ const OperationPanel = () => {
 
         canvasCtx.save();
         canvasCtx.clearRect(0, 0, videoWidth, videoHeight);
+        
+        // 🔹 Reflejar la imagen del video para que se vea como un espejo
+        canvasCtx.translate(videoWidth, 0);
+        canvasCtx.scale(-1, 1);
         canvasCtx.drawImage(
           results.image,
           0,
