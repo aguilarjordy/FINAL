@@ -1,6 +1,9 @@
-import React, { useRef, useEffect, useState } from "react";
+// src/pages/App.jsx
+import React, { useRef, useEffect } from "react";
+import { useTrainer } from "../context/TrainerContext";
 import { useAchievements } from "../context/AchievementsContext";
 import { toast } from "react-hot-toast";
+import { speak } from "../utils/speech";
 import { useTranslation } from "react-i18next";
 import "../styles/app.css";
 import "../locales/i18n";
@@ -13,25 +16,28 @@ export default function App() {
   const { t } = useTranslation();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const [counts, setCounts] = useState({});
   const collectRef = useRef(null);
-  const [status, setStatus] = useState(t("Cargando"));
-  const [progress, setProgress] = useState(0);
-  const [prediction, setPrediction] = useState(null);
   const lastPredictTime = useRef(0);
 
-  const [isTrained, setIsTrained] = useState(false);
-  const isTrainedRef = useRef(false);
+  // funciones / estados provistos por useTrainer (asegúrate que tu context los exporte)
+  const {
+    status,
+    prediction,
+    counts,
+    progress,
+    setProgress,
+    autoPredict,
+    handleTrain,
+    handleReset,
+    fetchCounts,
+    isTrainedRef,
+  } = useTrainer();
 
-  const { updateAchievements } = useAchievements();
-
-  useEffect(() => {
-    isTrainedRef.current = isTrained;
-  }, [isTrained]);
+  const { registerVowel, updateAchievements } = useAchievements();
 
   useEffect(() => {
     if (!window.Hands || !window.Camera) {
-      setStatus(t("Error: scripts de Mediapipe no cargados"));
+      console.error("❌ Scripts de Mediapipe no cargados");
       return;
     }
 
@@ -53,24 +59,20 @@ export default function App() {
     if (videoRef.current) {
       camera = new window.Camera(videoRef.current, {
         onFrame: async () => {
-          if (videoRef.current) {
-            await hands.send({ image: videoRef.current });
-          }
+          if (videoRef.current) await hands.send({ image: videoRef.current });
         },
         width: 640,
         height: 480,
       });
       camera.start();
-      setStatus(t("Listo - coloca la mano frente a la cámara"));
     }
 
     fetchCounts();
 
     return () => {
-      if (camera) {
-        camera.stop();
-      }
+      if (camera) camera.stop();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onResults = (results) => {
@@ -107,7 +109,7 @@ export default function App() {
 
       const now = Date.now();
       if (
-        isTrainedRef.current &&
+        isTrainedRef?.current &&
         scaled.length === 21 &&
         now - lastPredictTime.current > 800
       ) {
@@ -128,7 +130,7 @@ export default function App() {
               label: collectRef.current.label,
               landmarks: scaled,
             }),
-          });
+          }).catch((err) => console.error("upload error", err));
           collectRef.current.count = (collectRef.current.count || 0) + 1;
           setProgress(collectRef.current.count);
         }
@@ -138,63 +140,25 @@ export default function App() {
     }
   };
 
-  async function autoPredict(landmarks) {
-    if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21)
-      return;
-
-    try {
-      const res = await fetch(`${API_URL}/predict_landmarks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ landmarks }),
-      });
-
-      const data = await res.json();
-
-      if (data.status === "not_trained") {
-        setStatus(t("Modelo no entrenado todavía"));
-        return;
+  useEffect(() => {
+    if (prediction && VOCALS.includes(prediction)) {
+      // registra vocal y muestra notificación
+      try {
+        registerVowel(prediction);
+      } catch (err) {
+        console.warn("registerVowel falló:", err);
       }
-
-      if (data.status === "ok") {
-        const result = `${data.prediction} (${(data.confidence * 100).toFixed(
-          1
-        )}%)`;
-        setPrediction(result);
-        setStatus(t("Prediciendo"));
-
-        if (data.new_achievements?.length > 0) {
-          data.new_achievements.forEach((ach) => {
-            toast.success(`🎉 ${t("Logro desbloqueado")}: ${ach}`);
-          });
-        }
-
-        if (data.progress) {
-          const unlockedKeys = Object.keys(data.progress).filter(
-            (k) => data.progress[k] === true
-          );
-          updateAchievements(unlockedKeys);
-        }
-      }
-    } catch (e) {
-      console.error("❌ Error en predicción:", e.message);
+      toast.success(`🎉 ${t("Logro desbloqueado")}: ${prediction}`);
     }
-  }
-
-  async function fetchCounts() {
-    try {
-      const res = await fetch(`${API_URL}/count`);
-      const j = await res.json();
-      setCounts(j || {});
-    } catch (e) {
-      console.error("❌ Error al traer conteos:", e);
-    }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prediction]);
 
   const startCollect = (label) => {
     if (collectRef.current && collectRef.current.active) return;
     collectRef.current = { active: true, label, count: 0 };
-    setStatus(t("Recolectando") + " " + label);
+    try {
+      speak?.(`Recolectando la vocal ${label}`);
+    } catch {}
     setProgress(0);
   };
 
@@ -203,47 +167,8 @@ export default function App() {
       collectRef.current.active = false;
       collectRef.current = null;
     }
-    setStatus(t("Detenido"));
     setTimeout(fetchCounts, 300);
     setProgress(0);
-  };
-
-  const handleTrain = async () => {
-    setStatus(t("Entrenando"));
-    try {
-      const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
-      const j = await res.json();
-      if (res.ok) {
-        setStatus(t("Entrenado correctamente"));
-        setIsTrained(true);
-
-        if (window.currentLandmarks && window.currentLandmarks.length === 21) {
-          autoPredict(window.currentLandmarks);
-        }
-      } else {
-        setStatus(t("Error en entrenamiento"));
-        setIsTrained(false);
-      }
-    } catch (e) {
-      setStatus(t("Error") + ": " + e.message);
-      setIsTrained(false);
-    }
-  };
-
-  const handleReset = async () => {
-    setStatus(t("Reiniciando datos"));
-    try {
-      const res = await fetch(`${API_URL}/reset`, { method: "POST" });
-      if (res.ok) {
-        setCounts({});
-        setPrediction(null);
-        setStatus(t("Datos eliminados"));
-        setIsTrained(false);
-      }
-    } catch (e) {
-      setStatus(t("Error al reiniciar") + ": " + e.message);
-      setIsTrained(false);
-    }
   };
 
   return (
@@ -269,8 +194,7 @@ export default function App() {
         </div>
 
         <div className="small">
-          {t("Estado")}: {status}{" "}
-          {progress > 0 && `- ${progress}/${MAX_PER_LABEL}`}
+          {t("Estado")}: {status} {progress > 0 && `- ${progress}/${MAX_PER_LABEL}`}
         </div>
 
         <div className="prediction-box">{prediction || "-"}</div>
@@ -283,7 +207,7 @@ export default function App() {
         </div>
 
         {VOCALS.map((v) => {
-          const current = counts[v] || 0;
+          const current = counts?.[v] || 0;
           const pct = Math.round((current / MAX_PER_LABEL) * 100);
           return (
             <div key={v} style={{ marginTop: 12 }}>
@@ -296,17 +220,10 @@ export default function App() {
                 </div>
               </div>
               <div className="progress">
-                <div
-                  className="progress-inner"
-                  style={{ width: `${pct}%` }}
-                ></div>
+                <div className="progress-inner" style={{ width: `${pct}%` }}></div>
               </div>
               <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                <button
-                  className="button"
-                  onClick={() => startCollect(v)}
-                  disabled={current >= MAX_PER_LABEL}
-                >
+                <button className="button" onClick={() => startCollect(v)} disabled={current >= MAX_PER_LABEL}>
                   {t("Recolectar")} {v}
                 </button>
                 <button className="button red" onClick={stopCollect}>
