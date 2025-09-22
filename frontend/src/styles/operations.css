@@ -1,13 +1,21 @@
 /* === Contenedor principal === */
 .operation-panel {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 2rem;
-  max-width: 900px;
-  margin: auto;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: #f3f4f6; /* Fondo gris claro para el cuerpo de la página */
+  min-height: calc(100vh - 120px); /* Altura completa de la pantalla */
   font-family: "Inter", sans-serif;
+}
+
+.content-card {
+  width: 100%;
+  max-width: 900px;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  box-sizing: border-box;
 }
 
 /* === Títulos === */
@@ -15,70 +23,107 @@
   font-size: 2rem;
   font-weight: 700;
   text-align: center;
-  margin-bottom: 0.25rem;
-  color: #1f2937; /* gris oscuro */
+  margin-bottom: 0.5rem;
+  color: #1f2937;
 }
 
 .operation-subtitle {
   font-size: 1rem;
   text-align: center;
-  color: #4b5563; /* gris medio */
+  color: #4b5563;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
   margin-bottom: 1.5rem;
 }
 
 /* === Contenedor de cámaras === */
 .cameras-container {
   display: flex;
-  flex-direction: column; /* apilar cámaras verticalmente */
-  gap: 1rem;
+  flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 /* === Cámara individual === */
 .webcam-container {
-  position: relative; /* importante para overlay de canvas */
-  display: inline-block;
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  border-radius: 1rem;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
 }
 
 .webcam-container video,
 .webcam-container canvas {
-  width: 320px;
-  height: 240px;
-  border-radius: 0.75rem;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 1rem;
 }
 
-/* Overlay canvas */
 .overlay-canvas {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none; /* para no bloquear clicks */
+  pointer-events: none;
 }
 
 /* === Operación en progreso === */
-.operation-display {
-  font-size: 1.5rem;
+.operation-display-card {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.operation-number,
+.operation-operator {
+  font-size: 2.5rem;
   font-weight: 700;
-  margin: 1rem 0;
   color: #111827;
 }
 
+.result-number {
+  color: #059669;
+}
+
 /* === Resultado final === */
+.result-box {
+  background: #d1fae5;
+  border: 1px solid #34d399;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
 .operation-result {
   font-size: 1.25rem;
   font-weight: 600;
-  margin-top: 1rem;
-  color: #059669; /* verde éxito */
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.operation-result:hover {
-  transform: scale(1.05);
-  opacity: 0.9;
+  color: #065f46;
 }
 
 /* === Botones === */
@@ -87,48 +132,71 @@ button {
   font-weight: 500;
   border: none;
   border-radius: 0.75rem;
-  padding: 0.6rem 1rem;
-  transition: background 0.2s ease, transform 0.1s ease;
+  padding: 0.8rem 1.5rem;
+  transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 button:hover:not(:disabled) {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Colores de botones */
 .btn-green {
-  background: #16a34a;
+  background: #10b981;
   color: white;
 }
 .btn-green:hover {
-  background: #15803d;
+  background: #059669;
 }
 
 .btn-blue {
-  background: #2563eb;
+  background: #3b82f6;
   color: white;
 }
 .btn-blue:hover {
-  background: #1d4ed8;
+  background: #2563eb;
 }
 
 .btn-yellow {
-  background: #f59e0b;
-  color: white;
+  background: #fcd34d;
+  color: #4b5563;
 }
 .btn-yellow:hover {
-  background: #d97706;
+  background: #f59e0b;
 }
 
 .btn-gray {
   background: #e5e7eb;
   color: #111827;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border-radius: 0.5rem;
 }
 .btn-gray:hover {
   background: #d1d5db;
+}
+
+/* Media Query para pantallas pequeñas (móviles) */
+@media (max-width: 768px) {
+  .content-card {
+    padding: 1.5rem;
+  }
+  .operation-title {
+    font-size: 1.5rem;
+  }
+  .operation-subtitle {
+    font-size: 0.9rem;
+  }
+  .cameras-container {
+    flex-direction: column;
+  }
 }

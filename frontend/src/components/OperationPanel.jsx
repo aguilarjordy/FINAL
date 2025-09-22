@@ -1,3 +1,4 @@
+// src/components/OperationPanel.jsx
 import React, { useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
 import * as handpose from "@tensorflow-models/handpose";
@@ -38,7 +39,7 @@ const OperationPanel = () => {
   const webcamRef2 = useRef(null);
   const canvasRef2 = useRef(null);
 
-  // 🔹 Cargar modelo Handpose
+  // Cargar modelo Handpose
   useEffect(() => {
     const loadModel = async () => {
       const net = await handpose.load();
@@ -48,20 +49,40 @@ const OperationPanel = () => {
     loadModel();
   }, []);
 
-  // 🔹 Dibujar landmarks
+  // Dibujar landmarks y esqueleto
   const drawHand = (predictions, ctx) => {
     if (!predictions.length) return;
     predictions.forEach((pred) => {
-      pred.landmarks.forEach(([x, y]) => {
+      const landmarks = pred.landmarks;
+
+      // puntos
+      landmarks.forEach(([x, y]) => {
         ctx.beginPath();
-        ctx.arc(x, y, 3, 0, 2 * Math.PI);
+        ctx.arc(x, y, 5, 0, 2 * Math.PI);
         ctx.fillStyle = "lime";
         ctx.fill();
+      });
+
+      // esqueleto
+      const connections = [
+        [0,1],[1,2],[2,3],[3,4],
+        [0,5],[5,6],[6,7],[7,8],
+        [0,9],[9,10],[10,11],[11,12],
+        [0,13],[13,14],[14,15],[15,16],
+        [0,17],[17,18],[18,19],[19,20]
+      ];
+      ctx.strokeStyle = "lime";
+      ctx.lineWidth = 2;
+      connections.forEach(([i,j]) => {
+        ctx.beginPath();
+        ctx.moveTo(landmarks[i][0], landmarks[i][1]);
+        ctx.lineTo(landmarks[j][0], landmarks[j][1]);
+        ctx.stroke();
       });
     });
   };
 
-  // 🔹 Detección en tiempo real para ambas cámaras
+  // Detección en tiempo real para ambas cámaras
   useEffect(() => {
     if (!model) return;
     const interval = setInterval(async () => {
@@ -81,7 +102,7 @@ const OperationPanel = () => {
     return () => clearInterval(interval);
   }, [model]);
 
-  // 🔹 Obtener landmarks (de la cámara 1 por defecto)
+  // Obtener landmarks (cámara 1 por defecto)
   const getLandmarks = async () => {
     if (!model || !webcamRef1.current) return null;
     const predictions = await model.estimateHands(webcamRef1.current.video);
@@ -89,7 +110,7 @@ const OperationPanel = () => {
     return null;
   };
 
-  // 📌 Recolectar muestras
+  // Recolectar muestras
   const handleCollect = async (label) => {
     try {
       setCollecting(label);
@@ -107,7 +128,7 @@ const OperationPanel = () => {
     }
   };
 
-  // 📌 Entrenar modelo
+  // Entrenar modelo
   const handleTrain = async () => {
     try {
       setLoading(true);
@@ -121,7 +142,7 @@ const OperationPanel = () => {
     }
   };
 
-  // 📌 Predecir seña actual
+  // Predecir seña actual
   const handlePredict = async () => {
     try {
       setLoading(true);
@@ -147,7 +168,7 @@ const OperationPanel = () => {
     }
   };
 
-  // 📌 Calcular operación
+  // Calcular operación
   const handleCalculate = async () => {
     if (firstNumber === null || operator === null || secondNumber === null) {
       alert("Completa la operación antes de calcular");
@@ -167,78 +188,98 @@ const OperationPanel = () => {
 
   return (
     <div className="operation-panel">
-      <h2 className="operation-title">🧮 Operaciones con Señas</h2>
-      <p className="operation-subtitle">
-        Entrena, reconoce y calcula operaciones usando gestos de la mano.
-      </p>
+      {/* Nuevo contenedor principal para el contenido */}
+      <div className="content-card">
+        <h2 className="operation-title">🧮 Operaciones Aritméticas con Señas</h2>
+        <p className="operation-subtitle">
+          Entrena el modelo recolectando muestras de números y operadores, y luego practica sumas, restas, multiplicaciones y divisiones con tus manos.
+        </p>
 
-      {/* Contenedor de cámaras */}
-      <div className="cameras-container">
-        {[1, 2].map((idx) => (
-          <div key={idx} className="webcam-container">
-            <Webcam
-              audio={false}
-              ref={idx === 1 ? webcamRef1 : webcamRef2}
-              screenshotFormat="image/jpeg"
-              videoConstraints={videoConstraints}
-            />
-            <canvas
-              ref={idx === 1 ? canvasRef1 : canvasRef2}
-              width={videoConstraints.width}
-              height={videoConstraints.height}
-              className="overlay-canvas"
-            />
+        {/* Sección de Entrenamiento */}
+        <section className="panel-section">
+          <h3 className="section-title">
+            <span role="img" aria-label="training">📚</span> Entrenamiento
+          </h3>
+          <p className="section-subtitle">
+            Guarda muestras de tus señas para números y operadores. Cuando tengas suficientes ejemplos, entrena el modelo.
+          </p>
+          <div className="cameras-container">
+            {[1, 2].map((idx) => (
+              <div key={idx} className="webcam-container">
+                <Webcam
+                  audio={false}
+                  ref={idx === 1 ? webcamRef1 : webcamRef2}
+                  screenshotFormat="image/jpeg"
+                  videoConstraints={videoConstraints}
+                />
+                <canvas
+                  ref={idx === 1 ? canvasRef1 : canvasRef2}
+                  width={videoConstraints.width}
+                  height={videoConstraints.height}
+                  className="overlay-canvas"
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </section>
 
-      {/* Operación en progreso */}
-      <div className="operation-display">
-        {firstNumber ?? "?"} {operator ?? "?"} {secondNumber ?? "?"}
-      </div>
+        {/* Sección de Paneles de Operaciones */}
+        <section className="panel-section">
+          <h3 className="section-title">
+            <span role="img" aria-label="operation">🧠</span> Panel de Operaciones
+          </h3>
+          <div className="operation-buttons-container">
+            <div className="flex flex-wrap justify-center gap-2">
+              {[..."0123456789", "+", "-", "*", "/"].map((lbl) => (
+                <button
+                  key={lbl}
+                  onClick={() => handleCollect(lbl)}
+                  disabled={!!collecting}
+                  className="btn-gray"
+                >
+                  {collecting === lbl ? "⏳..." : lbl}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      {/* Botones de recolección */}
-      <div>
-        <h3 className="font-semibold mb-2">📌 Recolectar muestras</h3>
-        <div className="flex flex-wrap justify-center gap-2">
-          {[..."0123456789", "+", "-", "*", "/"].map((lbl) => (
-            <button
-              key={lbl}
-              onClick={() => handleCollect(lbl)}
-              disabled={!!collecting}
-              className="btn-gray"
-            >
-              {collecting === lbl ? "⏳..." : lbl}
+          <div className="flex justify-center gap-4 mt-4">
+            <button onClick={handleTrain} disabled={loading} className="btn-yellow">
+              {loading ? "⏳ Entrenando..." : "📚 Entrenar"}
             </button>
-          ))}
-        </div>
-      </div>
+            <button
+              onClick={handlePredict}
+              disabled={loading}
+              className="btn-green"
+            >
+              {loading ? "⏳ Prediciendo..." : "📷 Reconocer seña"}
+            </button>
+            <button
+              onClick={handleCalculate}
+              disabled={loading}
+              className="btn-blue"
+            >
+              {loading ? "⏳ Calculando..." : "🟰 Calcular"}
+            </button>
+          </div>
 
-      {/* Botones principales */}
-      <div className="flex justify-center gap-4 mt-4">
-        <button onClick={handleTrain} disabled={loading} className="btn-yellow">
-          {loading ? "⏳ Entrenando..." : "📚 Entrenar"}
-        </button>
-        <button
-          onClick={handlePredict}
-          disabled={loading}
-          className="btn-green"
-        >
-          {loading ? "⏳ Prediciendo..." : "📷 Reconocer seña"}
-        </button>
-        <button
-          onClick={handleCalculate}
-          disabled={loading}
-          className="btn-blue"
-        >
-          {loading ? "⏳ Calculando..." : "🟰 Calcular"}
-        </button>
-      </div>
+          <div className="operation-display-card">
+            <span className="operation-number">{firstNumber ?? "?"}</span>
+            <span className="operation-operator">{operator ?? "?"}</span>
+            <span className="operation-number">{secondNumber ?? "?"}</span>
+            <span className="operation-operator">=</span>
+            <span className="operation-number result-number">
+              {result ?? "?"}
+            </span>
+          </div>
 
-      {/* Resultado final */}
-      {result !== null && (
-        <h3 className="operation-result">Resultado: {result}</h3>
-      )}
+          {result !== null && (
+            <div className="result-box">
+              <h3 className="operation-result">Resultado: {result}</h3>
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 };
