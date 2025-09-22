@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { useTrainer } from "../context/TrainerContext"; // ⬅️ Contexto centralizado
+import { useTrainer } from "../context/TrainerContext"; // ⬅️ Nuevo contexto
 import { speak } from "../utils/speech"; // ⬅️ Voz
 import "../styles/app.css";
 
@@ -27,7 +27,13 @@ export default function App() {
   const collectRef = useRef(null);
   const lastPredictTime = useRef(0);
 
-  // Inicializa Mediapipe al montar
+  // 🔹 Ref sincronizado con isTrained
+  const isTrainedRef = useRef(isTrained);
+  useEffect(() => {
+    isTrainedRef.current = isTrained;
+  }, [isTrained]);
+
+  // Inicializa Mediapipe
   useEffect(() => {
     if (!window.Hands || !window.Camera) {
       return;
@@ -68,9 +74,9 @@ export default function App() {
         camera.stop();
       }
     };
-  }, [fetchCounts]);
+  }, []);
 
-  // Procesa resultados de Mediapipe
+  // Procesa resultados Mediapipe
   const onResults = (results) => {
     const canvas = canvasRef.current;
     if (!canvas || !results?.image) return;
@@ -103,14 +109,16 @@ export default function App() {
       const scaled = landmarks.map((p) => [p.x * W, p.y * H, p.z || 0]);
       window.currentLandmarks = scaled;
 
-      // 🔹 Predicción automática (si ya está entrenado)
       const now = Date.now();
-      if (isTrained && scaled.length === 21 && now - lastPredictTime.current > 800) {
+      if (
+        isTrainedRef.current && // ✅ Usamos ref sincronizado
+        scaled.length === 21 &&
+        now - lastPredictTime.current > 800
+      ) {
         lastPredictTime.current = now;
         autoPredict(scaled);
       }
 
-      // 🔹 Recolección de datos
       if (
         collectRef.current &&
         collectRef.current.active &&
@@ -134,11 +142,10 @@ export default function App() {
     }
   };
 
-  // Recolección
   const startCollect = (label) => {
     if (collectRef.current && collectRef.current.active) return;
     collectRef.current = { active: true, label, count: 0 };
-    speak(`Recolectando la vocal ${label}`);
+    speak(`Recolectando la vocal ${label}`); // 👈 Voz al recolectar
     setProgress(0);
   };
 

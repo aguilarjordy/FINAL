@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useRef } from "react";
 import { toast } from "react-hot-toast";
 import { speak } from "../utils/speech";
 import LOGROS from "../config/logros";
@@ -13,6 +13,13 @@ export const TrainerProvider = ({ children }) => {
   const [progress, setProgress] = useState(0);
   const [isTrained, setIsTrained] = useState(false);
 
+  // 🔹 Ref sincronizado (evita valores obsoletos en callbacks)
+  const isTrainedRef = useRef(isTrained);
+  const setIsTrainedSafe = (val) => {
+    isTrainedRef.current = val;
+    setIsTrained(val);
+  };
+
   // 🔹 Traer conteos desde el backend
   const fetchCounts = useCallback(async () => {
     try {
@@ -24,7 +31,7 @@ export const TrainerProvider = ({ children }) => {
     }
   }, []);
 
-  // 🔹 Predicción automática (la llama App.jsx después de entrenar)
+  // 🔹 Predicción automática
   const autoPredict = useCallback(async (landmarks) => {
     if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21)
       return;
@@ -40,6 +47,7 @@ export const TrainerProvider = ({ children }) => {
 
       if (data.status === "not_trained") {
         setStatus("Modelo no entrenado todavía ⚠️");
+        setIsTrainedSafe(false);
         return;
       }
 
@@ -68,26 +76,27 @@ export const TrainerProvider = ({ children }) => {
   const handleTrain = useCallback(async () => {
     setStatus("Entrenando...");
     speak("Entrenando modelo, espere por favor");
-
     try {
       const res = await fetch(`${API_URL}/train_landmarks`, { method: "POST" });
       const j = await res.json();
-
       if (res.ok) {
         setStatus("Entrenado correctamente");
         speak("Modelo entrenado correctamente");
-        setIsTrained(true);
+        setIsTrainedSafe(true);
 
-        // 👇 Ya no forzamos predicción aquí
+        // ✅ Si ya hay landmarks en memoria, empezar a predecir de inmediato
+        if (window.currentLandmarks && window.currentLandmarks.length === 21) {
+          autoPredict(window.currentLandmarks);
+        }
       } else {
         setStatus("Error: " + (j.error || "Error en entrenamiento"));
-        setIsTrained(false);
+        setIsTrainedSafe(false);
       }
     } catch (e) {
       setStatus("Error: " + e.message);
-      setIsTrained(false);
+      setIsTrainedSafe(false);
     }
-  }, []);
+  }, [autoPredict]);
 
   // 🔹 Resetear modelo/datos
   const handleReset = useCallback(async () => {
@@ -98,12 +107,12 @@ export const TrainerProvider = ({ children }) => {
         setCounts({});
         setPrediction(null);
         setStatus("Datos eliminados");
-        setIsTrained(false);
+        setIsTrainedSafe(false);
         toast("⚠️ Se reiniciaron los datos de entrenamiento");
       }
     } catch (e) {
       setStatus("Error al reiniciar: " + e.message);
-      setIsTrained(false);
+      setIsTrainedSafe(false);
     }
   }, []);
 
@@ -120,6 +129,7 @@ export const TrainerProvider = ({ children }) => {
         handleTrain,
         handleReset,
         isTrained,
+        isTrainedRef, // 👈 opcional export si lo quieres usar fuera
       }}
     >
       {children}
