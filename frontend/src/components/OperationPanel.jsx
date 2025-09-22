@@ -32,10 +32,8 @@ const OperationPanel = () => {
   const [loading, setLoading] = useState(false);
   const [model, setModel] = useState(null);
 
-  const webcamRef1 = useRef(null);
-  const canvasRef1 = useRef(null);
-  const webcamRef2 = useRef(null);
-  const canvasRef2 = useRef(null);
+  const webcamRef = useRef(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     const loadModel = async () => {
@@ -77,34 +75,25 @@ const OperationPanel = () => {
   useEffect(() => {
     if (!model) return;
     const interval = setInterval(async () => {
-      const cameras = [
-        { webcam: webcamRef1.current, canvas: canvasRef1.current },
-        { webcam: webcamRef2.current, canvas: canvasRef2.current },
-      ];
-      cameras.forEach(async ({ webcam, canvas }) => {
-        if (webcam && canvas && webcam.video.readyState === 4) {
-          const predictions = await model.estimateHands(webcam.video);
-          const ctx = canvas.getContext("2d");
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          drawHand(predictions, ctx);
-        }
-      });
+      const webcam = webcamRef.current;
+      const canvas = canvasRef.current;
+      if (webcam && canvas && webcam.video.readyState === 4) {
+        const predictions = await model.estimateHands(webcam.video);
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawHand(predictions, ctx);
+      }
     }, 100);
     return () => clearInterval(interval);
   }, [model]);
 
   const getLandmarks = async () => {
-    const allPredictions = [];
-    if (model && webcamRef1.current && webcamRef1.current.video.readyState === 4) {
-      const predictions1 = await model.estimateHands(webcamRef1.current.video);
-      allPredictions.push(...predictions1);
-    }
-    if (model && webcamRef2.current && webcamRef2.current.video.readyState === 4) {
-      const predictions2 = await model.estimateHands(webcamRef2.current.video);
-      allPredictions.push(...predictions2);
-    }
-    if (allPredictions.length > 0) {
-      return allPredictions[0].landmarks.flat();
+    if (!model || !webcamRef.current) return null;
+    const predictions = await model.estimateHands(webcamRef.current.video);
+    if (predictions.length > 0) {
+      // 📌 Unir los landmarks de todas las manos en un solo array
+      const allLandmarks = predictions.flatMap(prediction => prediction.landmarks.flat());
+      return allLandmarks;
     }
     return null;
   };
@@ -113,10 +102,11 @@ const OperationPanel = () => {
     try {
       setLoading(true);
       const landmarks = await getLandmarks();
-      if (!landmarks) {
-        alert("No se detectó la mano");
+      if (!landmarks || landmarks.length === 0) {
+        alert("No se detectó ninguna mano");
         return;
       }
+      
       const res = await predictOperation(landmarks);
       const prediction = res.data.prediction;
 
@@ -160,26 +150,26 @@ const OperationPanel = () => {
       <p className="section-subtitle">
         Usa la cámara para reconocer tus señas y resolver operaciones aritméticas.
       </p>
+      
       <section className="panel-section">
         <div className="cameras-container">
-          {[1, 2].map((idx) => (
-            <div key={idx} className="webcam-container">
-              <Webcam
-                audio={false}
-                ref={idx === 1 ? webcamRef1 : webcamRef2}
-                screenshotFormat="image/jpeg"
-                videoConstraints={videoConstraints}
-              />
-              <canvas
-                ref={idx === 1 ? canvasRef1 : canvasRef2}
-                width={videoConstraints.width}
-                height={videoConstraints.height}
-                className="overlay-canvas"
-              />
-            </div>
-          ))}
+          <div className="webcam-container">
+            <Webcam
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              videoConstraints={videoConstraints}
+            />
+            <canvas
+              ref={canvasRef}
+              width={videoConstraints.width}
+              height={videoConstraints.height}
+              className="overlay-canvas"
+            />
+          </div>
         </div>
       </section>
+
       <div className="flex justify-center gap-4 mt-4">
         <button
           onClick={handlePredict}

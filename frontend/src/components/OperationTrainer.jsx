@@ -78,7 +78,11 @@ const OperationTrainer = () => {
   const getLandmarks = async () => {
     if (!model || !webcamRef.current) return null;
     const predictions = await model.estimateHands(webcamRef.current.video);
-    if (predictions.length > 0) return predictions[0].landmarks.flat();
+    if (predictions.length > 0) {
+      // 📌 Unir los landmarks de todas las manos en un solo array
+      const allLandmarks = predictions.flatMap(prediction => prediction.landmarks.flat());
+      return allLandmarks;
+    }
     return null;
   };
 
@@ -90,6 +94,7 @@ const OperationTrainer = () => {
         alert("No se detectó la mano");
         return;
       }
+      // 📌 Enviar los landmarks de todas las manos
       await uploadOperationSample(label, landmarks);
       alert(`✅ Muestra guardada para ${label}`);
     } catch (err) {
@@ -118,8 +123,9 @@ const OperationTrainer = () => {
         <span role="img" aria-label="training">📚</span> Recolección de Muestras
       </h3>
       <p className="section-subtitle">
-        Guarda una muestra para cada número y operador. Apunta la mano a la cámara y presiona el botón.
+        Guarda una muestra para cada número y operador. Apunta la(s) mano(s) a la cámara y presiona el botón.
       </p>
+
       <section className="panel-section">
         <div className="cameras-container">
           <div className="webcam-container">
@@ -150,6 +156,7 @@ const OperationTrainer = () => {
           ))}
         </div>
       </section>
+
       <div className="flex justify-center mt-4">
         <button onClick={handleTrain} disabled={loading} className="btn-yellow">
           {loading ? "⏳ Entrenando..." : "📚 Entrenar Modelo"}
