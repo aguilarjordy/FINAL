@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { useAchievements } from "../context/AchievementsContext"; // ⬅️ Contexto
 import { toast } from "react-hot-toast"; // ⬅️ Notificaciones
 import "../styles/app.css";
-import "./locales/i18n.js";
+import "../locales/i18n";
 
 const VOCALS = ["A", "E", "I", "O", "U"];
 const MAX_PER_LABEL = 100;
