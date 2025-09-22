@@ -1,8 +1,9 @@
 // src/components/OperationTrainer.jsx
 import React, { useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
-import { Hands } from "@mediapipe/hands";
+import { Hands, FilesetResolver } from "@mediapipe/hands";
 import { Camera } from "@mediapipe/camera_utils";
+import { DrawingUtils } from "@mediapipe/drawing_utils";
 import {
   uploadOperationSample,
   trainOperationModel,
@@ -25,82 +26,84 @@ const OperationTrainer = () => {
 
   const countsRef = useRef({});
 
-  // 🔹 Inicializar MediaPipe
   useEffect(() => {
     if (!webcamRef.current) return;
 
-    const hands = new Hands({
-      locateFile: (file) =>
-        `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
-    });
-
-    hands.setOptions({
-      maxNumHands: 1,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
-    });
-
-    hands.onResults((results) => {
-      const videoWidth = webcamRef.current.video.videoWidth;
-      const videoHeight = webcamRef.current.video.videoHeight;
-      const canvasElement = canvasRef.current;
-      const canvasCtx = canvasElement.getContext("2d");
-
-      canvasElement.width = videoWidth;
-      canvasElement.height = videoHeight;
-
-      canvasCtx.save();
-      canvasCtx.clearRect(0, 0, videoWidth, videoHeight);
-      canvasCtx.scale(-1, 1);
-      canvasCtx.translate(-videoWidth, 0);
-      canvasCtx.drawImage(
-        results.image,
-        0,
-        0,
-        videoWidth,
-        videoHeight
+    const setupMediaPipe = async () => {
+      const filesetResolver = await FilesetResolver.forHands(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646/wasm"
       );
+      
+      const hands = new Hands(filesetResolver);
 
-      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        // ✅ Dibuja la mano en el canvas
-        const landmarks = results.multiHandLandmarks[0];
-        window.drawConnectors(canvasCtx, landmarks, window.HAND_CONNECTIONS, {
-          color: "#4ade80",
-          lineWidth: 2,
-        });
-        window.drawLandmarks(canvasCtx, landmarks, {
-          color: "#4ade80",
-          lineWidth: 2,
-          radius: 4,
-        });
+      hands.setOptions({
+        maxNumHands: 1,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5,
+      });
 
-        // 🚀 Recolecta la muestra si el estado de recolección está activo
-        if (collecting) {
-          const count = countsRef.current[collecting] || 0;
-          if (count < 100) {
-            const allLandmarks = landmarks.flatMap((lm) => [lm.x, lm.y, lm.z]);
-            uploadOperationSample(collecting, allLandmarks);
-            countsRef.current[collecting] = count + 1;
-            setProgress(count + 1);
-          } else {
-            setCollecting(null);
-            alert(`✅ Se recolectaron 100 muestras para ${collecting}`);
+      const drawingUtils = new DrawingUtils(canvasRef.current.getContext("2d"));
+
+      hands.onResults((results) => {
+        const videoWidth = webcamRef.current.video.videoWidth;
+        const videoHeight = webcamRef.current.video.videoHeight;
+        const canvasCtx = canvasRef.current.getContext("2d");
+
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, videoWidth, videoHeight);
+        canvasCtx.drawImage(
+          results.image,
+          0,
+          0,
+          videoWidth,
+          videoHeight
+        );
+
+        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+          const landmarks = results.multiHandLandmarks[0];
+
+          // 🚀 Recolecta la muestra si el estado de recolección está activo
+          if (collecting) {
+            const count = countsRef.current[collecting] || 0;
+            if (count < 100) {
+              const allLandmarks = landmarks.flatMap((lm) => [lm.x, lm.y, lm.z]);
+              uploadOperationSample(collecting, allLandmarks);
+              countsRef.current[collecting] = count + 1;
+              setProgress(count + 1);
+            } else {
+              setCollecting(null);
+              alert(`✅ Se recolectaron 100 muestras para ${collecting}`);
+              countsRef.current[collecting] = 0; // Reinicia el contador para futuros usos
+            }
           }
-        }
-      }
-      canvasCtx.restore();
-    });
 
-    const camera = new Camera(webcamRef.current.video, {
-      onFrame: async () => {
-        await hands.send({ image: webcamRef.current.video });
-      },
-      width: 320,
-      height: 240,
-    });
-    camera.start();
-  }, []);
+          // ✅ Dibuja la mano en el canvas
+          drawingUtils.drawConnectors(canvasCtx, landmarks, Hands.CONNECTIONS, {
+            color: "#4ade80",
+            lineWidth: 2,
+          });
+          drawingUtils.drawLandmarks(canvasCtx, landmarks, {
+            color: "#4ade80",
+            lineWidth: 2,
+            radius: 4,
+          });
+        }
+        canvasCtx.restore();
+      });
+
+      const camera = new Camera(webcamRef.current.video, {
+        onFrame: async () => {
+          await hands.send({ image: webcamRef.current.video });
+        },
+        width: 320,
+        height: 240,
+      });
+      camera.start();
+    };
+
+    setupMediaPipe();
+  }, [collecting]);
 
   const handleCollect = (label) => {
     setProgress(0);
