@@ -113,51 +113,47 @@ const OperationTrainer = () => {
   };
 
   return (
-    <div className="operation-panel">
-      <div className="content-card">
-        <h3 className="section-title">
-          <span role="img" aria-label="training">📚</span> Recolección de Muestras
-        </h3>
-        <p className="section-subtitle">
-          Guarda una muestra para cada número y operador. Apunta la mano a la cámara y presiona el botón.
-        </p>
-
-        <section className="panel-section">
-          <div className="cameras-container">
-            <div className="webcam-container">
-              <Webcam
-                audio={false}
-                ref={webcamRef}
-                screenshotFormat="image/jpeg"
-                videoConstraints={videoConstraints}
-              />
-              <canvas
-                ref={canvasRef}
-                width={videoConstraints.width}
-                height={videoConstraints.height}
-                className="overlay-canvas"
-              />
-            </div>
+    <div className="content-card">
+      <h3 className="section-title">
+        <span role="img" aria-label="training">📚</span> Recolección de Muestras
+      </h3>
+      <p className="section-subtitle">
+        Guarda una muestra para cada número y operador. Apunta la mano a la cámara y presiona el botón.
+      </p>
+      <section className="panel-section">
+        <div className="cameras-container">
+          <div className="webcam-container">
+            <Webcam
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              videoConstraints={videoConstraints}
+            />
+            <canvas
+              ref={canvasRef}
+              width={videoConstraints.width}
+              height={videoConstraints.height}
+              className="overlay-canvas"
+            />
           </div>
-          <div className="flex flex-wrap justify-center gap-2 mb-4">
-            {[..."0123456789", "+", "-", "*", "/"].map((lbl) => (
-              <button
-                key={lbl}
-                onClick={() => handleCollect(lbl)}
-                disabled={!!collecting}
-                className="btn-gray"
-              >
-                {collecting === lbl ? "⏳..." : lbl}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <div className="flex justify-center mt-4">
-          <button onClick={handleTrain} disabled={loading} className="btn-yellow">
-            {loading ? "⏳ Entrenando..." : "📚 Entrenar"}
-          </button>
         </div>
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
+          {[..."0123456789", "+", "-", "*", "/"].map((lbl) => (
+            <button
+              key={lbl}
+              onClick={() => handleCollect(lbl)}
+              disabled={!!collecting}
+              className="btn-gray"
+            >
+              {collecting === lbl ? "⏳..." : lbl}
+            </button>
+          ))}
+        </div>
+      </section>
+      <div className="flex justify-center mt-4">
+        <button onClick={handleTrain} disabled={loading} className="btn-yellow">
+          {loading ? "⏳ Entrenando..." : "📚 Entrenar Modelo"}
+        </button>
       </div>
     </div>
   );
