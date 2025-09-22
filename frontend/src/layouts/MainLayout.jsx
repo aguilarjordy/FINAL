@@ -5,21 +5,26 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import "../styles/dashboard.css";
-import "../styles/sidebar.css"; // ✅ importa estilos del sidebar
+import "../styles/sidebar.css";
 
 const MainLayout = () => {
   return (
     <div className="layout-container">
+      {/* 🔹 Navbar superior */}
       <Navbar />
+
+      {/* 🔹 Cuerpo con Sidebar + contenido dinámico */}
       <div className="layout-body">
-        {/* Sidebar a la izquierda */}
+        {/* Sidebar de navegación */}
         <Sidebar />
 
-        {/* Contenido a la derecha */}
+        {/* Aquí se renderizan las páginas */}
         <main className="layout-main">
           <Outlet />
         </main>
       </div>
+
+      {/* 🔹 Footer */}
       <Footer />
     </div>
   );

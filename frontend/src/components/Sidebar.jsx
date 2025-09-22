@@ -11,10 +11,10 @@ const Sidebar = () => {
           <Link to="/">🏠 Dashboard</Link>
         </li>
         <li>
-          <Link to="/entrenador">🎓 Entrenador</Link>
+          <Link to="/entrenador">🎓 Entrenador (Vocales)</Link>
         </li>
         <li>
-          <Link to="/aritmetica">🧮 Operaciones Aritméticas con Señas</Link>
+          <Link to="/aritmetica">🧮 Operaciones Aritméticas</Link>
         </li>
         <li>
           <Link to="/estadisticas">📊 Estadísticas</Link>

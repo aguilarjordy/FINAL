@@ -2,8 +2,21 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
 import tensorflow as tf
-from achievements import record_vocal, check_new_achievements, get_progress, reset_achievements
+import cv2
+import mediapipe as mp
+import base64
 import os
+
+# 📌 Logros de vocales
+from achievements import (
+    record_vocal,
+    check_new_achievements,
+    get_progress,
+    reset_achievements,
+)
+
+# 📌 Funciones auxiliares
+from operations import calculate
 
 app = Flask(__name__)
 
@@ -21,7 +34,8 @@ def add_cors_headers(response):
     allowed_origins = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "https://final-1-h9n9.onrender.com"
+        "https://final-1-h9n9.onrender.com",
+        "https://final-dev-front.onrender.com"
     ]
     if origin in allowed_origins:
         response.headers["Access-Control-Allow-Origin"] = origin
@@ -30,10 +44,21 @@ def add_cors_headers(response):
     return response
 
 
-# 🔹 Variables globales en memoria
+# ------------------ 🔹 VARIABLES EN MEMORIA ------------------
+# Para vocales
 landmarks_data = {}
 model = None
 label_map = {}
+
+# Para operaciones aritméticas
+operations_data = {}
+operations_model = None
+operations_label_map = {}
+
+# 🔹 MediaPipe Hands
+mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0.5)
 
 
 @app.route('/')
@@ -41,7 +66,9 @@ def home():
     return jsonify({"status": "backend running 🚀"})
 
 
-# ------------------ 📌 ENTRENAMIENTO Y PREDICCIÓN ------------------
+# ============================================================
+# 📌 VOCAL RECOGNITION (igual que antes)
+# ============================================================
 
 @app.route('/upload_landmarks', methods=['POST'])
 def upload_landmarks():
@@ -63,12 +90,6 @@ def upload_landmarks():
     }), 200
 
 
-@app.route('/count', methods=['GET'])
-def count():
-    counts = {label: len(samples) for label, samples in landmarks_data.items()}
-    return jsonify(counts), 200
-
-
 @app.route('/train_landmarks', methods=['POST'])
 def train_landmarks():
     global model, label_map
@@ -87,7 +108,6 @@ def train_landmarks():
     X = np.array(X, dtype=np.float32)
     y = np.array(y, dtype=np.int32)
 
-    # 🔹 Reemplazamos modelo cada vez para evitar capas acumuladas
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(X.shape[1],)),
         tf.keras.layers.Dense(128, activation='relu'),
@@ -96,7 +116,6 @@ def train_landmarks():
         tf.keras.layers.Dense(len(labels), activation='softmax')
     ])
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-
     model.fit(X, y, epochs=10, batch_size=16, verbose=0)
 
     return jsonify({'message': 'trained in memory', 'classes': label_map}), 200
@@ -119,7 +138,7 @@ def predict_landmarks():
     predicted_vocal = label_map.get(idx, str(idx))
     confidence = float(preds[idx])
 
-    # 🔹 Guardar progreso en logros (persistente)
+    # 🔹 Guardar progreso
     prev_progress = get_progress()
     new_progress = record_vocal(predicted_vocal, correct=True)
     new_achievements = check_new_achievements(prev_progress, new_progress)
@@ -133,16 +152,134 @@ def predict_landmarks():
     }), 200
 
 
-@app.route('/reset', methods=['POST'])
-def reset():
-    global landmarks_data, model, label_map
-    landmarks_data = {}
-    model = None
-    label_map = {}
-    return jsonify({'message': 'memory cleared'}), 200
+# ============================================================
+# 📌 ARITHMETIC OPERATIONS (con imágenes)
+# ============================================================
+
+def extract_landmarks_from_base64(image_b64):
+    try:
+        img_bytes = base64.b64decode(image_b64)
+        nparr = np.frombuffer(img_bytes, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        results = hands.process(img_rgb)
+
+        if not results.multi_hand_landmarks:
+            return None
+
+        hand_landmarks = results.multi_hand_landmarks[0]
+        lm = []
+        for landmark in hand_landmarks.landmark:
+            lm.append([landmark.x, landmark.y, landmark.z])
+
+        return np.array(lm, dtype=np.float32)
+    except Exception as e:
+        print("Error en extracción de landmarks:", e)
+        return None
 
 
-# ------------------ 🎯 ENDPOINTS DE LOGROS ------------------
+@app.route('/api/operations/upload', methods=['POST'])
+def upload_operations():
+    data = request.get_json()
+    if not data or 'label' not in data or 'image' not in data:
+        return jsonify({'error': 'label and image required'}), 400
+
+    landmarks = extract_landmarks_from_base64(data['image'])
+    if landmarks is None:
+        return jsonify({'error': 'no hand detected'}), 400
+
+    label = str(data['label']).strip()
+    if label not in operations_data:
+        operations_data[label] = []
+    operations_data[label].append(landmarks)
+
+    return jsonify({
+        'message': 'saved in memory',
+        'label': label,
+        'count': len(operations_data[label])
+    }), 200
+
+
+@app.route('/api/operations/train', methods=['POST'])
+def train_operations():
+    global operations_model, operations_label_map
+    if len(operations_data) < 2:
+        return jsonify({'error': 'Need at least 2 labels with samples'}), 400
+
+    X, y = [], []
+    labels = sorted(operations_data.keys())
+    operations_label_map = {i: labels[i] for i in range(len(labels))}
+
+    for idx, label in enumerate(labels):
+        for arr in operations_data[label]:
+            X.append(arr.flatten())
+            y.append(idx)
+
+    X = np.array(X, dtype=np.float32)
+    y = np.array(y, dtype=np.int32)
+
+    operations_model = tf.keras.Sequential([
+        tf.keras.layers.Input(shape=(X.shape[1],)),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(64, activation='relu'),
+        tf.keras.layers.Dense(len(labels), activation='softmax')
+    ])
+    operations_model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    operations_model.fit(X, y, epochs=10, batch_size=16, verbose=0)
+
+    return jsonify({'message': 'trained arithmetic model', 'classes': operations_label_map}), 200
+
+
+@app.route('/api/operations/predict', methods=['POST'])
+def predict_operations():
+    global operations_model, operations_label_map
+    data = request.get_json()
+
+    if not data or 'image' not in data:
+        return jsonify({'error': 'image required'}), 400
+    if operations_model is None:
+        return jsonify({'status': 'not_trained'}), 200
+
+    landmarks = extract_landmarks_from_base64(data['image'])
+    if landmarks is None:
+        return jsonify({'error': 'no hand detected'}), 400
+
+    lm = landmarks.flatten().reshape(1, -1)
+    preds = operations_model.predict_on_batch(lm)[0]
+    idx = int(np.argmax(preds))
+    prediction = operations_label_map.get(idx, str(idx))
+    confidence = float(preds[idx])
+
+    return jsonify({
+        'status': 'ok',
+        'prediction': prediction,
+        'confidence': confidence
+    }), 200
+
+
+@app.route('/api/operations/calculate', methods=['POST'])
+def calculate_operation():
+    """
+    Recibe { "first": 5, "operator": "+", "second": 3 }
+    Devuelve { "result": 8 }
+    """
+    data = request.get_json()
+    try:
+        a = data.get("first")
+        b = data.get("second")
+        op = data.get("operator")
+
+        result = calculate(a, op, b)
+        return jsonify({"result": result}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+# ============================================================
+# 📌 ENDPOINTS DE LOGROS
+# ============================================================
 
 @app.route("/api/achievements/record", methods=["POST"])
 def api_record_achievement():
@@ -160,17 +297,8 @@ def api_record_achievement():
 
 @app.route("/api/achievements/progress", methods=["GET"])
 def api_progress():
-    """
-    Devuelve el estado actual de los logros (para frontend).
-    El frontend espera un JSON con {"unlocked": [...]}
-    """
     progress = get_progress()
-
-    unlocked = []
-    for key, value in progress.items():
-        if value:  # si está desbloqueado
-            unlocked.append(key)
-
+    unlocked = [key for key, value in progress.items() if value]
     return jsonify({"unlocked": unlocked}), 200
 
 
@@ -180,8 +308,10 @@ def api_reset_achievements():
     return jsonify({"message": "achievements reset"}), 200
 
 
-# ------------------ 🚀 MAIN ------------------
+# ============================================================
+# 🚀 MAIN
+# ============================================================
+
 if __name__ == '__main__':
-    # ✅ Para Render usamos host 0.0.0.0
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)

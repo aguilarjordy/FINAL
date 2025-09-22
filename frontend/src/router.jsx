@@ -3,11 +3,10 @@ import { Routes, Route } from "react-router-dom";
 
 import MainLayout from "./layouts/MainLayout";
 import Dashboard from "./pages/Dashboard";
-import App from "./pages/App";
-import Stats from "./pages/Stats";           
-import Settings from "./pages/Settings";     
-import Arithmetic from "./pages/Arithmetic"; 
-import Recognition from "./components/Recognition"; // 👈 añadido
+import App from "./pages/App";              // 👈 Entrenador (vocales)
+import Stats from "./pages/Stats";
+import Settings from "./pages/Settings";
+import Arithmetic from "./pages/Arithmetic";
 
 const AppRouter = () => {
   return (
@@ -17,13 +16,10 @@ const AppRouter = () => {
         {/* Página inicial -> Dashboard */}
         <Route index element={<Dashboard />} />
 
-        {/* Ruta al App principal (Entrena y aprende las vocales) */}
+        {/* Ruta al módulo de vocales (Entrenador) */}
         <Route path="entrenador" element={<App />} />
 
-        {/* Ruta al Reconocimiento manual de vocales */}
-        <Route path="reconocimiento" element={<Recognition />} />
-
-        {/* Nueva sección de Operaciones Aritméticas */}
+        {/* Operaciones aritméticas */}
         <Route path="aritmetica" element={<Arithmetic />} />
 
         {/* Otras secciones */}
