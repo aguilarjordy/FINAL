@@ -1,0 +1,16 @@
+{
+  "settings": "Configuración",
+  "dark_mode": "Modo oscuro",
+  "enable": "Activar",
+  "disable": "Desactivar",
+  "notifications": "Notificaciones",
+  "configure": "Configurar",
+  "languages": "Idiomas",
+  "spanish": "Español",
+  "english": "Inglés",
+  "portuguese": "Portugués",
+  "font_size": "Tamaño de letra",
+  "small": "Pequeño",
+  "normal": "Normal",
+  "large": "Grande"
+}
