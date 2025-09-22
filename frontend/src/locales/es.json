@@ -13,23 +13,27 @@
   "small": "Pequeño",
   "normal": "Normal",
   "large": "Grande",
-  
+
   "app_name": "Lengua VisualWeb",
-  "dashboard": "Dashboard",
+
+  "dashboard": "Panel de Control",
   "trainer": "Entrenador",
   "math_signs": "Operaciones Aritméticas con Señas",
   "statistics": "Estadísticas",
-  "settings": "Configuración",
+  "settings_page": "Configuración",
 
-
-  "dashboard": "Dashboard",
-  "trainer": "Entrenador",
-  "arithmetic": "Operaciones Aritméticas",
-  "statistics": "Estadísticas",
-  "settings": "Configuración",
+  "welcome": "Bienvenido al sistema. Desde aquí puedes acceder a las secciones principales:",
+  "train_vowels": "Entrena y aprende las vocales",
+  "train_vowels_desc": "Accede al entrenador interactivo de la aplicación.",
+  "math_title": "Operaciones Aritméticas con Señas",
+  "math_desc": "Practica sumas, restas y más con lenguaje de señas.",
+  "stats_title": "Estadísticas",
+  "stats_desc": "Consulta reportes y métricas.",
+  "settings_title": "Configuración",
+  "settings_desc": "Ajusta las preferencias del sistema.",
 
   "achievements": {
-    "title": "Logros",
+    "title": "🎯 Logros",
     "first_a": "Reconociste la vocal A",
     "first_e": "Reconociste la vocal E",
     "first_i": "Reconociste la vocal I",
@@ -37,8 +41,8 @@
     "first_u": "Reconociste la vocal U",
     "five_predictions": "Realizaste 5 predicciones correctas",
     "reset_button": "Reiniciar Logros",
-    "reset_success": "Logros reiniciados",
-    "reset_error": "Error al reiniciar",
+    "reset_success": "✅ Logros reiniciados",
+    "reset_error": "❌ Error al reiniciar",
     "connection_error": "Error de conexión"
   },
 
@@ -46,15 +50,8 @@
     "go": "Ir"
   },
 
-  
-  "app_name": "Lengua VisualWeb",
-  "dashboard": "Dashboard",
-  "trainer": "Entrenador",
-  "math_signs": "Operaciones Aritméticas con Señas",
-  "statistics": "Estadísticas",
-
   "footer": {
-    "text": "Proyecto de Reconocimiento de Señales"
+    "text": "© {{year}} SignsApp | Proyecto de Reconocimiento de Señales"
   },
 
   "recognition": {
@@ -63,14 +60,20 @@
     "none": "ninguna",
     "test_button": "Probar",
     "achievement_unlocked": "🏆 ¡Logro desbloqueado!"
-  
+  },
+
+  "stats": {
+    "progress_title": "Progreso de aciertos",
+    "ex_vs_corr": "Ejercicios vs Aciertos",
+    "exercises": "Ejercicios",
+    "correct": "Aciertos"
+  },
+
+  "months": {
+    "january": "Enero",
+    "february": "Febrero",
+    "march": "Marzo",
+    "april": "Abril",
+    "may": "Mayo"
+  }
 }
-
-
-
-
-
-
-
-}
-
