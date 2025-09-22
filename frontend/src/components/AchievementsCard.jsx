@@ -1,3 +1,4 @@
+// src/components/AchievementsCard.jsx
 import React, { useState, useEffect } from "react";
 import { useAchievements } from "../context/AchievementsContext";
 import { useTranslation } from "react-i18next";
@@ -9,7 +10,6 @@ export default function AchievementsCard() {
   const [status, setStatus] = useState("");
   const { t } = useTranslation();
 
-  // 🔹 Lista de logros traducibles
   const ALL_ACHIEVEMENTS = [
     { id: "first_a", title: t("achievements.first_a") },
     { id: "first_e", title: t("achievements.first_e") },
@@ -17,6 +17,7 @@ export default function AchievementsCard() {
     { id: "first_o", title: t("achievements.first_o") },
     { id: "first_u", title: t("achievements.first_u") },
     { id: "five_predictions", title: t("achievements.five_predictions") },
+    { id: "master_vocals", title: t("achievements.master_vocals") },
   ];
 
   useEffect(() => {
@@ -24,15 +25,11 @@ export default function AchievementsCard() {
       try {
         const res = await fetch(`${API_URL}/api/achievements/progress`);
         const data = await res.json();
-
-        if (data.unlocked) {
-          updateAchievements(data.unlocked);
-        }
+        if (data.unlocked) updateAchievements(data.unlocked);
       } catch (err) {
         console.error("❌ Error al obtener logros:", err.message);
       }
     };
-
     fetchProgress();
   }, [updateAchievements]);
 
@@ -58,10 +55,7 @@ export default function AchievementsCard() {
 
       <ul className="achievements-list">
         {ALL_ACHIEVEMENTS.map((ach) => (
-          <li
-            key={ach.id}
-            className={achievements.includes(ach.id) ? "unlocked" : "locked"}
-          >
+          <li key={ach.id} className={achievements.includes(ach.id) ? "unlocked" : "locked"}>
             {achievements.includes(ach.id) ? "✅" : "🔒"} {ach.title}
           </li>
         ))}

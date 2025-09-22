@@ -1,20 +1,53 @@
 // src/components/Recognition.jsx
-import { useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { recordAchievement } from "../services/achievements";
+import { useTrainer } from "../context/TrainerContext";
+import { useAchievements } from "../context/AchievementsContext";
+import { toast } from "react-hot-toast";
+import { speak } from "../utils/speech";
+import LOGROS from "../config/logros";
 
 function Recognition() {
   const { t } = useTranslation();
   const [prediction, setPrediction] = useState(null);
+  const { isTrained, autoPredict } = useTrainer();
+  const { updateAchievements } = useAchievements();
 
-  async function handleRecognition(pred) {
-    setPrediction(pred);
+  async function handleRecognition(vocal) {
+    if (!isTrained) {
+      toast.error("⚠️ Primero debes entrenar el modelo.");
+      speak("Primero debes entrenar el modelo");
+      return;
+    }
 
-    const data = await recordAchievement(pred, true);
-    if (data?.new_achievements?.length > 0) {
-      data.new_achievements.forEach(l => {
-        alert(`${t("🏆 ¡Logro desbloqueado!")}: ${l.title}\n${l.desc}`);
+    const landmarks = window.currentLandmarks;
+    if (!landmarks || !Array.isArray(landmarks) || landmarks.length !== 21) {
+      toast.error("❌ No hay mano detectada en la cámara.");
+      speak("No hay mano detectada en la cámara");
+      return;
+    }
+
+    setPrediction(vocal);
+    await autoPredict(landmarks);
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/achievements/record`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ achievement: `vocal_${vocal.toLowerCase()}` }),
       });
+
+      const data = await res.json();
+      if (data?.new_achievements?.length > 0) {
+        data.new_achievements.forEach((ach) => {
+          const nombreBonito = LOGROS[ach] || ach;
+          toast.success(`🏆 ¡Logro desbloqueado!: ${nombreBonito}`);
+          speak(`Logro conseguido: ${nombreBonito}`);
+        });
+        updateAchievements(data.unlocked || []);
+      }
+    } catch (err) {
+      console.error("❌ Error al registrar logro:", err);
     }
   }
 
@@ -25,9 +58,8 @@ function Recognition() {
         {t("Predicción actual")}: {prediction || t("ninguna")}
       </p>
 
-      {/* Botones de prueba */}
       <div className="flex gap-2">
-        {["A", "E", "I", "O", "U"].map(v => (
+        {["A", "E", "I", "O", "U"].map((v) => (
           <button key={v} onClick={() => handleRecognition(v)}>
             {t("Probar")} {v}
           </button>
@@ -38,4 +70,3 @@ function Recognition() {
 }
 
 export default Recognition;
-
