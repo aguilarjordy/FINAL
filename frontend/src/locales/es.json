@@ -19,7 +19,57 @@
   "trainer": "Entrenador",
   "math_signs": "Operaciones Aritméticas con Señas",
   "statistics": "Estadísticas",
-  "settings": "Configuración"
+  "settings": "Configuración",
+
+
+  "dashboard": "Dashboard",
+  "trainer": "Entrenador",
+  "arithmetic": "Operaciones Aritméticas",
+  "statistics": "Estadísticas",
+  "settings": "Configuración",
+
+  "achievements": {
+    "title": "Logros",
+    "first_a": "Reconociste la vocal A",
+    "first_e": "Reconociste la vocal E",
+    "first_i": "Reconociste la vocal I",
+    "first_o": "Reconociste la vocal O",
+    "first_u": "Reconociste la vocal U",
+    "five_predictions": "Realizaste 5 predicciones correctas",
+    "reset_button": "Reiniciar Logros",
+    "reset_success": "Logros reiniciados",
+    "reset_error": "Error al reiniciar",
+    "connection_error": "Error de conexión"
+  },
+
+  "common": {
+    "go": "Ir"
+  },
+
+  
+  "app_name": "Lengua VisualWeb",
+  "dashboard": "Dashboard",
+  "trainer": "Entrenador",
+  "math_signs": "Operaciones Aritméticas con Señas",
+  "statistics": "Estadísticas",
+
+  "footer": {
+    "text": "Proyecto de Reconocimiento de Señales"
+  },
+
+  "recognition": {
+    "title": "Reconocimiento de Vocales",
+    "current_prediction": "Predicción actual",
+    "none": "ninguna",
+    "test_button": "Probar",
+    "achievement_unlocked": "🏆 ¡Logro desbloqueado!"
+  
+}
+
+
+
+
+
 
 
 }

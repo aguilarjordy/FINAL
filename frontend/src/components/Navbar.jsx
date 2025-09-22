@@ -1,27 +1,30 @@
 // src/components/Navbar.jsx
 import React from "react";
 import { NavLink } from "react-router-dom";
-import "../styles/navbar.css"; // importa estilos del navbar
+import { useTranslation } from "react-i18next"; // 👈 importar hook
+import "../styles/navbar.css";
 
 const Navbar = () => {
+  const { t } = useTranslation(); // 👈 activar traducción
+
   return (
     <header className="navbar">
       <div className="navbar-logo">🎓 Lengua VisualWeb</div>
       <nav className="navbar-links">
         <NavLink to="/" end className="nav-item">
-          Dashboard
+          {t("dashboard")}
         </NavLink>
         <NavLink to="/entrenador" className="nav-item">
-          Entrenador
+          {t("trainer")}
         </NavLink>
         <NavLink to="/aritmetica" className="nav-item">
-          Operaciones Aritméticas
+          {t("arithmetic")}
         </NavLink>
         <NavLink to="/estadisticas" className="nav-item">
-          Estadísticas
+          {t("statistics")}
         </NavLink>
         <NavLink to="/configuracion" className="nav-item">
-          Configuración
+          {t("settings")}
         </NavLink>
       </nav>
     </header>
