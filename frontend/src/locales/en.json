@@ -15,6 +15,11 @@
   "configuración": "Settings",
   "Ajusta las preferencias del sistema": "Adjust system preferences",
 
+
+  "Panel de control": "Dashboard",
+  "Entrenador": "Trainer",
+  "Estadísticas": "Statistics",
+  "Configuración": "Settings",
   "Operaciones Aritméticas con Señas": "Arithmetic with Signs",
   "Aquí podrás practicar sumas, restas y otras operaciones usando lenguaje de señas": "Here you can practice addition, subtraction and other operations using sign language",
 
@@ -36,6 +41,11 @@
   "Ejercicios vs Aciertos": "Exercises vs Accuracy",
   "Aciertos": "Correct",
   "Ejercicios": "Exercises",
+  "enero": "January",
+  "febrero": "February",
+  "marzo": "March",
+  "abril": "April",
+  "mayo": "May",
 
   "Lenguaje de señas": "Sign Language",
 

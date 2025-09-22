@@ -15,6 +15,11 @@
   "configuración": "Configuración",
   "Ajusta las preferencias del sistema": "Ajusta las preferencias del sistema",
 
+  "Lenguaje de señas": "Lenguaje de señas",
+  "Panel de control": "Panel de control",
+  "Entrenador": "Entrenador",
+  "Estadísticas": "Estadísticas",
+  "Configuración": "Configuración",
   "Operaciones Aritméticas con Señas": "Operaciones Aritméticas con Señas",
   "Aquí podrás practicar sumas, restas y otras operaciones usando lenguaje de señas": "Aquí podrás practicar sumas, restas y otras operaciones usando lenguaje de señas",
 
@@ -36,8 +41,11 @@
   "Ejercicios vs Aciertos": "Ejercicios vs Aciertos",
   "Aciertos": "Aciertos",
   "Ejercicios": "Ejercicios",
-
-  "Lenguaje de señas": "Lenguaje de señas",
+  "enero": "Enero",
+  "febrero": "Febrero",
+  "marzo": "Marzo",
+  "abril": "Abril",
+  "mayo": "Mayo",
 
   "Reconocimiento de Vocales": "Reconocimiento de Vocales",
   "Predicción actual": "Predicción actual",
