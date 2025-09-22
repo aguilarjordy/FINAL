@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
-import { useTrainer } from "../context/TrainerContext"; 
-import { useAchievements } from "../context/AchievementsContext"; // ✅ Importamos logros
-import { speak } from "../utils/speech"; 
+import { useTrainer } from "../context/TrainerContext";
+import { useAchievements } from "../context/AchievementsContext";
+import { speak } from "../utils/speech";
 import "../styles/app.css";
 
 const VOCALS = ["A", "E", "I", "O", "U"];
@@ -25,7 +25,7 @@ export default function App() {
     isTrainedRef,
   } = useTrainer();
 
-  const { registerVowel } = useAchievements(); // ✅ usamos logros
+  const { registerVowel } = useAchievements();
 
   const collectRef = useRef(null);
   const lastPredictTime = useRef(0);
@@ -33,6 +33,7 @@ export default function App() {
   // Inicializa Mediapipe
   useEffect(() => {
     if (!window.Hands || !window.Camera) {
+      console.warn("MediaPipe Hands or Camera not found. Check CDN script tags.");
       return;
     }
 
@@ -142,7 +143,7 @@ export default function App() {
   // 🔹 Detecta cambios en la predicción para registrar vocales reconocidas
   useEffect(() => {
     if (prediction && VOCALS.includes(prediction)) {
-      registerVowel(prediction); // ✅ guardamos vocal reconocida
+      registerVowel(prediction);
     }
   }, [prediction, registerVowel]);
 
