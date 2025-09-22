@@ -1,52 +1,28 @@
-/* === Estilos globales de Arithmetic === */
-.arithmetic-page {
+/* === Contenedor principal === */
+.operation-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 900px;
   margin: auto;
   font-family: "Inter", sans-serif;
 }
 
-/* === Encabezados principales === */
-.arithmetic-title {
+/* === Títulos === */
+.operation-title {
   font-size: 2rem;
   font-weight: 700;
   text-align: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   color: #1f2937; /* gris oscuro */
 }
 
-.arithmetic-subtitle {
+.operation-subtitle {
   font-size: 1rem;
   text-align: center;
   color: #4b5563; /* gris medio */
-  margin-bottom: 2rem;
-}
-
-/* === Secciones === */
-.arithmetic-section {
-  background: #ffffff;
-  border-radius: 1rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.arithmetic-section:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-}
-
-.section-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-  color: #111827;
-}
-
-.section-description {
-  font-size: 0.95rem;
-  color: #6b7280;
   margin-bottom: 1.5rem;
 }
 
@@ -61,6 +37,28 @@
 .webcam-container canvas {
   border-radius: 0.75rem;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* === Operación en progreso === */
+.operation-display {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1rem 0;
+  color: #111827;
+}
+
+/* === Resultado final === */
+.operation-result {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  color: #059669; /* verde éxito */
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.operation-result:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
 }
 
 /* === Botones === */
@@ -87,7 +85,6 @@ button:disabled {
   background: #16a34a;
   color: white;
 }
-
 .btn-green:hover {
   background: #15803d;
 }
@@ -96,7 +93,6 @@ button:disabled {
   background: #2563eb;
   color: white;
 }
-
 .btn-blue:hover {
   background: #1d4ed8;
 }
@@ -105,7 +101,6 @@ button:disabled {
   background: #f59e0b;
   color: white;
 }
-
 .btn-yellow:hover {
   background: #d97706;
 }
@@ -114,23 +109,6 @@ button:disabled {
   background: #e5e7eb;
   color: #111827;
 }
-
 .btn-gray:hover {
   background: #d1d5db;
-}
-
-/* === Operación en progreso === */
-.operation-display {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 1rem 0;
-  color: #111827;
-}
-
-/* === Resultado final === */
-.operation-result {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-top: 1rem;
-  color: #059669; /* verde éxito */
 }

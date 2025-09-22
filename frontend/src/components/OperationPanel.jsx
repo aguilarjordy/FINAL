@@ -1,9 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
-import * as handpose from "@tensorflow-models/handpose"; 
-import "@tensorflow/tfjs"; 
+import * as handpose from "@tensorflow-models/handpose";
+import "@tensorflow/tfjs";
 import { useOperations } from "../context/OperationsContext";
-import { uploadOperationSample, trainOperationModel, predictOperation, calculateOperation } from "../services/operations";
+import {
+  uploadOperationSample,
+  trainOperationModel,
+  predictOperation,
+  calculateOperation,
+} from "../services/operations";
+import "../styles/operations.css";
 
 const videoConstraints = {
   width: 320,
@@ -42,7 +48,7 @@ const OperationPanel = () => {
   // 🔹 Dibujar landmarks
   const drawHand = (predictions, ctx) => {
     if (!predictions.length) return;
-    predictions.forEach(pred => {
+    predictions.forEach((pred) => {
       const landmarks = pred.landmarks;
       for (let i = 0; i < landmarks.length; i++) {
         const [x, y] = landmarks[i];
@@ -123,7 +129,8 @@ const OperationPanel = () => {
       const prediction = res.data.prediction;
       if (!isNaN(prediction)) {
         if (firstNumber === null) setFirstNumber(Number(prediction));
-        else if (operator && secondNumber === null) setSecondNumber(Number(prediction));
+        else if (operator && secondNumber === null)
+          setSecondNumber(Number(prediction));
       } else {
         setOperator(prediction);
       }
@@ -154,11 +161,14 @@ const OperationPanel = () => {
   };
 
   return (
-    <div className="text-center">
-      <h2 className="text-xl font-bold mb-4">🧮 Operaciones con Señas</h2>
+    <div className="operation-panel">
+      <h2 className="operation-title">🧮 Operaciones con Señas</h2>
+      <p className="operation-subtitle">
+        Entrena, reconoce y calcula operaciones usando gestos de la mano.
+      </p>
 
       {/* Cámara con overlay */}
-      <div className="webcam-container mb-4 relative">
+      <div className="webcam-container">
         <Webcam
           audio={false}
           ref={webcamRef}
@@ -179,7 +189,7 @@ const OperationPanel = () => {
       </div>
 
       {/* Botones de recolección */}
-      <div className="mb-4">
+      <div>
         <h3 className="font-semibold mb-2">📌 Recolectar muestras</h3>
         <div className="flex flex-wrap justify-center gap-2">
           {[..."0123456789", "+", "-", "*", "/"].map((lbl) => (
@@ -196,37 +206,23 @@ const OperationPanel = () => {
       </div>
 
       {/* Botones principales */}
-      <div className="flex justify-center gap-4 mb-4">
-        <button
-          onClick={handleTrain}
-          disabled={loading}
-          className="btn-yellow"
-        >
+      <div className="flex justify-center gap-4">
+        <button onClick={handleTrain} disabled={loading} className="btn-yellow">
           {loading ? "⏳ Entrenando..." : "📚 Entrenar"}
         </button>
 
-        <button
-          onClick={handlePredict}
-          disabled={loading}
-          className="btn-green"
-        >
+        <button onClick={handlePredict} disabled={loading} className="btn-green">
           {loading ? "⏳ Prediciendo..." : "📷 Reconocer seña"}
         </button>
 
-        <button
-          onClick={handleCalculate}
-          disabled={loading}
-          className="btn-blue"
-        >
+        <button onClick={handleCalculate} disabled={loading} className="btn-blue">
           {loading ? "⏳ Calculando..." : "🟰 Calcular"}
         </button>
       </div>
 
       {/* Resultado final */}
       {result !== null && (
-        <h3 className="operation-result">
-          Resultado: {result}
-        </h3>
+        <h3 className="operation-result">Resultado: {result}</h3>
       )}
     </div>
   );
