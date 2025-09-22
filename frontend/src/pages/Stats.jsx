@@ -14,6 +14,9 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+const Stats = () => {
+  const { t } = useTranslation();
+  
 const data = [
   { name: t("enero"), ejercicios: 30, aciertos: 25 },
   { name: t("febrero"), ejercicios: 50, aciertos: 42 },
@@ -22,8 +25,6 @@ const data = [
   { name: t("mayo"), ejercicios: 80, aciertos: 70 },
 ];
 
-const Stats = () => {
-  const { t } = useTranslation();
 
   return (
     <div className="stats-page">
