@@ -15,11 +15,11 @@ import {
 } from "recharts";
 
 const data = [
-  { name: "enero", ejercicios: 30, aciertos: 25 },
-  { name: "febrero", ejercicios: 50, aciertos: 42 },
-  { name: "marzo", ejercicios: 40, aciertos: 38 },
-  { name: "abril", ejercicios: 60, aciertos: 50 },
-  { name: "mayo", ejercicios: 80, aciertos: 70 },
+  { name: t("enero"), ejercicios: 30, aciertos: 25 },
+  { name: t("febrero"), ejercicios: 50, aciertos: 42 },
+  { name: t("marzo"), ejercicios: 40, aciertos: 38 },
+  { name: t("abril"), ejercicios: 60, aciertos: 50 },
+  { name: t("mayo"), ejercicios: 80, aciertos: 70 },
 ];
 
 const Stats = () => {
