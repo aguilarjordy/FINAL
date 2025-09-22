@@ -1,4 +1,3 @@
-# operations.py
 def calculate(a, operator, b):
     try:
         a = float(a)

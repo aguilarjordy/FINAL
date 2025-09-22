@@ -2,9 +2,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
 import tensorflow as tf
-import cv2
-import mediapipe as mp
-import base64
 import os
 
 # 📌 Logros de vocales
@@ -55,11 +52,6 @@ operations_data = {}
 operations_model = None
 operations_label_map = {}
 
-# 🔹 MediaPipe Hands
-mp_hands = mp.solutions.hands
-mp_drawing = mp.solutions.drawing_utils
-hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1, min_detection_confidence=0.5)
-
 
 @app.route('/')
 def home():
@@ -67,7 +59,7 @@ def home():
 
 
 # ============================================================
-# 📌 VOCAL RECOGNITION (igual que antes)
+# 📌 VOCAL RECOGNITION
 # ============================================================
 
 @app.route('/upload_landmarks', methods=['POST'])
@@ -153,46 +145,21 @@ def predict_landmarks():
 
 
 # ============================================================
-# 📌 ARITHMETIC OPERATIONS (con imágenes)
+# 📌 ARITHMETIC OPERATIONS (ahora con landmarks, no imágenes)
 # ============================================================
-
-def extract_landmarks_from_base64(image_b64):
-    try:
-        img_bytes = base64.b64decode(image_b64)
-        nparr = np.frombuffer(img_bytes, np.uint8)
-        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
-        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        results = hands.process(img_rgb)
-
-        if not results.multi_hand_landmarks:
-            return None
-
-        hand_landmarks = results.multi_hand_landmarks[0]
-        lm = []
-        for landmark in hand_landmarks.landmark:
-            lm.append([landmark.x, landmark.y, landmark.z])
-
-        return np.array(lm, dtype=np.float32)
-    except Exception as e:
-        print("Error en extracción de landmarks:", e)
-        return None
-
 
 @app.route('/api/operations/upload', methods=['POST'])
 def upload_operations():
     data = request.get_json()
-    if not data or 'label' not in data or 'image' not in data:
-        return jsonify({'error': 'label and image required'}), 400
+    if not data or 'label' not in data or 'landmarks' not in data:
+        return jsonify({'error': 'label and landmarks required'}), 400
 
-    landmarks = extract_landmarks_from_base64(data['image'])
-    if landmarks is None:
-        return jsonify({'error': 'no hand detected'}), 400
-
+    arr = np.array(data['landmarks'], dtype=np.float32)
     label = str(data['label']).strip()
+
     if label not in operations_data:
         operations_data[label] = []
-    operations_data[label].append(landmarks)
+    operations_data[label].append(arr)
 
     return jsonify({
         'message': 'saved in memory',
@@ -237,16 +204,12 @@ def predict_operations():
     global operations_model, operations_label_map
     data = request.get_json()
 
-    if not data or 'image' not in data:
-        return jsonify({'error': 'image required'}), 400
+    if not data or 'landmarks' not in data:
+        return jsonify({'error': 'landmarks required'}), 400
     if operations_model is None:
         return jsonify({'status': 'not_trained'}), 200
 
-    landmarks = extract_landmarks_from_base64(data['image'])
-    if landmarks is None:
-        return jsonify({'error': 'no hand detected'}), 400
-
-    lm = landmarks.flatten().reshape(1, -1)
+    lm = np.array(data['landmarks'], dtype=np.float32).flatten().reshape(1, -1)
     preds = operations_model.predict_on_batch(lm)[0]
     idx = int(np.argmax(preds))
     prediction = operations_label_map.get(idx, str(idx))
