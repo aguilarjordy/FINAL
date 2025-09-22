@@ -27,12 +27,12 @@ const Stats = () => {
 
   return (
     <div className="stats-page">
-      <h1>📊 {t("stats_title")}</h1>
+      <h1>📊 {t("Estadísticas")}</h1>
 
       <div className="stats-grid">
         {/* Gráfico de líneas */}
         <div className="stats-card">
-          <h2>{t("stats_progress_title")}</h2>
+          <h2>{t("Progreso de aciertos")}</h2>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -40,15 +40,15 @@ const Stats = () => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="aciertos" stroke="#16a34a" name={t("stats_correct")} />
-              <Line type="monotone" dataKey="ejercicios" stroke="#2563eb" name={t("stats_exercises")} />
+              <Line type="monotone" dataKey="aciertos" stroke="#16a34a" name={t("Aciertos")} />
+              <Line type="monotone" dataKey="ejercicios" stroke="#2563eb" name={t("Ejercicios")} />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         {/* Gráfico de barras */}
         <div className="stats-card">
-          <h2>{t("stats_ex_vs_corr")}</h2>
+          <h2>{t("Ejercicios vs Aciertos")}</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -56,8 +56,8 @@ const Stats = () => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="ejercicios" fill="#2563eb" name={t("stats_exercises")} />
-              <Bar dataKey="aciertos" fill="#16a34a" name={t("stats_correct")} />
+              <Bar dataKey="ejercicios" fill="#2563eb" name={t("Aciertos")} />
+              <Bar dataKey="aciertos" fill="#16a34a" name={t("Ejercicios")} />
             </BarChart>
           </ResponsiveContainer>
         </div>

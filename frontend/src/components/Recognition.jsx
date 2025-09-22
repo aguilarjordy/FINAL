@@ -1,6 +1,7 @@
+// src/components/Recognition.jsx
 import { useState } from "react";
-import { recordAchievement } from "../services/achievements";
 import { useTranslation } from "react-i18next";
+import { recordAchievement } from "../services/achievements";
 
 function Recognition() {
   const { t } = useTranslation();
@@ -12,23 +13,23 @@ function Recognition() {
     const data = await recordAchievement(pred, true);
     if (data?.new_achievements?.length > 0) {
       data.new_achievements.forEach(l => {
-        alert(`${t("recognition.achievement_unlocked")}: ${l.title}\n${l.desc}`);
+        alert(`${t("🏆 ¡Logro desbloqueado!")}: ${l.title}\n${l.desc}`);
       });
     }
   }
 
   return (
     <div>
-      <h2>{t("recognition.title")}</h2>
+      <h2>{t("Reconocimiento de Vocales")}</h2>
       <p>
-        {t("recognition.current_prediction")}: {prediction || t("recognition.none")}
+        {t("Predicción actual")}: {prediction || t("ninguna")}
       </p>
 
       {/* Botones de prueba */}
       <div className="flex gap-2">
         {["A", "E", "I", "O", "U"].map(v => (
           <button key={v} onClick={() => handleRecognition(v)}>
-            {t("recognition.test_button")} {v}
+            {t("Probar")} {v}
           </button>
         ))}
       </div>
@@ -37,3 +38,4 @@ function Recognition() {
 }
 
 export default Recognition;
+

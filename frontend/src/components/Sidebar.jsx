@@ -8,22 +8,22 @@ const Sidebar = () => {
 
   return (
     <aside className="sidebar">
-      <h2 className="sidebar-title">📚 {t("app_name")}</h2> {/* 👈 traducible */}
+      <h2 className="sidebar-title">📚 {t("Lenguaje de señas")}</h2> {/* 👈 traducible */}
       <ul className="sidebar-menu">
         <li>
-          <Link to="/">🏠 {t("dashboard")}</Link>
+          <Link to="/">🏠 {t("Panel de control")}</Link>
         </li>
         <li>
-          <Link to="/entrenador">🎓 {t("trainer")}</Link>
+          <Link to="/entrenador">🎓 {t("Entrenador")}</Link>
         </li>
         <li>
-          <Link to="/aritmetica">🧮 {t("math_signs")}</Link>
+          <Link to="/aritmetica">🧮 {t("Operaciones Aritméticas con Señas")}</Link>
         </li>
         <li>
-          <Link to="/estadisticas">📊 {t("statistics")}</Link>
+          <Link to="/estadisticas">📊 {t("Estadísticas")}</Link>
         </li>
         <li>
-          <Link to="/configuracion">⚙️ {t("settings")}</Link>
+          <Link to="/configuracion">⚙️ {t("Configuración")}</Link>
         </li>
       </ul>
     </aside>

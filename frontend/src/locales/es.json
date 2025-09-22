@@ -1,11 +1,29 @@
 {
-  "settings": "⚙️ Configuración",
-  "dark_mode": "🌙 Modo oscuro",
-  "enable": "Activar",
+  "dashboard": "Panel de control",
+  "trainer": "Entrenador",
+  "arithmetic": "Aritmética",
+  "statistics": "Estadísticas",
+  "settings": "Configuración",
+
+  "panel de control": "Panel de control",
+  "Bienvenido al panel de control": "Bienvenido al panel de control",
+  "Entrena y aprende las vocales": "Entrena y aprende las vocales",
+  "Accede al entrenador interactivo de la aplicación": "Accede al entrenador interactivo de la aplicación",
+  "Operaciones Aritmeticas con Señas": "Operaciones Aritméticas con Señas",
+  "Practica sumas, restas y más con lenguaje de señas": "Practica sumas, restas y más con lenguaje de señas",
+  "Consulta, reportes y métricas": "Consulta, reportes y métricas",
+  "configuración": "Configuración",
+  "Ajusta las preferencias del sistema": "Ajusta las preferencias del sistema",
+
+  "Operaciones Aritméticas con Señas": "Operaciones Aritméticas con Señas",
+  "Aquí podrás practicar sumas, restas y otras operaciones usando lenguaje de señas": "Aquí podrás practicar sumas, restas y otras operaciones usando lenguaje de señas",
+
+  "dark_mode": "Modo oscuro",
   "disable": "Desactivar",
-  "notifications": "🔔 Notificaciones",
+  "enable": "Activar",
+  "notifications": "Notificaciones",
   "configure": "Configurar",
-  "languages": "🌐 Idiomas",
+  "languages": "Idiomas",
   "spanish": "Español",
   "english": "Inglés",
   "portuguese": "Portugués",
@@ -14,66 +32,33 @@
   "normal": "Normal",
   "large": "Grande",
 
-  "app_name": "Lengua VisualWeb",
+  "Progreso de aciertos": "Progreso de aciertos",
+  "Ejercicios vs Aciertos": "Ejercicios vs Aciertos",
+  "Aciertos": "Aciertos",
+  "Ejercicios": "Ejercicios",
 
-  "dashboard": "Panel de Control",
-  "trainer": "Entrenador",
-  "math_signs": "Operaciones Aritméticas con Señas",
-  "statistics": "Estadísticas",
-  "settings_page": "Configuración",
+  "Lenguaje de señas": "Lenguaje de señas",
 
-  "welcome": "Bienvenido al sistema. Desde aquí puedes acceder a las secciones principales:",
-  "train_vowels": "Entrena y aprende las vocales",
-  "train_vowels_desc": "Accede al entrenador interactivo de la aplicación.",
-  "math_title": "Operaciones Aritméticas con Señas",
-  "math_desc": "Practica sumas, restas y más con lenguaje de señas.",
-  "stats_title": "Estadísticas",
-  "stats_desc": "Consulta reportes y métricas.",
-  "settings_title": "Configuración",
-  "settings_desc": "Ajusta las preferencias del sistema.",
+  "Reconocimiento de Vocales": "Reconocimiento de Vocales",
+  "Predicción actual": "Predicción actual",
+  "ninguna": "ninguna",
+  "Probar": "Probar",
+  "🏆 ¡Logro desbloqueado!": "🏆 ¡Logro desbloqueado!",
+
+  "Lengua VisualWeb": "Lengua VisualWeb",
+  "Proyecto de Reconocimiento de Señales": "Proyecto de Reconocimiento de Señales",
 
   "achievements": {
-    "title": "🎯 Logros",
-    "first_a": "Reconociste la vocal A",
-    "first_e": "Reconociste la vocal E",
-    "first_i": "Reconociste la vocal I",
-    "first_o": "Reconociste la vocal O",
-    "first_u": "Reconociste la vocal U",
-    "five_predictions": "Realizaste 5 predicciones correctas",
-    "reset_button": "Reiniciar Logros",
-    "reset_success": "✅ Logros reiniciados",
-    "reset_error": "❌ Error al reiniciar",
-    "connection_error": "Error de conexión"
-  },
-
-  "common": {
-    "go": "Ir"
-  },
-
-  "footer": {
-    "text": "© {{year}} SignsApp | Proyecto de Reconocimiento de Señales"
-  },
-
-  "recognition": {
-    "title": "Reconocimiento de Vocales",
-    "current_prediction": "Predicción actual",
-    "none": "ninguna",
-    "test_button": "Probar",
-    "achievement_unlocked": "🏆 ¡Logro desbloqueado!"
-  },
-
-  "stats": {
-    "progress_title": "Progreso de aciertos",
-    "ex_vs_corr": "Ejercicios vs Aciertos",
-    "exercises": "Ejercicios",
-    "correct": "Aciertos"
-  },
-
-  "months": {
-    "january": "Enero",
-    "february": "Febrero",
-    "march": "Marzo",
-    "april": "Abril",
-    "may": "Mayo"
+    "title": "Logros",
+    "first_a": "Primer reconocimiento de la vocal A",
+    "first_e": "Primer reconocimiento de la vocal E",
+    "first_i": "Primer reconocimiento de la vocal I",
+    "first_o": "Primer reconocimiento de la vocal O",
+    "first_u": "Primer reconocimiento de la vocal U",
+    "five_predictions": "Has realizado 5 predicciones",
+    "reset_button": "Reiniciar logros",
+    "reset_success": "Logros reiniciados con éxito",
+    "reset_error": "Error al reiniciar logros",
+    "connection_error": "Error de conexión con el servidor"
   }
 }

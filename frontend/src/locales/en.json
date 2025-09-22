@@ -1,79 +1,65 @@
 {
-  "settings": "⚙️ Settings",
-  "dark_mode": "🌙 Dark Mode",
-  "enable": "Enable",
+  "dashboard": "Dashboard",
+  "trainer": "Trainer",
+  "arithmetic": "Arithmetic",
+  "statistics": "Statistics",
+  "settings": "Settings",
+
+  "panel de control": "Dashboard",
+  "Bienvenido al panel de control": "Welcome to the dashboard",
+  "Entrena y aprende las vocales": "Train and learn the vowels",
+  "Accede al entrenador interactivo de la aplicación": "Access the app's interactive trainer",
+  "Operaciones Aritmeticas con Señas": "Arithmetic with Signs",
+  "Practica sumas, restas y más con lenguaje de señas": "Practice addition, subtraction and more using sign language",
+  "Consulta, reportes y métricas": "View reports and metrics",
+  "configuración": "Settings",
+  "Ajusta las preferencias del sistema": "Adjust system preferences",
+
+  "Operaciones Aritméticas con Señas": "Arithmetic with Signs",
+  "Aquí podrás practicar sumas, restas y otras operaciones usando lenguaje de señas": "Here you can practice addition, subtraction and other operations using sign language",
+
+  "dark_mode": "Dark mode",
   "disable": "Disable",
-  "notifications": "🔔 Notifications",
+  "enable": "Enable",
+  "notifications": "Notifications",
   "configure": "Configure",
-  "languages": "🌐 Languages",
+  "languages": "Languages",
   "spanish": "Spanish",
   "english": "English",
   "portuguese": "Portuguese",
-  "font_size": "Font Size",
+  "font_size": "Font size",
   "small": "Small",
   "normal": "Normal",
   "large": "Large",
 
-  "app_name": "VisualWeb Language",
+  "Progreso de aciertos": "Accuracy Progress",
+  "Ejercicios vs Aciertos": "Exercises vs Accuracy",
+  "Aciertos": "Correct",
+  "Ejercicios": "Exercises",
 
-  "dashboard": "Dashboard",
-  "trainer": "Trainer",
-  "math_signs": "Arithmetic Operations with Signs",
-  "statistics": "Statistics",
-  "settings_page": "Settings",
+  "Lenguaje de señas": "Sign Language",
 
-  "welcome": "Welcome to the system. From here you can access the main sections:",
-  "train_vowels": "Train and learn the vowels",
-  "train_vowels_desc": "Access the interactive trainer of the application.",
-  "math_title": "Arithmetic Operations with Signs",
-  "math_desc": "Practice addition, subtraction, and more with sign language.",
-  "stats_title": "Statistics",
-  "stats_desc": "Check reports and metrics.",
-  "settings_title": "Settings",
-  "settings_desc": "Adjust system preferences.",
+  "Reconocimiento de Vocales": "Vowel Recognition",
+  "Predicción actual": "Current prediction",
+  "ninguna": "none",
+  "Probar": "Test",
+  "🏆 ¡Logro desbloqueado!": "🏆 Achievement unlocked!",
+
+  "Lengua VisualWeb": "VisualWeb Language",
+  "Proyecto de Reconocimiento de Señales": "Sign Recognition Project",
 
   "achievements": {
-    "title": "🎯 Achievements",
-    "first_a": "You recognized the vowel A",
-    "first_e": "You recognized the vowel E",
-    "first_i": "You recognized the vowel I",
-    "first_o": "You recognized the vowel O",
-    "first_u": "You recognized the vowel U",
-    "five_predictions": "You made 5 correct predictions",
-    "reset_button": "Reset Achievements",
-    "reset_success": "✅ Achievements reset",
-    "reset_error": "❌ Error resetting",
-    "connection_error": "Connection error"
-  },
-
-  "common": {
-    "go": "Go"
-  },
-
-  "footer": {
-    "text": "© {{year}} SignsApp | Sign Recognition Project"
-  },
-
-  "recognition": {
-    "title": "Vowel Recognition",
-    "current_prediction": "Current prediction",
-    "none": "none",
-    "test_button": "Test",
-    "achievement_unlocked": "🏆 Achievement unlocked!"
-  },
-
-  "stats": {
-    "progress_title": "Progress of correct answers",
-    "ex_vs_corr": "Exercises vs Correct",
-    "exercises": "Exercises",
-    "correct": "Correct"
-  },
-
-  "months": {
-    "january": "January",
-    "february": "February",
-    "march": "March",
-    "april": "April",
-    "may": "May"
+    "title": "Achievements",
+    "first_a": "First recognition of vowel A",
+    "first_e": "First recognition of vowel E",
+    "first_i": "First recognition of vowel I",
+    "first_o": "First recognition of vowel O",
+    "first_u": "First recognition of vowel U",
+    "five_predictions": "You have made 5 predictions",
+    "reset_button": "Reset achievements",
+    "reset_success": "Achievements successfully reset",
+    "reset_error": "Error resetting achievements",
+    "connection_error": "Connection error with the server"
   }
 }
+

@@ -6,8 +6,8 @@ const Arithmetic = () => {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>🧮 {t("math_operations_title")}</h1>
-      <p>{t("math_operations_desc")}</p>
+      <h1>🧮 {t("Operaciones Aritméticas con Señas")}</h1>
+      <p>{t("Aquí podrás practicar sumas, restas y otras operaciones usando lenguaje de señas")}</p>
     </div>
   );
 };
