@@ -5,23 +5,28 @@ import { useTranslation } from "react-i18next";
 const Settings = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [fontSize, setFontSize] = useState("normal");
+  const [language, setLanguage] = useState("es");
   const { t, i18n } = useTranslation();
 
   useEffect(() => {
+    // 🌙 Tema guardado
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
       setDarkMode(true);
       document.documentElement.setAttribute("data-theme", "dark");
     }
 
+    // 🔠 Tamaño de letra guardado
     const savedFont = localStorage.getItem("fontSize");
     if (savedFont) {
       setFontSize(savedFont);
-      document.documentElement.style.setProperty("--app-font-size", getFontValue(savedFont));
+      applyFontSize(savedFont);
     }
 
+    // 🌐 Idioma guardado
     const savedLang = localStorage.getItem("language");
     if (savedLang) {
+      setLanguage(savedLang);
       i18n.changeLanguage(savedLang);
     } else {
       i18n.changeLanguage("es"); // Español por defecto
@@ -42,22 +47,23 @@ const Settings = () => {
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     localStorage.setItem("language", lng);
+    setLanguage(lng);
   };
 
+  // ✅ Ajuste directo del tamaño
   const changeFontSize = (size) => {
     setFontSize(size);
     localStorage.setItem("fontSize", size);
-    document.documentElement.style.setProperty("--app-font-size", getFontValue(size));
+    applyFontSize(size);
   };
 
-  const getFontValue = (size) => {
-    switch (size) {
-      case "small":
-        return "14px";
-      case "large":
-        return "20px";
-      default:
-        return "16px";
+  const applyFontSize = (size) => {
+    if (size === "small") {
+      document.documentElement.style.setProperty("--font-size", "14px");
+    } else if (size === "normal") {
+      document.documentElement.style.setProperty("--font-size", "16px");
+    } else if (size === "large") {
+      document.documentElement.style.setProperty("--font-size", "18px");
     }
   };
 
@@ -88,13 +94,22 @@ const Settings = () => {
         <div className="settings-option">
           <span>🌐 {t("languages")}</span>
           <div className="language-buttons">
-            <button className="toggle-btn" onClick={() => changeLanguage("es")}>
+            <button
+              className={`toggle-btn ${language === "es" ? "active" : ""}`}
+              onClick={() => changeLanguage("es")}
+            >
               {t("spanish")}
             </button>
-            <button className="toggle-btn" onClick={() => changeLanguage("en")}>
+            <button
+              className={`toggle-btn ${language === "en" ? "active" : ""}`}
+              onClick={() => changeLanguage("en")}
+            >
               {t("english")}
             </button>
-            <button className="toggle-btn" onClick={() => changeLanguage("pt")}>
+            <button
+              className={`toggle-btn ${language === "pt" ? "active" : ""}`}
+              onClick={() => changeLanguage("pt")}
+            >
               {t("portuguese")}
             </button>
           </div>

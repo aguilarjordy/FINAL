@@ -12,5 +12,14 @@
   "font_size": "Tamanho da fonte",
   "small": "Pequeno",
   "normal": "Normal",
-  "large": "Grande"
+  "large": "Grande",
+  
+  "app_name": "Língua VisualWeb",
+  "dashboard": "Painel",
+  "trainer": "Treinador",
+  "math_signs": "Operações Aritméticas com Sinais",
+  "statistics": "Estatísticas",
+  "settings": "Configurações"
+
+
 }

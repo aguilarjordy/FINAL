@@ -12,5 +12,14 @@
   "font_size": "Font Size",
   "small": "Small",
   "normal": "Normal",
-  "large": "Large"
+  "large": "Large",
+  
+  "app_name": "VisualWeb Language",
+  "dashboard": "Dashboard",
+  "trainer": "Trainer",
+  "math_signs": "Arithmetic Operations with Signs",
+  "statistics": "Statistics",
+  "settings": "Settings"
+
+
 }
