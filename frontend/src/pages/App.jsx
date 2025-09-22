@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from "react";
-import { useTrainer } from "../context/TrainerContext"; // ⬅️ Nuevo contexto
-import { speak } from "../utils/speech"; // ⬅️ Voz
+import { useTrainer } from "../context/TrainerContext"; 
+import { useAchievements } from "../context/AchievementsContext"; // ✅ Importamos logros
+import { speak } from "../utils/speech"; 
 import "../styles/app.css";
 
 const VOCALS = ["A", "E", "I", "O", "U"];
@@ -21,8 +22,10 @@ export default function App() {
     handleTrain,
     handleReset,
     fetchCounts,
-    isTrainedRef, // ✅ usamos la referencia
+    isTrainedRef,
   } = useTrainer();
+
+  const { registerVowel } = useAchievements(); // ✅ usamos logros
 
   const collectRef = useRef(null);
   const lastPredictTime = useRef(0);
@@ -105,7 +108,7 @@ export default function App() {
 
       const now = Date.now();
       if (
-        isTrainedRef.current && // ✅ ahora usamos la referencia
+        isTrainedRef.current &&
         scaled.length === 21 &&
         now - lastPredictTime.current > 800
       ) {
@@ -135,6 +138,13 @@ export default function App() {
       window.currentLandmarks = null;
     }
   };
+
+  // 🔹 Detecta cambios en la predicción para registrar vocales reconocidas
+  useEffect(() => {
+    if (prediction && VOCALS.includes(prediction)) {
+      registerVowel(prediction); // ✅ guardamos vocal reconocida
+    }
+  }, [prediction, registerVowel]);
 
   const startCollect = (label) => {
     if (collectRef.current && collectRef.current.active) return;
