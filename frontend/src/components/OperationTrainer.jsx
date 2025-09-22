@@ -19,6 +19,7 @@ const OperationTrainer = () => {
   const [loading, setLoading] = useState(false);
   const [model, setModel] = useState(null);
   const [collecting, setCollecting] = useState(null);
+  const [progress, setProgress] = useState(0);
 
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
@@ -79,7 +80,7 @@ const OperationTrainer = () => {
     if (!model || !webcamRef.current) return null;
     const predictions = await model.estimateHands(webcamRef.current.video);
     if (predictions.length > 0) {
-      // 📌 Unir los landmarks de todas las manos en un solo array
+      // Unir los landmarks de todas las manos en un solo array
       const allLandmarks = predictions.flatMap(prediction => prediction.landmarks.flat());
       return allLandmarks;
     }
@@ -89,18 +90,24 @@ const OperationTrainer = () => {
   const handleCollect = async (label) => {
     try {
       setCollecting(label);
-      const landmarks = await getLandmarks();
-      if (!landmarks) {
-        alert("No se detectó la mano");
-        return;
+      setProgress(0);
+      for (let i = 0; i < 100; i++) {
+        const landmarks = await getLandmarks();
+        if (!landmarks) {
+          alert("No se detectó la mano, deteniendo recolección.");
+          break;
+        }
+        await uploadOperationSample(label, landmarks);
+        setProgress(i + 1);
+        await new Promise(resolve => setTimeout(resolve, 100)); // Espera 100ms
       }
-      // 📌 Enviar los landmarks de todas las manos
-      await uploadOperationSample(label, landmarks);
-      alert(`✅ Muestra guardada para ${label}`);
+      alert(`✅ Se recolectaron ${progress} muestras para ${label}`);
     } catch (err) {
       console.error("Error recolectando:", err);
+      alert("Error recolectando muestras");
     } finally {
       setCollecting(null);
+      setProgress(0);
     }
   };
 
@@ -151,7 +158,7 @@ const OperationTrainer = () => {
               disabled={!!collecting}
               className="btn-gray"
             >
-              {collecting === lbl ? "⏳..." : lbl}
+              {collecting === lbl ? `Recolectando... (${progress}/100)` : lbl}
             </button>
           ))}
         </div>
