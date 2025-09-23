@@ -14,22 +14,33 @@ label_map_math = {}
 
 @math_bp.route('/upload_landmarks', methods=['POST'])
 def upload_landmarks_math():
+    global landmarks_data_math
     data = request.get_json()
+
     if not data or 'label' not in data or 'landmarks' not in data:
         return jsonify({'error': 'label and landmarks required'}), 400
 
     label = str(data['label']).strip()
-    arr = np.array(data['landmarks'], dtype=np.float32)
+    lm = np.array(data['landmarks'], dtype=np.float32).reshape(-1, 3)
 
-    if label not in landmarks_math_data:
-        landmarks_math_data[label] = []
-    landmarks_math_data[label].append(arr)
+    # ✅ Normalizar a 42 puntos
+    if lm.shape[0] == 21:
+        # Solo una mano → rellenar con ceros
+        lm = np.vstack([lm, np.zeros((21, 3), dtype=np.float32)])
+    elif lm.shape[0] > 42:
+        # Más de 2 manos (no debería pasar) → cortar
+        lm = lm[:42]
+
+    if label not in landmarks_data_math:
+        landmarks_data_math[label] = []
+    landmarks_data_math[label].append(lm)
 
     return jsonify({
         'message': 'saved in memory',
         'label': label,
-        'count': len(landmarks_math_data[label])
+        'count': len(landmarks_data_math[label])
     }), 200
+
 
 
 @math_bp.route('/count', methods=['GET'])
@@ -40,17 +51,27 @@ def count_math():
 
 @math_bp.route('/train', methods=['POST'])
 def train_landmarks_math():
-    global model_math, label_map_math
-    if len(landmarks_math_data) < 2:
+    global model_math, label_map_math, landmarks_data_math
+
+    if len(landmarks_data_math) < 2:
         return jsonify({'error': 'Need at least 2 labels with samples'}), 400
 
     X, y = [], []
-    labels = sorted(landmarks_math_data.keys())
+    labels = sorted(landmarks_data_math.keys())
     label_map_math = {i: labels[i] for i in range(len(labels))}
 
     for idx, label in enumerate(labels):
-        for arr in landmarks_math_data[label]:
-            X.append(arr.flatten())
+        for arr in landmarks_data_math[label]:
+            lm = np.array(arr, dtype=np.float32).reshape(-1, 3)
+
+            # ✅ Asegurar que siempre tenga 42 puntos (2 manos * 21)
+            if lm.shape[0] == 21:  
+                # si solo hay 1 mano → rellenar con ceros la otra
+                lm = np.vstack([lm, np.zeros((21, 3), dtype=np.float32)])
+            elif lm.shape[0] > 42:
+                lm = lm[:42]
+
+            X.append(lm.flatten())
             y.append(idx)
 
     X = np.array(X, dtype=np.float32)
@@ -67,7 +88,8 @@ def train_landmarks_math():
 
     model_math.fit(X, y, epochs=10, batch_size=16, verbose=0)
 
-    return jsonify({'message': 'math model trained in memory', 'classes': label_map_math}), 200
+    return jsonify({'message': 'math model trained', 'classes': label_map_math}), 200
+
 
 
 @math_bp.route('/predict', methods=['POST'])
