@@ -1,7 +1,7 @@
 // src/pages/Arithmetic.jsx
 import React, { useRef, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import "../styles/arithmetic.css";
+import "../styles/Arithmetic.css";
 
 
 
