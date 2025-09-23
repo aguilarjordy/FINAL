@@ -136,34 +136,39 @@ export default function Arithmetic() {
     }
   };
 
-  async function autoPredict(landmarks) {
-    if (!landmarks || !Array.isArray(landmarks)) return;
+async function autoPredict(landmarks) {
+  if (!landmarks || !Array.isArray(landmarks)) return;
 
-    try {
-      const res = await fetch(`${API_URL}/api/math/predict`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ landmarks }),
-      });
+  // Normalizamos: siempre 42 puntos (2 manos), cada punto [x, y, z]
+  let points = [];
 
-      const data = await res.json();
-
-      if (data.status === "not_trained") {
-        setStatus(t("Modelo no entrenado todavía"));
-        return;
-      }
-
-      if (data.status === "ok") {
-        const result = `${data.prediction} (${(data.confidence * 100).toFixed(
-          1
-        )}%)`;
-        setPrediction(result);
-        setStatus(t("Prediciendo"));
-      }
-    } catch (e) {
-      console.error("❌ Error en predicción:", e.message);
-    }
+  if (landmarks.length === 21) {
+    // Solo una mano detectada → rellenamos la otra con ceros
+    points = landmarks.concat(Array(21).fill([0, 0, 0]));
+  } else if (landmarks.length === 42) {
+    // Dos manos detectadas → todo bien
+    points = landmarks;
+  } else {
+    console.warn("❌ Número inesperado de landmarks:", landmarks.length);
+    return;
   }
+
+  try {
+    const res = await fetch(`${API_URL}/api/math/predict`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ landmarks: points }),
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    console.log("✅ Predicción:", data);
+  } catch (err) {
+    console.error("❌ Error en predicción:", err);
+  }
+}
+
 
   const startCollect = (label) => {
     if (collectRef.current && collectRef.current.active) return;
