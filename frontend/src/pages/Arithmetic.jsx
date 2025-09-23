@@ -1,8 +1,8 @@
 // src/pages/Arithmetic.jsx
 import React, { useRef, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-hot-toast";
-import "../styles/app.css";
+import "../styles/arithmetic.css";
+
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 const MAX_PER_LABEL = 100;
@@ -103,7 +103,7 @@ export default function Arithmetic() {
         );
       });
 
-      // 🔹 Guardar landmarks en global para pruebas
+      // 🔹 Guardar landmarks en global
       window.currentLandmarks = allLandmarks.flat();
 
       const now = Date.now();
@@ -207,7 +207,7 @@ export default function Arithmetic() {
     try {
       const res = await fetch(`${API_URL}/reset_math`, { method: "POST" });
       if (res.ok) {
-        setCounts({});
+        await fetchCounts(); // ✅ volvemos a preguntar al backend
         setPrediction(null);
         setStatus(t("Datos eliminados"));
         setIsTrained(false);
@@ -220,7 +220,7 @@ export default function Arithmetic() {
 
   const fetchCounts = async () => {
     try {
-      const res = await fetch(`${API_URL}/counts_math`);
+      const res = await fetch(`${API_URL}/count_math`);
       const data = await res.json();
       setCounts(data || {});
     } catch (e) {
@@ -303,3 +303,4 @@ export default function Arithmetic() {
     </div>
   );
 }
+v
