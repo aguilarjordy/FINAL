@@ -41,7 +41,7 @@ label_map = {}
 
 @app.route('/')
 def home():
-    return jsonify({"status": "backend running 🚀"})
+    return jsonify({"status": "backend iniciado 🚀"})
 
 
 # ------------------ 📌 RUTAS DE VOCALES ------------------
@@ -59,7 +59,7 @@ def upload_landmarks():
     landmarks_data[label].append(arr)
 
     return jsonify({
-        'message': 'saved in memory',
+        'message': 'guardado en la memoria',
         'label': label,
         'count': len(landmarks_data[label])
     }), 200
@@ -79,7 +79,7 @@ def get_samples():
 def train_landmarks():
     global model, label_map
     if len(landmarks_data) < 2:
-        return jsonify({'error': 'Need at least 2 labels with samples'}), 400
+        return jsonify({'error': 'Necesita por los menos 2 vocales recolectadas'}), 400
 
     X, y = [], []
     labels = sorted(landmarks_data.keys())
@@ -104,7 +104,7 @@ def train_landmarks():
 
     model.fit(X, y, epochs=10, batch_size=16, verbose=0)
 
-    return jsonify({'message': 'trained in memory', 'classes': label_map}), 200
+    return jsonify({'message': 'entrenado en la memoria', 'classes': label_map}), 200
 
 
 @app.route('/predict_landmarks', methods=['POST'])
@@ -113,9 +113,9 @@ def predict_landmarks():
     data = request.get_json()
 
     if not data or 'landmarks' not in data:
-        return jsonify({'error': 'landmarks required'}), 400
+        return jsonify({'error': 'landsmarks requeridos'}), 400
     if model is None:
-        return jsonify({'status': 'not_trained'}), 200
+        return jsonify({'status': 'no entrenado'}), 200
 
     lm = np.array(data['landmarks'], dtype=np.float32).flatten().reshape(1, -1)
 
@@ -143,7 +143,7 @@ def reset():
     landmarks_data = {}
     model = None
     label_map = {}
-    return jsonify({'message': 'memory cleared'}), 200
+    return jsonify({'message': 'memoria borrada'}), 200
 
 
 # ------------------ 🎯 ENDPOINTS DE LOGROS ------------------
@@ -176,7 +176,7 @@ def api_progress():
 @app.route("/api/achievements/reset", methods=["POST"])
 def api_reset_achievements():
     reset_achievements()
-    return jsonify({"message": "achievements reset"}), 200
+    return jsonify({"message": "logros reiniciados"}), 200
 
 
 # ------------------ 📌 REGISTRAR BLUEPRINT DE MATH ------------------
