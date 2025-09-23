@@ -31,7 +31,7 @@ def upload_landmarks_math():
         padding = np.zeros(expected_size - arr.shape[0], dtype=np.float32)
         arr = np.concatenate([arr, padding])
 
-    # 👇 Si sobra (raro, pero por seguridad), recortamos
+    # 👇 Si sobra, recortamos
     elif arr.shape[0] > expected_size:
         arr = arr[:expected_size]
 
