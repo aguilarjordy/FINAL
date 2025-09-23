@@ -1,3 +1,4 @@
+# backend/app.py
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
@@ -12,22 +13,19 @@ from math_routes import math_bp
 app = Flask(__name__)
 
 # ✅ Permitimos tanto local como producción
-CORS(app, resources={r"/*": {"origins": [
+allowed_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://final-1-h9n9.onrender.com",
     "https://final-jesus-front.onrender.com"
-]}})
+]
+
+CORS(app, resources={r"/*": {"origins": allowed_origins}})
+
 
 @app.after_request
 def add_cors_headers(response):
     origin = request.headers.get("Origin")
-    allowed_origins = [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://final-1-h9n9.onrender.com",
-        "https://final-jesus-front.onrender.com"
-    ]
     if origin in allowed_origins:
         response.headers["Access-Control-Allow-Origin"] = origin
     response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
@@ -47,7 +45,6 @@ def home():
 
 
 # ------------------ 📌 RUTAS DE VOCALES ------------------
-
 @app.route('/upload_landmarks', methods=['POST'])
 def upload_landmarks():
     data = request.get_json()
@@ -146,7 +143,6 @@ def reset():
 
 
 # ------------------ 🎯 ENDPOINTS DE LOGROS ------------------
-
 @app.route("/api/achievements/record", methods=["POST"])
 def api_record_achievement():
     data = request.get_json(force=True) if request.is_json else {}
