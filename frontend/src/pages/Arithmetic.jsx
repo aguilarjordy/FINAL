@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import "../styles/Arithmetic.css";
 
 
-
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 const MAX_PER_LABEL = 100;
 
@@ -120,7 +119,7 @@ export default function Arithmetic() {
       // 🔹 Guardar muestras si estamos recolectando
       if (collectRef.current && collectRef.current.active && collectRef.current.label) {
         if (window.currentLandmarks.length >= 21) {
-          fetch(`${API_URL}/upload_landmarks_math`, {
+          fetch(`${API_URL}/api/math/upload_landmarks`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -141,7 +140,7 @@ export default function Arithmetic() {
     if (!landmarks || !Array.isArray(landmarks)) return;
 
     try {
-      const res = await fetch(`${API_URL}/predict_landmarks_math`, {
+      const res = await fetch(`${API_URL}/api/math/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ landmarks }),
@@ -186,7 +185,7 @@ export default function Arithmetic() {
   const handleTrain = async () => {
     setStatus(t("Entrenando modelo matemático..."));
     try {
-      const res = await fetch(`${API_URL}/train_landmarks_math`, { method: "POST" });
+      const res = await fetch(`${API_URL}/api/math/train`, { method: "POST" });
       if (res.ok) {
         setStatus(t("Entrenado correctamente"));
         setIsTrained(true);
@@ -206,7 +205,7 @@ export default function Arithmetic() {
   const handleReset = async () => {
     setStatus(t("Reiniciando datos"));
     try {
-      const res = await fetch(`${API_URL}/reset_math`, { method: "POST" });
+      const res = await fetch(`${API_URL}/api/math/reset`, { method: "POST" });
       if (res.ok) {
         await fetchCounts(); // ✅ volvemos a preguntar al backend
         setPrediction(null);
@@ -221,7 +220,7 @@ export default function Arithmetic() {
 
   const fetchCounts = async () => {
     try {
-      const res = await fetch(`${API_URL}/count_math`);
+      const res = await fetch(`${API_URL}/api/math/count`);
       const data = await res.json();
       setCounts(data || {});
     } catch (e) {
@@ -304,4 +303,3 @@ export default function Arithmetic() {
     </div>
   );
 }
-
