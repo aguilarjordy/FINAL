@@ -16,29 +16,36 @@ label_map_math = {}
 def upload_landmarks_math():
     global landmarks_data_math
     data = request.get_json()
-    if not data or "label" not in data or "landmarks" not in data:
-        return jsonify({"error": "label and landmarks required"}), 400
 
-    label = str(data["label"]).strip()
-    arr = np.array(data["landmarks"], dtype=np.float32)
+    if not data or 'label' not in data or 'landmarks' not in data:
+        return jsonify({'error': 'label and landmarks required'}), 400
 
-    # ✅ Normalizar a 42 landmarks (2 manos). Cada landmark tiene 3 coords (x,y,z).
-    if arr.size == 21 * 3:  
-        # si solo hay 1 mano, rellenamos con ceros la segunda
-        arr = np.concatenate([arr, np.zeros(21 * 3, dtype=np.float32)])
-    elif arr.size > 42 * 3:  
-        # si vienen más, nos quedamos con los primeros 42
-        arr = arr[:42 * 3]
+    label = str(data['label']).strip()
+    landmarks = data['landmarks']
+
+    expected_size = 42 * 3  # 42 puntos máx (2 manos) * 3 coords = 126
+    arr = np.array(landmarks, dtype=np.float32).flatten()
+
+    # 👇 Si falta (ej. solo 1 mano → 63), rellenamos con ceros
+    if arr.shape[0] < expected_size:
+        padding = np.zeros(expected_size - arr.shape[0], dtype=np.float32)
+        arr = np.concatenate([arr, padding])
+
+    # 👇 Si sobra (raro, pero por seguridad), recortamos
+    elif arr.shape[0] > expected_size:
+        arr = arr[:expected_size]
 
     if label not in landmarks_data_math:
         landmarks_data_math[label] = []
     landmarks_data_math[label].append(arr)
 
     return jsonify({
-        "message": "saved in memory",
-        "label": label,
-        "count": len(landmarks_data_math[label])
+        'message': 'saved in memory',
+        'label': label,
+        'count': len(landmarks_data_math[label]),
+        'size': int(arr.shape[0])  # 👀 Para debug
     }), 200
+
 
 
 # ------------------ 📌 CONTAR MUESTRAS ------------------
