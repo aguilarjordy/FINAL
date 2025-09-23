@@ -1,109 +1,91 @@
-import React, { useEffect, useRef, useState } from "react";
-import Webcam from "react-webcam";
-import * as cam from "@mediapipe/camera_utils";
+import React, { useState } from "react";
 import * as hands from "@mediapipe/hands";
 import {
   uploadOperationSample,
   trainOperationModel,
+  getOperationCounts,
 } from "../services/operations";
 
 export default function OperationTrainer() {
-  const webcamRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [collecting, setCollecting] = useState(null);
-  const [progress, setProgress] = useState(0);
-  const countsRef = useRef({});
-  const lastSentRef = useRef(0);
+  const [operation, setOperation] = useState("");
+  const [message, setMessage] = useState("");
+  const [counts, setCounts] = useState(null);
 
-  useEffect(() => {
-    const handsDetector = new hands.Hands({
-      locateFile: (file) =>
-        `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
-    });
-
-    handsDetector.setOptions({
-      maxNumHands: 1,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.7,
-      minTrackingConfidence: 0.7,
-    });
-
-    handsDetector.onResults((results) => {
-      if (!canvasRef.current) return;
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-
-      if (results.multiHandLandmarks.length > 0 && collecting) {
-        const landmarks = results.multiHandLandmarks[0];
-        const now = Date.now();
-
-        if (now - lastSentRef.current > 200) {
-          const count = countsRef.current[collecting] || 0;
-          if (count < 100) {
-            const allLandmarks = landmarks.flatMap((lm) => [lm.x, lm.y, lm.z]);
-            uploadOperationSample(collecting, allLandmarks).catch((err) =>
-              console.error("upload error", err)
-            );
-            countsRef.current[collecting] = count + 1;
-            setProgress(count + 1);
-            lastSentRef.current = now;
-          } else {
-            setCollecting(null);
-            alert(`✅ Se recolectaron 100 muestras para ${collecting}`);
-            countsRef.current[collecting] = 0;
-          }
-        }
-      }
-    });
-
-    if (
-      typeof webcamRef.current !== "undefined" &&
-      webcamRef.current !== null
-    ) {
-      const camera = new cam.Camera(webcamRef.current.video, {
-        onFrame: async () => {
-          await handsDetector.send({ image: webcamRef.current.video });
-        },
-        width: 640,
-        height: 480,
-      });
-      camera.start();
+  // 📌 Subir una muestra de operación
+  const handleUploadSample = async () => {
+    if (!operation) {
+      setMessage("⚠️ Selecciona una operación antes de subir.");
+      return;
     }
-  }, [collecting]);
 
-  const startCollecting = (operator) => {
-    setCollecting(operator);
-    setProgress(0);
-    countsRef.current[operator] = countsRef.current[operator] || 0;
+    try {
+      const response = await uploadOperationSample({ operation });
+      if (response?.success) {
+        setMessage(`✅ Muestra registrada para ${operation}`);
+        loadCounts();
+      } else {
+        setMessage("❌ Error al registrar muestra");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("❌ Error al comunicar con el backend");
+    }
+  };
+
+  // 📌 Entrenar modelo
+  const handleTrain = async () => {
+    try {
+      const response = await trainOperationModel();
+      if (response?.success) {
+        setMessage("✅ Modelo de operaciones entrenado con éxito");
+      } else {
+        setMessage("❌ Error al entrenar modelo");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("❌ Error al entrenar modelo");
+    }
+  };
+
+  // 📌 Traer conteos de operaciones
+  const loadCounts = async () => {
+    try {
+      const response = await getOperationCounts();
+      setCounts(response);
+    } catch (err) {
+      console.error("Error al cargar conteos:", err);
+    }
   };
 
   return (
-    <div>
-      <h2>Entrenar Operaciones Matemáticas</h2>
-      <Webcam ref={webcamRef} className="w-80 h-60" />
-      <canvas ref={canvasRef} className="w-80 h-60 border" />
-      <div className="mt-2">
-        {["+", "-", "*", "/"].map((op) => (
-          <button
-            key={op}
-            className="bg-green-500 text-white px-4 py-2 m-1 rounded"
-            onClick={() => startCollecting(op)}
-            disabled={collecting !== null}
-          >
-            Recolectar {op}
-          </button>
-        ))}
+    <div className="operation-trainer">
+      <h2>Entrenador de Operaciones Matemáticas</h2>
+
+      {/* Selección de operación */}
+      <select value={operation} onChange={(e) => setOperation(e.target.value)}>
+        <option value="">-- Selecciona una operación --</option>
+        <option value="suma">➕ Suma</option>
+        <option value="resta">➖ Resta</option>
+        <option value="multiplicacion">✖️ Multiplicación</option>
+        <option value="division">➗ División</option>
+      </select>
+
+      <div style={{ marginTop: "10px" }}>
+        <button onClick={handleUploadSample}>📤 Subir muestra</button>
+        <button onClick={handleTrain}>⚙️ Entrenar modelo</button>
+        <button onClick={loadCounts}>📊 Ver conteos</button>
       </div>
-      {collecting && <p>Recolectando {collecting}: {progress}/100</p>}
-      <button
-        className="bg-blue-500 text-white px-4 py-2 mt-2 rounded"
-        onClick={() => trainOperationModel()}
-      >
-        Entrenar Modelo
-      </button>
+
+      {/* Mensajes */}
+      {message && <p>{message}</p>}
+
+      {/* Conteos */}
+      {counts && (
+        <div style={{ marginTop: "10px" }}>
+          <h3>📊 Conteos registrados:</h3>
+          <pre>{JSON.stringify(counts, null, 2)}</pre>
+        </div>
+      )}
     </div>
   );
 }

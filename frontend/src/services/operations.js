@@ -1,45 +1,41 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+// src/services/operations.js
+const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
-// 📌 Subir landmarks
-export async function uploadOperation(label, landmarks) {
-  const res = await fetch(`${API_URL}/api/operations/upload`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ label, landmarks }),
-  });
-  return res.json();
+// 📌 Subir una muestra de operación (ejemplo: suma, resta, etc.)
+export async function uploadOperationSample(data) {
+  try {
+    const res = await fetch(`${API}/api/operations/upload_sample`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return await res.json();
+  } catch (err) {
+    console.error("❌ Error al subir muestra de operación:", err);
+    return null;
+  }
 }
 
-// 📌 Entrenar modelo
-export async function trainOperations() {
-  const res = await fetch(`${API_URL}/api/operations/train`, {
-    method: "POST",
-  });
-  return res.json();
+// 📌 Entrenar el modelo de operaciones matemáticas
+export async function trainOperationModel() {
+  try {
+    const res = await fetch(`${API}/api/operations/train`, {
+      method: "POST",
+    });
+    return await res.json();
+  } catch (err) {
+    console.error("❌ Error al entrenar modelo de operaciones:", err);
+    return null;
+  }
 }
 
-// 📌 Predecir operación
-export async function predictOperation(landmarks) {
-  const res = await fetch(`${API_URL}/api/operations/predict`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ landmarks }),
-  });
-  return res.json();
-}
-
-// 📌 Calcular directamente
-export async function calculateOperation(first, operator, second) {
-  const res = await fetch(`${API_URL}/api/operations/calculate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ first, operator, second }),
-  });
-  return res.json();
-}
-
-// 📌 Obtener conteos
+// 📌 Obtener conteos de operaciones registradas
 export async function getOperationCounts() {
-  const res = await fetch(`${API_URL}/api/operations/counts`);
-  return res.json();
+  try {
+    const res = await fetch(`${API}/api/operations/counts`);
+    return await res.json();
+  } catch (err) {
+    console.error("❌ Error al traer conteos de operaciones:", err);
+    return null;
+  }
 }
