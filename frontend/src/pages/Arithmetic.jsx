@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import "../styles/arithmetic.css";
 
 
+
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 const MAX_PER_LABEL = 100;
 
