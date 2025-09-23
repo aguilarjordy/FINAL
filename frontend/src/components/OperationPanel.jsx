@@ -1,11 +1,11 @@
-// src/components/OperationPanel.jsx
 import React, { useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
-import { Hands, FilesetResolver } from "@mediapipe/hands";
-import { Camera } from "@mediapipe/camera_utils";
-import { DrawingUtils } from "@mediapipe/drawing_utils";
+import * as handpose from "@tensorflow-models/handpose";
+import "@tensorflow/tfjs";
 import { useOperations } from "../context/OperationsContext";
 import {
+  uploadOperationSample,
+  trainOperationModel,
   predictOperation,
   calculateOperation,
 } from "../services/operations";
@@ -27,182 +27,85 @@ const OperationPanel = () => {
     setOperator,
     setSecondNumber,
     setResult,
-    resetOperation,
   } = useOperations();
 
   const [loading, setLoading] = useState(false);
-  const landmarksRef = useRef(null);
+  const [model, setModel] = useState(null);
+  const [collecting, setCollecting] = useState(null);
 
-  const webcamRef = useRef(null);
-  const canvasRef = useRef(null);
+  const webcamRef1 = useRef(null);
+  const canvasRef1 = useRef(null);
 
+  // 🔹 Cargar modelo Handpose
   useEffect(() => {
-    if (!webcamRef.current) return;
-
-    const setupMediaPipe = async () => {
-      const filesetResolver = await FilesetResolver.forHands(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646/wasm"
-      );
-
-      const hands = new Hands(filesetResolver);
-
-      hands.setOptions({
-        maxNumHands: 1,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5,
-      });
-
-      const drawingUtils = new DrawingUtils(canvasRef.current.getContext("2d"));
-
-      hands.onResults((results) => {
-        const videoWidth = webcamRef.current.video.videoWidth;
-        const videoHeight = webcamRef.current.video.videoHeight;
-        const canvasCtx = canvasRef.current.getContext("2d");
-
-        canvasCtx.save();
-        canvasCtx.clearRect(0, 0, videoWidth, videoHeight);
-        
-        canvasCtx.translate(videoWidth, 0);
-        canvasCtx.scale(-1, 1);
-        canvasCtx.drawImage(
-          results.image,
-          0,
-          0,
-          videoWidth,
-          videoHeight
-        );
-
-        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-          const landmarks = results.multiHandLandmarks[0];
-          landmarksRef.current = landmarks.flatMap((lm) => [lm.x, lm.y, lm.z]);
-          
-          drawingUtils.drawConnectors(canvasCtx, landmarks, Hands.CONNECTIONS, {
-            color: "#4ade80",
-            lineWidth: 2,
-          });
-          drawingUtils.drawLandmarks(canvasCtx, landmarks, {
-            color: "#4ade80",
-            lineWidth: 2,
-            radius: 4,
-          });
-        }
-        canvasCtx.restore();
-      });
-
-      const camera = new Camera(webcamRef.current.video, {
-        onFrame: async () => {
-          await hands.send({ image: webcamRef.current.video });
-        },
-        width: 320,
-        height: 240,
-      });
-      camera.start();
+    const loadModel = async () => {
+      const net = await handpose.load();
+      setModel(net);
+      console.log("✅ Modelo Handpose cargado");
     };
-
-    setupMediaPipe();
+    loadModel();
   }, []);
 
-  const handlePredict = async () => {
-    try {
-      setLoading(true);
-      const landmarks = landmarksRef.current;
-      if (!landmarks) {
-        alert("No se detectó ninguna mano");
-        return;
-      }
-      
-      const res = await predictOperation(landmarks);
-      const prediction = res.data.prediction;
-
-      if (firstNumber === null) {
-        setFirstNumber(prediction);
-      } else if (operator === null) {
-        setOperator(prediction);
-      } else if (secondNumber === null) {
-        setSecondNumber(prediction);
-      }
-    } catch (err) {
-      console.error("Error prediciendo:", err);
-      alert("Error prediciendo seña");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCalculate = async () => {
-    if (firstNumber === null || operator === null || secondNumber === null) {
-      alert("Completa la operación antes de calcular");
-      return;
-    }
-    try {
-      setLoading(true);
-      const res = await calculateOperation(firstNumber, operator, secondNumber);
-      setResult(res.data.result);
-    } catch (err) {
-      console.error("Error calculando:", err);
-      alert("Error en cálculo");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // 📌 El resto de tu lógica para manejar la detección de señas
+  // ...
 
   return (
-    <div className="content-card">
-      <h3 className="section-title">
-        <span role="img" aria-label="operations">🧠</span> Panel de Operaciones
-      </h3>
-      <p className="section-subtitle">
-        Usa la cámara para reconocer tus señas y resolver operaciones aritméticas.
-      </p>
-      
-      <section className="panel-section">
-        <div className="cameras-container">
-          <div className="webcam-container">
+    <div className="flex flex-col items-center p-6 bg-gray-100 min-h-screen">
+      <div className="w-full max-w-4xl bg-white rounded-xl shadow-lg p-8">
+        <h1 className="text-3xl font-bold text-center mb-2">
+          🧮 Panel de Operaciones
+        </h1>
+        <p className="text-gray-600 text-center mb-8">
+          Usa la cámara para reconocer tus señas y resolver operaciones aritméticas.
+        </p>
+        <section className="flex flex-col items-center">
+          {/* 📷 Cámara */}
+          <div className="relative w-full max-w-sm mb-6 rounded-lg overflow-hidden shadow-md">
             <Webcam
+              ref={webcamRef1}
               audio={false}
-              ref={webcamRef}
               screenshotFormat="image/jpeg"
               videoConstraints={videoConstraints}
-            />
-            <canvas
-              ref={canvasRef}
-              className="overlay-canvas"
+              className="w-full"
             />
           </div>
-        </div>
-      </section>
 
-      <div className="flex justify-center gap-4 mt-4">
-        <button
-          onClick={handlePredict}
-          disabled={loading}
-          className="btn-green"
-        >
-          {loading ? "⏳ Prediciendo..." : "📷 Reconocer seña"}
-        </button>
-        <button
-          onClick={handleCalculate}
-          disabled={loading || !firstNumber || !operator || !secondNumber}
-          className="btn-blue"
-        >
-          {loading ? "⏳ Calculando..." : "🟰 Calcular"}
-        </button>
-        <button
-          onClick={resetOperation}
-          className="btn-gray"
-        >
-          Limpiar
-        </button>
-      </div>
-      <div className="operation-display-card">
-        <span className="operation-number">{firstNumber ?? "?"}</span>
-        <span className="operation-operator">{operator ?? "?"}</span>
-        <span className="operation-number">{secondNumber ?? "?"}</span>
-        <span className="operation-operator">=</span>
-        <span className="operation-number result-number">
-          {result ?? "?"}
-        </span>
+          <div className="flex justify-center gap-4 mt-4">
+            <button onClick={handleTrain} disabled={loading} className="btn-yellow">
+              {loading ? "⏳ Entrenando..." : "📚 Entrenar"}
+            </button>
+            <button
+              onClick={handlePredict}
+              disabled={loading}
+              className="btn-green"
+            >
+              {loading ? "⏳ Prediciendo..." : "📷 Reconocer seña"}
+            </button>
+            <button
+              onClick={handleCalculate}
+              disabled={loading}
+              className="btn-blue"
+            >
+              {loading ? "⏳ Calculando..." : "🟰 Calcular"}
+            </button>
+          </div>
+
+          <div className="operation-display-card">
+            <span className="operation-number">{firstNumber ?? "?"}</span>
+            <span className="operation-operator">{operator ?? "?"}</span>
+            <span className="operation-number">{secondNumber ?? "?"}</span>
+            <span className="operation-operator">=</span>
+            <span className="operation-number result-number">
+              {result ?? "?"}
+            </span>
+          </div>
+
+          {result !== null && (
+            <div className="result-box">
+              <h3 className="operation-result">Resultado: {result}</h3>
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );
