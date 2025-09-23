@@ -5,6 +5,10 @@ import tensorflow as tf
 from achievements import record_vocal, check_new_achievements, get_progress, reset_achievements
 import os
 
+# 👇 importar blueprint matemático
+from math_routes import math_bp
+
+
 app = Flask(__name__)
 
 # ✅ Permitimos tanto local como producción
@@ -13,7 +17,6 @@ CORS(app, resources={r"/*": {"origins": [
     "http://127.0.0.1:5173",
     "https://final-1-h9n9.onrender.com",
     "https://final-jesus-front.onrender.com"
-
 ]}})
 
 @app.after_request
@@ -31,7 +34,7 @@ def add_cors_headers(response):
     return response
 
 
-# 🔹 Variables globales en memoria
+# ------------------ 📌 VARIABLES GLOBALES ------------------
 landmarks_data = {}
 model = None
 label_map = {}
@@ -42,7 +45,7 @@ def home():
     return jsonify({"status": "backend running 🚀"})
 
 
-# ------------------ 📌 ENTRENAMIENTO Y PREDICCIÓN ------------------
+# ------------------ 📌 RUTAS DE VOCALES ------------------
 
 @app.route('/upload_landmarks', methods=['POST'])
 def upload_landmarks():
@@ -88,7 +91,6 @@ def train_landmarks():
     X = np.array(X, dtype=np.float32)
     y = np.array(y, dtype=np.int32)
 
-    # 🔹 Reemplazamos modelo cada vez para evitar capas acumuladas
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(X.shape[1],)),
         tf.keras.layers.Dense(128, activation='relu'),
@@ -120,7 +122,6 @@ def predict_landmarks():
     predicted_vocal = label_map.get(idx, str(idx))
     confidence = float(preds[idx])
 
-    # 🔹 Guardar progreso en logros (persistente)
     prev_progress = get_progress()
     new_progress = record_vocal(predicted_vocal, correct=True)
     new_achievements = check_new_achievements(prev_progress, new_progress)
@@ -161,15 +162,11 @@ def api_record_achievement():
 
 @app.route("/api/achievements/progress", methods=["GET"])
 def api_progress():
-    """
-    Devuelve el estado actual de los logros (para frontend).
-    El frontend espera un JSON con {"unlocked": [...]}
-    """
     progress = get_progress()
 
     unlocked = []
     for key, value in progress.items():
-        if value:  # si está desbloqueado
+        if value:
             unlocked.append(key)
 
     return jsonify({"unlocked": unlocked}), 200
@@ -181,106 +178,11 @@ def api_reset_achievements():
     return jsonify({"message": "achievements reset"}), 200
 
 
+# ------------------ 📌 REGISTRAR BLUEPRINT DE MATH ------------------
+app.register_blueprint(math_bp, url_prefix="/api/math")
+
+
 # ------------------ 🚀 MAIN ------------------
 if __name__ == '__main__':
-    # ✅ Para Render usamos host 0.0.0.0
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
-
-# ------------------ 📌 ENTRENAMIENTO Y PREDICCIÓN MATEMÁTICAS ------------------
-
-landmarks_math_data = {}
-model_math = None
-label_map_math = {}
-
-
-@app.route('/upload_landmarks_math', methods=['POST'])
-def upload_landmarks_math():
-    data = request.get_json()
-    if not data or 'label' not in data or 'landmarks' not in data:
-        return jsonify({'error': 'label and landmarks required'}), 400
-
-    label = str(data['label']).strip()
-    arr = np.array(data['landmarks'], dtype=np.float32)
-
-    if label not in landmarks_math_data:
-        landmarks_math_data[label] = []
-    landmarks_math_data[label].append(arr)
-
-    return jsonify({
-        'message': 'saved in memory',
-        'label': label,
-        'count': len(landmarks_math_data[label])
-    }), 200
-
-
-@app.route('/count_math', methods=['GET'])
-def count_math():
-    counts = {label: len(samples) for label, samples in landmarks_math_data.items()}
-    return jsonify(counts), 200
-
-
-@app.route('/train_landmarks_math', methods=['POST'])
-def train_landmarks_math():
-    global model_math, label_map_math
-    if len(landmarks_math_data) < 2:
-        return jsonify({'error': 'Need at least 2 labels with samples'}), 400
-
-    X, y = [], []
-    labels = sorted(landmarks_math_data.keys())
-    label_map_math = {i: labels[i] for i in range(len(labels))}
-
-    for idx, label in enumerate(labels):
-        for arr in landmarks_math_data[label]:
-            X.append(arr.flatten())
-            y.append(idx)
-
-    X = np.array(X, dtype=np.float32)
-    y = np.array(y, dtype=np.int32)
-
-    model_math = tf.keras.Sequential([
-        tf.keras.layers.Input(shape=(X.shape[1],)),
-        tf.keras.layers.Dense(128, activation='relu'),
-        tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(64, activation='relu'),
-        tf.keras.layers.Dense(len(labels), activation='softmax')
-    ])
-    model_math.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-
-    model_math.fit(X, y, epochs=10, batch_size=16, verbose=0)
-
-    return jsonify({'message': 'math model trained in memory', 'classes': label_map_math}), 200
-
-
-@app.route('/predict_landmarks_math', methods=['POST'])
-def predict_landmarks_math():
-    global model_math, label_map_math
-    data = request.get_json()
-
-    if not data or 'landmarks' not in data:
-        return jsonify({'error': 'landmarks required'}), 400
-    if model_math is None:
-        return jsonify({'status': 'not_trained'}), 200
-
-    lm = np.array(data['landmarks'], dtype=np.float32).flatten().reshape(1, -1)
-
-    preds = model_math.predict_on_batch(lm)[0]
-    idx = int(np.argmax(preds))
-    predicted_math = label_map_math.get(idx, str(idx))
-    confidence = float(preds[idx])
-
-    return jsonify({
-        'status': 'ok',
-        'prediction': predicted_math,
-        'confidence': confidence
-    }), 200
-
-
-@app.route('/reset_math', methods=['POST'])
-def reset_math():
-    global landmarks_math_data, model_math, label_map_math
-    landmarks_math_data = {}
-    model_math = None
-    label_map_math = {}
-    return jsonify({'message': 'math memory cleared'}), 200

@@ -1,87 +1,103 @@
+# backend/math_routes.py
 from flask import Blueprint, request, jsonify
 import numpy as np
-import joblib
-import os
+import tensorflow as tf
 
-math_bp = Blueprint("math", __name__)
+# Crear Blueprint
+math_bp = Blueprint("math_bp", __name__)
 
-# Carpeta donde guardamos dataset y modelo
-DATASET_PATH = "datasets/math_data.npy"
-LABELS_PATH = "datasets/math_labels.npy"
-MODEL_PATH = "models/math_model.pkl"
-
-# Variables en memoria
-X_math, y_math = [], []
+# Variables globales para matemáticas
+landmarks_math_data = {}
 model_math = None
+label_map_math = {}
 
 
-@math_bp.route("/upload_landmarks_math", methods=["POST"])
+@math_bp.route('/upload_landmarks', methods=['POST'])
 def upload_landmarks_math():
-    global X_math, y_math
-    data = request.json
-    landmarks = data.get("landmarks")
-    label = data.get("label")
+    data = request.get_json()
+    if not data or 'label' not in data or 'landmarks' not in data:
+        return jsonify({'error': 'label and landmarks required'}), 400
 
-    if not landmarks or not label:
-        return jsonify({"error": "Faltan datos"}), 400
+    label = str(data['label']).strip()
+    arr = np.array(data['landmarks'], dtype=np.float32)
 
-    X_math.append(np.array(landmarks).flatten())
-    y_math.append(label)
+    if label not in landmarks_math_data:
+        landmarks_math_data[label] = []
+    landmarks_math_data[label].append(arr)
 
-    return jsonify({"status": "ok", "count": len(y_math)})
+    return jsonify({
+        'message': 'saved in memory',
+        'label': label,
+        'count': len(landmarks_math_data[label])
+    }), 200
 
 
-@math_bp.route("/train_landmarks_math", methods=["POST"])
+@math_bp.route('/count', methods=['GET'])
+def count_math():
+    counts = {label: len(samples) for label, samples in landmarks_math_data.items()}
+    return jsonify(counts), 200
+
+
+@math_bp.route('/train', methods=['POST'])
 def train_landmarks_math():
-    global model_math
-    if not X_math or not y_math:
-        return jsonify({"error": "No hay datos suficientes"}), 400
+    global model_math, label_map_math
+    if len(landmarks_math_data) < 2:
+        return jsonify({'error': 'Need at least 2 labels with samples'}), 400
 
-    from sklearn.ensemble import RandomForestClassifier
+    X, y = [], []
+    labels = sorted(landmarks_math_data.keys())
+    label_map_math = {i: labels[i] for i in range(len(labels))}
 
-    model_math = RandomForestClassifier(n_estimators=200)
-    model_math.fit(X_math, y_math)
+    for idx, label in enumerate(labels):
+        for arr in landmarks_math_data[label]:
+            X.append(arr.flatten())
+            y.append(idx)
 
-    # Guardar modelo
-    joblib.dump(model_math, MODEL_PATH)
-    np.save(DATASET_PATH, X_math)
-    np.save(LABELS_PATH, y_math)
+    X = np.array(X, dtype=np.float32)
+    y = np.array(y, dtype=np.int32)
 
-    return jsonify({"status": "ok", "message": "Modelo matemático entrenado"})
+    model_math = tf.keras.Sequential([
+        tf.keras.layers.Input(shape=(X.shape[1],)),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(64, activation='relu'),
+        tf.keras.layers.Dense(len(labels), activation='softmax')
+    ])
+    model_math.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+    model_math.fit(X, y, epochs=10, batch_size=16, verbose=0)
+
+    return jsonify({'message': 'math model trained in memory', 'classes': label_map_math}), 200
 
 
-@math_bp.route("/predict_landmarks_math", methods=["POST"])
+@math_bp.route('/predict', methods=['POST'])
 def predict_landmarks_math():
-    global model_math
-    data = request.json
-    landmarks = data.get("landmarks")
+    global model_math, label_map_math
+    data = request.get_json()
 
-    if not model_math and os.path.exists(MODEL_PATH):
-        model_math = joblib.load(MODEL_PATH)
+    if not data or 'landmarks' not in data:
+        return jsonify({'error': 'landmarks required'}), 400
+    if model_math is None:
+        return jsonify({'status': 'not_trained'}), 200
 
-    if not model_math:
-        return jsonify({"status": "not_trained"}), 400
+    lm = np.array(data['landmarks'], dtype=np.float32).flatten().reshape(1, -1)
 
-    if not landmarks:
-        return jsonify({"error": "No se enviaron landmarks"}), 400
+    preds = model_math.predict_on_batch(lm)[0]
+    idx = int(np.argmax(preds))
+    predicted_math = label_map_math.get(idx, str(idx))
+    confidence = float(preds[idx])
 
-    X = np.array(landmarks).flatten().reshape(1, -1)
-    pred = model_math.predict(X)[0]
-    conf = max(model_math.predict_proba(X)[0])
-
-    return jsonify({"status": "ok", "prediction": pred, "confidence": float(conf)})
-
-
-@math_bp.route("/counts_math", methods=["GET"])
-def counts_math():
-    from collections import Counter
-    return jsonify(dict(Counter(y_math)))
+    return jsonify({
+        'status': 'ok',
+        'prediction': predicted_math,
+        'confidence': confidence
+    }), 200
 
 
-@math_bp.route("/reset_math", methods=["POST"])
+@math_bp.route('/reset', methods=['POST'])
 def reset_math():
-    global X_math, y_math, model_math
-    X_math, y_math, model_math = [], [], None
-    if os.path.exists(MODEL_PATH):
-        os.remove(MODEL_PATH)
-    return jsonify({"status": "ok", "message": "Datos de operaciones matemáticas reiniciados"})
+    global landmarks_math_data, model_math, label_map_math
+    landmarks_math_data = {}
+    model_math = None
+    label_map_math = {}
+    return jsonify({'message': 'math memory cleared'}), 200
