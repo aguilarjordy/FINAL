@@ -17,7 +17,7 @@ from operations import calculate
 
 app = Flask(__name__)
 
-# ✅ Permitimos tanto local como producción
+# ✅ Permitimos los dos dominios de frontend de Render y los locales
 CORS(app, resources={r"/*": {"origins": [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
@@ -39,7 +39,6 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
     response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS,PUT,DELETE"
     return response
-
 
 # ------------------ 🔹 VARIABLES EN MEMORIA ------------------
 # Para vocales
