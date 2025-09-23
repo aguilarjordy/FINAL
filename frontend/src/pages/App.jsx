@@ -1,7 +1,8 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useTrainer } from "../context/TrainerContext";
 import { useAchievements } from "../context/AchievementsContext";
 import { speak } from "../utils/speech";
+import { toast } from "react-hot-toast";
 import "../styles/app.css";
 
 const VOCALS = ["A", "E", "I", "O", "U"];
@@ -30,49 +31,53 @@ export default function App() {
   const collectRef = useRef(null);
   const lastPredictTime = useRef(0);
 
-  // Inicializa Mediapipe
+  // Inicializa Mediapipe y la cámara
   useEffect(() => {
-    if (!window.Hands || !window.Camera) {
-      console.warn("MediaPipe Hands or Camera not found. Check CDN script tags.");
-      return;
-    }
+    const initCamera = async () => {
+      try {
+        if (!window.Hands || !window.Camera) {
+          console.warn("MediaPipe Hands or Camera not found. Check CDN script tags.");
+          return;
+        }
 
-    const hands = new window.Hands({
-      locateFile: (file) =>
-        `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
-    });
+        const hands = new window.Hands({
+          locateFile: (file) =>
+            `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+        });
 
-    hands.setOptions({
-      maxNumHands: 1,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.7,
-      minTrackingConfidence: 0.7,
-    });
+        hands.setOptions({
+          maxNumHands: 1,
+          modelComplexity: 1,
+          minDetectionConfidence: 0.7,
+          minTrackingConfidence: 0.7,
+        });
 
-    hands.onResults(onResults);
+        hands.onResults(onResults);
 
-    let camera = null;
-    if (videoRef.current) {
-      camera = new window.Camera(videoRef.current, {
-        onFrame: async () => {
-          if (videoRef.current) {
-            await hands.send({ image: videoRef.current });
-          }
-        },
-        width: 640,
-        height: 480,
-      });
-      camera.start();
-    }
+        const camera = new window.Camera(videoRef.current, {
+          onFrame: async () => {
+            if (videoRef.current) {
+              await hands.send({ image: videoRef.current });
+            }
+          },
+          width: 640,
+          height: 480,
+        });
+        camera.start();
 
-    fetchCounts();
+        fetchCounts();
 
-    return () => {
-      if (camera) {
-        camera.stop();
+        return () => {
+          camera.stop();
+        };
+      } catch (error) {
+        console.error("Error al inicializar la cámara:", error);
+        toast.error("Error al iniciar la cámara. Revisa permisos.");
       }
     };
-  }, []);
+
+    initCamera();
+  }, [fetchCounts]);
 
   // Procesa resultados Mediapipe
   const onResults = (results) => {

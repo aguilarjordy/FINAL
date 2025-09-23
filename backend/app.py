@@ -144,6 +144,14 @@ def predict_landmarks():
 
 
 # ============================================================
+# 📌 NUEVA RUTA PARA OBTENER CONTEOS
+# ============================================================
+@app.route('/counts', methods=['GET'])
+def get_vowel_counts():
+    counts = {label: len(data) for label, data in landmarks_data.items()}
+    return jsonify(counts), 200
+
+# ============================================================
 # 📌 ARITHMETIC OPERATIONS (ahora con landmarks, no imágenes)
 # ============================================================
 
@@ -238,6 +246,13 @@ def calculate_operation():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+# ============================================================
+# 📌 NUEVA RUTA PARA OBTENER CONTEOS DE OPERACIONES
+# ============================================================
+@app.route('/api/operations/counts', methods=['GET'])
+def get_operations_counts():
+    counts = {label: len(data) for label, data in operations_data.items()}
+    return jsonify(counts), 200
 
 # ============================================================
 # 📌 ENDPOINTS DE LOGROS
