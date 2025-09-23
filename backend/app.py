@@ -25,7 +25,8 @@ def add_cors_headers(response):
     allowed_origins = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "https://final-1-h9n9.onrender.com"
+        "https://final-1-h9n9.onrender.com",
+        "https://final-jesus-front.onrender.com"
     ]
     if origin in allowed_origins:
         response.headers["Access-Control-Allow-Origin"] = origin
