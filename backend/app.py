@@ -70,6 +70,10 @@ def count():
     counts = {label: len(samples) for label, samples in landmarks_data.items()}
     return jsonify(counts), 200
 
+@app.route('/samples', methods=['GET'])
+def get_samples():
+    return jsonify({label: [arr.tolist() for arr in samples] for label, samples in landmarks_data.items()})
+
 
 @app.route('/train_landmarks', methods=['POST'])
 def train_landmarks():
