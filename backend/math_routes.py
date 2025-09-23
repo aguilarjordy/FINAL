@@ -80,18 +80,30 @@ def predict_landmarks_math():
     if model_math is None:
         return jsonify({'status': 'not_trained'}), 200
 
-    lm = np.array(data['landmarks'], dtype=np.float32).flatten().reshape(1, -1)
+    lm = np.array(data['landmarks'], dtype=np.float32)
 
-    preds = model_math.predict_on_batch(lm)[0]
-    idx = int(np.argmax(preds))
-    predicted_math = label_map_math.get(idx, str(idx))
-    confidence = float(preds[idx])
+    # Cada mano = 21 puntos * 3 coords = 63 valores
+    hand_size = 63  
+
+    preds_all = []
+    for i in range(0, len(lm), hand_size):
+        hand_lm = lm[i:i+hand_size]
+        if len(hand_lm) < hand_size:  # seguridad
+            continue
+        hand_lm = hand_lm.flatten().reshape(1, -1)
+
+        preds = model_math.predict_on_batch(hand_lm)[0]
+        idx = int(np.argmax(preds))
+        predicted_math = label_map_math.get(idx, str(idx))
+        confidence = float(preds[idx])
+        preds_all.append({"prediction": predicted_math, "confidence": confidence})
 
     return jsonify({
-        'status': 'ok',
-        'prediction': predicted_math,
-        'confidence': confidence
+        "status": "ok",
+        "results": preds_all
     }), 200
+
+
 
 
 @math_bp.route('/reset', methods=['POST'])
