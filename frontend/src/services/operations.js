@@ -1,38 +1,45 @@
-import axios from "axios";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-// ⚠️ IMPORTANTE: cambia esta URL por la de tu backend en Render
-const API_URL = "https://final-dev-back.onrender.com/api/operations";
+// 📌 Subir landmarks
+export async function uploadOperation(label, landmarks) {
+  const res = await fetch(`${API_URL}/api/operations/upload`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ label, landmarks }),
+  });
+  return res.json();
+}
 
-/**
- * 📌 Sube una muestra etiquetada al backend
- * @param {string} label - Etiqueta (ejemplo: "number:5", "operator:+")
- * @param {Array<number>} landmarks - Coordenadas de la mano
- */
-export const uploadOperationSample = async (label, landmarks) => {
-  return axios.post(`${API_URL}/upload`, { label, landmarks });
-};
+// 📌 Entrenar modelo
+export async function trainOperations() {
+  const res = await fetch(`${API_URL}/api/operations/train`, {
+    method: "POST",
+  });
+  return res.json();
+}
 
-/**
- * 📌 Entrena el modelo de operaciones en backend
- */
-export const trainOperationModel = async () => {
-  return axios.post(`${API_URL}/train`);
-};
+// 📌 Predecir operación
+export async function predictOperation(landmarks) {
+  const res = await fetch(`${API_URL}/api/operations/predict`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ landmarks }),
+  });
+  return res.json();
+}
 
-/**
- * 📌 Predice un número u operador a partir de landmarks
- * @param {Array<number>} landmarks - Coordenadas extraídas de la mano
- */
-export const predictOperation = async (landmarks) => {
-  return axios.post(`${API_URL}/predict`, { landmarks });
-};
+// 📌 Calcular directamente
+export async function calculateOperation(first, operator, second) {
+  const res = await fetch(`${API_URL}/api/operations/calculate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ first, operator, second }),
+  });
+  return res.json();
+}
 
-/**
- * 📌 Calcula la operación en el backend
- * @param {number} first - Primer número
- * @param {string} operator - Operador (+, -, *, /)
- * @param {number} second - Segundo número
- */
-export const calculateOperation = async (first, operator, second) => {
-  return axios.post(`${API_URL}/calculate`, { first, operator, second });
-};
+// 📌 Obtener conteos
+export async function getOperationCounts() {
+  const res = await fetch(`${API_URL}/api/operations/counts`);
+  return res.json();
+}
